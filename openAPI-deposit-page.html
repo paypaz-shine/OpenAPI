@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Deposit</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 14px;
+      color: #303133;
+      background: #F5F7FA;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #fff;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #EBEEF5;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .header-row   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .header-title { font-size: 18px; font-weight: 500; color: #303133; }
+    .lang-btn {
+      font-size: 12px; color: #409EFF;
+      background: none; border: 1px solid #C6E2FF;
+      border-radius: 4px; padding: 2px 8px; line-height: 1.5;
+      cursor: pointer; white-space: nowrap;
+      transition: background .2s, border-color .2s;
+    }
+    .lang-btn:hover { background: #ecf5ff; border-color: #409EFF; }
+    .header-info  { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+    .info-row     { display: flex; justify-content: space-between; align-items: center; }
+    .info-label   { font-size: 12px; color: #909399; }
+    .info-val     { font-size: 13px; color: #606266; }
+    .info-amount  { color: #303133; font-weight: 500; }
+
+    /* ── Content ── */
+    .content { padding: 12px 12px 28px; flex: 1; }
+
+    /* ── Step Card ── */
+    .step-card {
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
+    }
+    .step-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px 0;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #E03A3A; color: #fff;
+      font-size: 12px; font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 15px; font-weight: 500; color: #303133; }
+    .step-body  { padding: 0 16px 16px; }
+
+    /* ── Select Wrapper & Box ── */
+    .sel-wrap { position: relative; }
+
+    .sel-box {
+      border: 1px solid #DCDFE6;
+      border-radius: 4px;
+      height: 40px;
+      padding: 0 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      background: #fff;
+      user-select: none;
+      transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+    }
+    .sel-box:hover  { border-color: #C0C4CC; }
+    .sel-box.open   { border-color: #409EFF; }
+
+    .sel-left  { display: flex; align-items: center; gap: 8px; }
+    .sel-label { font-size: 14px; color: #303133; }
+
+    .tok-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .tok-icon svg { width: 24px; height: 24px; display: block; }
+
+    .sel-caret {
+      color: #C0C4CC;
+      display: flex; align-items: center;
+      transition: transform .3s cubic-bezier(.645,.045,.355,1);
+      flex-shrink: 0;
+    }
+    .sel-box.open .sel-caret { transform: rotate(180deg); color: #409EFF; }
+    .sel-caret svg { width: 14px; height: 14px; }
+
+    /* ── Dropdown Panel ── */
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #E4E7ED;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height .25s cubic-bezier(.645,.045,.355,1), opacity .2s ease;
+      z-index: 100;
+    }
+    .dropdown.open {
+      max-height: 220px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .dd-inner { padding: 6px 0; }
+
+    .opt {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 16px;
+      height: 40px;
+      cursor: pointer;
+      transition: background .15s;
+      position: relative;
+    }
+    .opt:hover { background: #F5F7FA; }
+    .opt.selected { color: #409EFF; }
+    .opt-label { font-size: 14px; flex: 1; }
+    .opt-check {
+      color: #409EFF;
+      opacity: 0;
+      display: flex;
+      transition: opacity .15s;
+    }
+    .opt.selected .opt-check { opacity: 1; }
+    .opt-check svg { width: 14px; height: 14px; }
+
+    /* ── Detail Block ── */
+    .detail-wrap {
+      background: #F5F7FA;
+      border-radius: 6px;
+      padding: 14px 12px 0;
+    }
+    .detail-inner {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      padding-bottom: 14px;
+    }
+    .qr-wrap {
+      background: #fff;
+      border: 1px solid #EBEEF5;
+      border-radius: 6px;
+      width: 120px; height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 4px;
+    }
+    canvas#qr { display: block; }
+
+    .addr-block { width: 100%; min-width: 0; }
+    .addr-label { font-size: 12px; color: #909399; margin-bottom: 6px; }
+    .addr-row   { display: flex; align-items: flex-start; gap: 8px; }
+    .addr-text  {
+      font-size: 13px; color: #303133;
+      word-break: break-all; line-height: 1.6; flex: 1;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border: 1px solid #DCDFE6; border-radius: 4px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #909399; margin-top: 1px;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .copy-btn:hover  { border-color: #409EFF; color: #409EFF; }
+    .copy-btn:active { background: #ecf5ff; }
+    .copy-btn svg { width: 15px; height: 15px; }
+
+    .min-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0 12px;
+      font-size: 12px; color: #909399;
+      border-top: 1px solid #EBEEF5; margin-top: 2px;
+    }
+    .min-val { color: #E03A3A; font-weight: 500; }
+
+    /* ── Network Tag ── */
+    .net-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: 30px;
+      font-size: 11px; font-weight: 500;
+      margin-top: 6px;
+    }
+    .net-tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── Warning ── */
+    .warning {
+      display: flex; gap: 8px;
+      background: #fdf6ec; border-radius: 6px;
+      padding: 10px 12px; margin-top: 4px;
+      border-left: 3px solid #E6A23C;
+    }
+    .warning-icon { flex-shrink: 0; color: #E6A23C; margin-top: 1px; }
+    .warning-icon svg { width: 15px; height: 15px; }
+    .warning-text { font-size: 12px; color: #909399; line-height: 1.7; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; left: 50%; bottom: 80px;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(0,0,0,.72); color: #fff;
+      font-size: 13px; padding: 8px 18px;
+      border-radius: 20px; white-space: nowrap;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Divider ── */
+    .dd-divider { height: 1px; background: #EBEEF5; margin: 4px 0; }
+
+    @media (min-width: 520px) {
+      .page { border-left: 1px solid #EBEEF5; border-right: 1px solid #EBEEF5; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row">
+      <div class="header-title" id="t-title">Deposit</div>
+      <button class="lang-btn" id="t-langBtn" onclick="toggleLang()">中文</button>
+    </div>
+    <div class="header-info">
+      <div class="info-row">
+        <span class="info-label" id="t-amountLabel">Amount</span>
+        <span class="info-val info-amount" id="amountDisplay">100 USDT</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label" id="t-orderLabel">Order No.</span>
+        <span class="info-val" id="orderNo">1222395309</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Step 1: Token -->
+    <div class="step-card">
+      <div class="step-head">
+        <div class="step-title" id="t-tokenStep">Token</div>
+      </div>
+      <div class="step-body">
+        <div class="sel-wrap">
+          <div class="sel-box" id="tokenBox" onclick="toggleDropdown('token')">
+            <div class="sel-left">
+              <div class="tok-icon" id="tokenIcon"></div>
+              <span class="sel-label" id="tokenLabel"></span>
+            </div>
+            <span class="sel-caret">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+          </div>
+          <div class="dropdown" id="tokenDropdown">
+            <div class="dd-inner" id="tokenOptions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Network -->
+    <div class="step-card">
+      <div class="step-head">
+        <div class="step-title" id="t-networkStep">Network</div>
+      </div>
+      <div class="step-body">
+        <div class="sel-wrap">
+          <div class="sel-box" id="networkBox" onclick="toggleDropdown('network')">
+            <div class="sel-left">
+              <div class="tok-icon" id="networkIcon"></div>
+              <span class="sel-label" id="networkLabel"></span>
+            </div>
+            <span class="sel-caret">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+          </div>
+          <div class="dropdown" id="networkDropdown">
+            <div class="dd-inner" id="networkOptions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Detail -->
+    <div class="step-card">
+      <div class="step-head">
+        <div class="step-title" id="t-addrStep">Deposit Address</div>
+      </div>
+      <div class="step-body">
+        <div class="detail-wrap">
+          <div class="detail-inner">
+            <div class="qr-wrap">
+              <canvas id="qr" width="112" height="112"></canvas>
+            </div>
+            <div class="addr-block">
+              <div class="addr-row">
+                <div class="addr-text" id="addrText"></div>
+                <button class="copy-btn" onclick="copyAddr()" aria-label="Copy address">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </button>
+              </div>
+              <div id="netTag"></div>
+            </div>
+          </div>
+          <div class="min-row">
+            <span id="t-minLabel">Minimum Deposit:</span>
+            <span class="min-val" id="minAmount"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="warning">
+      <span class="warning-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#E6A23C" stroke-width="2" stroke-linecap="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </span>
+      <p class="warning-text" id="t-warning">Please ensure you select the correct network and token. Sending the wrong token or using the wrong network may result in permanent loss of assets. PayPaz assumes no liability.</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Address copied</div>
+
+<script>
+// ── i18n ─────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    title:       'Deposit',
+    amountLabel: 'Amount',
+    orderLabel:  'Order No.',
+    tokenStep:   'Token',
+    networkStep: 'Network',
+    addrStep:    'Deposit Address',
+    minLabel:    'Minimum Deposit:',
+    warning:     'Please ensure you select the correct network and token. Sending the wrong token or using the wrong network may result in permanent loss of assets. Platform assumes no liability.',
+    copied:      'Address copied',
+    langBtn:     '中文',
+  },
+  zh: {
+    title:       '充币',
+    amountLabel: '金额',
+    orderLabel:  '订单号',
+    tokenStep:   '币种',
+    networkStep: '网络',
+    addrStep:    '充值地址',
+    minLabel:    '最少充币数量：',
+    warning:     '请确保选择正确的网络和币种进行充值。发送错误的币种或使用错误的网络，可能导致资产永久丢失，平台不承担相关责任。',
+    copied:      '地址已复制',
+    langBtn:     'EN',
+  },
+};
+
+let lang = 'en';
+
+function applyLang() {
+  const t = I18N[lang];
+  document.title                                         = t.title;
+  document.getElementById('t-title').textContent         = t.title;
+  document.getElementById('t-amountLabel').textContent   = t.amountLabel;
+  document.getElementById('t-orderLabel').textContent    = t.orderLabel;
+  document.getElementById('t-tokenStep').textContent     = t.tokenStep;
+  document.getElementById('t-networkStep').textContent   = t.networkStep;
+  document.getElementById('t-addrStep').textContent      = t.addrStep;
+  document.getElementById('t-minLabel').textContent      = t.minLabel;
+  document.getElementById('t-warning').textContent       = t.warning;
+  document.getElementById('toast').textContent           = t.copied;
+  document.getElementById('t-langBtn').textContent       = t.langBtn;
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'zh' : 'en';
+  applyLang();
+}
+
+// ── Data ─────────────────────────────────────────────────────────────
+const TOKENS = [
+  {
+    id: 'USDT', label: 'USDT',
+    svg: `<svg width="24" height="24" viewBox="0 0 339.43 295.27" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#50AF95" fill-rule="evenodd" d="M62.15,1.45l-61.89,130a2.52,2.52,0,0,0,.54,2.94L167.95,294.56a2.55,2.55,0,0,0,3.53,0L338.63,134.4a2.52,2.52,0,0,0,.54-2.94l-61.89-130A2.5,2.5,0,0,0,275,0H64.45a2.5,2.5,0,0,0-2.3,1.45h0Z"/>
+      <path fill="#fff" fill-rule="evenodd" d="M191.19,144.8v0c-1.2.09-7.4,0.46-21.23,0.46-11,0-18.81-.33-21.55-0.46v0c-42.51-1.87-74.24-9.27-74.24-18.13s31.73-16.25,74.24-18.15v28.91c2.78,0.2,10.74.67,21.74,0.67,13.2,0,19.81-.55,21-0.66v-28.9c42.42,1.89,74.08,9.29,74.08,18.13s-31.65,16.24-74.08,18.12h0Zm0-39.25V79.68h59.2V40.23H89.21V79.68H148.4v25.86c-48.11,2.21-84.29,11.74-84.29,23.16s36.18,20.94,84.29,23.16v82.9h42.78V151.83c48-2.21,84.12-11.73,84.12-23.14s-36.09-20.93-84.12-23.15h0Zm0,0h0Z"/>
+    </svg>`,
+  },
+  {
+    id: 'USDC', label: 'USDC',
+    svg: `<svg width="24" height="24" viewBox="0 0 2000 2000" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1000 2000c554.17 0 1000-445.83 1000-1000S1554.17 0 1000 0 0 445.83 0 1000s445.83 1000 1000 1000z" fill="#2775ca"/>
+      <path d="M1275 1158.33c0-145.83-87.5-195.83-262.5-216.66-125-16.67-150-50-150-108.34s41.67-95.83 125-95.83c75 0 116.67 25 137.5 87.5 4.17 12.5 16.67 20.83 29.17 20.83h66.66c16.67 0 29.17-12.5 29.17-29.16v-4.17c-16.67-91.67-91.67-162.5-187.5-170.83v-100c0-16.67-12.5-29.17-33.33-33.34h-62.5c-16.67 0-29.17 12.5-33.34 33.34v95.83c-125 16.67-204.16 100-204.16 204.17 0 137.5 83.33 191.66 258.33 212.5 116.67 20.83 154.17 45.83 154.17 112.5s-58.34 112.5-137.5 112.5c-108.34 0-145.84-45.84-158.34-108.34-4.16-16.66-16.66-25-29.16-25h-70.84c-16.66 0-29.16 12.5-29.16 29.17v4.17c16.66 104.16 83.33 179.16 220.83 200v100c0 16.66 12.5 29.16 33.33 33.33h62.5c16.67 0 29.17-12.5 33.34-33.33v-100c125-20.84 208.33-108.34 208.33-220.84z" fill="#fff"/>
+      <path d="M787.5 1595.83c-325-116.66-491.67-479.16-370.83-800 62.5-175 200-308.33 370.83-370.83 16.67-8.33 25-20.83 25-41.67V325c0-16.67-8.33-29.17-25-33.33-4.17 0-12.5 0-16.67 4.16-395.83 125-612.5 545.84-487.5 941.67 75 233.33 254.17 412.5 487.5 487.5 16.67 8.33 33.34 0 37.5-16.67 4.17-4.16 4.17-8.33 4.17-16.66v-58.34c0-12.5-12.5-29.16-25-37.5z" fill="#fff"/>
+      <path d="M1229.17 295.83c-16.67-8.33-33.34 0-37.5 16.67-4.17 4.17-4.17 8.33-4.17 16.67v58.33c0 16.67 12.5 33.33 25 41.67 325 116.66 491.67 479.16 370.83 800-62.5 175-200 308.33-370.83 370.83-16.67 8.33-25 20.83-25 41.67V1700c0 16.67 8.33 29.17 25 33.33 4.17 0 12.5 0 16.67-4.16 395.83-125 612.5-545.84 487.5-941.67-75-237.5-258.34-416.67-487.5-491.67z" fill="#fff"/>
+    </svg>`,
+  },
+];
+
+const NETWORKS = [
+  {
+    id: 'TRON', label: 'TRON（TRC20）', color: '#E03A3A', abbr: 'TRX', tag: 'TRC20', tagBg: '#fde2e2', tagColor: '#E03A3A',
+    svg: `<svg width="24" height="24" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#FF060A" d="M61.55,19.28c-3-2.77-7.15-7-10.53-10l-.2-.14a3.82,3.82,0,0,0-1.11-.62l0,0C41.56,7,3.63-.09,2.89,0a1.4,1.4,0,0,0-.58.22L2.12.37a2.23,2.23,0,0,0-.52.84l-.05.13v.71l0,.11C5.82,14.05,22.68,53,26,62.14c.2.62.58,1.8,1.29,1.86h.16c.38,0,2-2.14,2-2.14S58.41,26.74,61.34,23a9.46,9.46,0,0,0,1-1.48A2.41,2.41,0,0,0,61.55,19.28ZM36.88,23.37,49.24,13.12l7.25,6.68Zm-4.8-.67L10.8,5.26l34.43,6.35ZM34,27.27l21.78-3.51-24.9,30ZM7.91,7,30.3,26,27.06,53.78Z"/>
+    </svg>`,
+  },
+  {
+    id: 'ETH',  label: 'Ethereum（ERC20）', color: '#627EEA', abbr: 'ETH', tag: 'ERC20', tagBg: '#e8ebfd', tagColor: '#627EEA',
+    svg: `<svg width="24" height="24" viewBox="0 0 784.37 1277.39" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <polygon fill="#343434" fill-rule="nonzero" points="392.07,0 383.5,29.11 383.5,873.74 392.07,882.29 784.13,650.54"/>
+      <polygon fill="#8C8C8C" fill-rule="nonzero" points="392.07,0 0,650.54 392.07,882.29 392.07,472.33"/>
+      <polygon fill="#3C3C3B" fill-rule="nonzero" points="392.07,956.52 387.24,962.41 387.24,1263.28 392.07,1277.38 784.37,724.89"/>
+      <polygon fill="#8C8C8C" fill-rule="nonzero" points="392.07,1277.38 392.07,956.52 0,724.89"/>
+      <polygon fill="#141414" fill-rule="nonzero" points="392.07,882.29 784.13,650.54 392.07,472.33"/>
+      <polygon fill="#393939" fill-rule="nonzero" points="0,650.54 392.07,882.29 392.07,472.33"/>
+    </svg>`,
+  },
+];
+
+const ADDRESSES = {
+  'USDT-TRON': 'TX3ogswuX8pXS1Ey2mj3ETdFbNRmJwVAmk',
+  'USDT-ETH':  '0x4A3b8C2D1e5F6a7B8c9D0E1f2A3b4C5d6E7F8A9B',
+  'USDC-TRON': 'TY4ogpwuZ9qYT2Fz3kn4GUeGcSNQmLxVBnk',
+  'USDC-ETH':  '0x7F8E9D0C1B2A3f4E5D6c7B8A9f0E1D2c3B4A5f6E',
+};
+
+const MIN_AMOUNTS = {
+  'USDT-TRON': '0.10 USDT',
+  'USDT-ETH':  '5.00 USDT',
+  'USDC-TRON': '0.10 USDC',
+  'USDC-ETH':  '5.00 USDC',
+};
+
+// ── State ─────────────────────────────────────────────────────────────
+let currentToken   = 'USDT';
+let currentNetwork = 'TRON';
+let openDropdown   = null;   // 'token' | 'network' | null
+
+// ── Render ────────────────────────────────────────────────────────────
+function renderTokenSelector() {
+  const t = TOKENS.find(x => x.id === currentToken);
+  const iconEl = document.getElementById('tokenIcon');
+  iconEl.style.background = '';
+  iconEl.innerHTML = t.svg;
+  document.getElementById('tokenLabel').textContent = t.label;
+
+  const container = document.getElementById('tokenOptions');
+  container.innerHTML = TOKENS.map(tok => `
+    <div class="opt ${tok.id === currentToken ? 'selected' : ''}"
+         onclick="selectToken('${tok.id}')">
+      <div class="tok-icon">${tok.svg}</div>
+      <span class="opt-label">${tok.label}</span>
+      <span class="opt-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderNetworkSelector() {
+  const n = NETWORKS.find(x => x.id === currentNetwork);
+  const netIconEl = document.getElementById('networkIcon');
+  netIconEl.style.cssText = '';
+  netIconEl.innerHTML = n.svg;
+  document.getElementById('networkLabel').textContent = n.label;
+
+  const container = document.getElementById('networkOptions');
+  container.innerHTML = NETWORKS.map(net => `
+    <div class="opt ${net.id === currentNetwork ? 'selected' : ''}"
+         onclick="selectNetwork('${net.id}')">
+      <div class="tok-icon">${net.svg}</div>
+      <span class="opt-label">${net.label}</span>
+      <span class="opt-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderDetail() {
+  const key  = `${currentToken}-${currentNetwork}`;
+  const addr = ADDRESSES[key] || '';
+  const net  = NETWORKS.find(x => x.id === currentNetwork);
+
+  document.getElementById('addrText').textContent = addr;
+  document.getElementById('minAmount').textContent = MIN_AMOUNTS[key] || '';
+  document.getElementById('amountDisplay').textContent = `100 ${currentToken}`;
+
+  document.getElementById('netTag').innerHTML = `
+    <div class="net-tag" style="background:${net.tagBg};color:${net.tagColor}">
+      <div class="net-tag-dot" style="background:${net.tagColor}"></div>
+      ${net.tag}
+    </div>
+  `;
+
+  drawQR(addr);
+}
+
+function renderAll() {
+  renderTokenSelector();
+  renderNetworkSelector();
+  renderDetail();
+}
+
+// ── Dropdown ──────────────────────────────────────────────────────────
+function toggleDropdown(which) {
+  if (openDropdown === which) {
+    closeAll();
+    return;
+  }
+  closeAll();
+  openDropdown = which;
+  document.getElementById(which + 'Box').classList.add('open');
+  document.getElementById(which + 'Dropdown').classList.add('open');
+}
+
+function closeAll() {
+  ['token', 'network'].forEach(w => {
+    document.getElementById(w + 'Box').classList.remove('open');
+    document.getElementById(w + 'Dropdown').classList.remove('open');
+  });
+  openDropdown = null;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sel-wrap')) closeAll();
+});
+
+// ── Select actions ────────────────────────────────────────────────────
+function selectToken(id) {
+  currentToken = id;
+  closeAll();
+  renderAll();
+}
+
+function selectNetwork(id) {
+  currentNetwork = id;
+  closeAll();
+  renderAll();
+}
+
+// ── QR Code ───────────────────────────────────────────────────────────
+function drawQR(address) {
+  const canvas = document.getElementById('qr');
+  const ctx    = canvas.getContext('2d');
+  const S = 112, M = 25, C = S / M;
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, S, S);
+
+  let h = 5381;
+  for (let i = 0; i < address.length; i++) h = ((h << 5) + h + address.charCodeAt(i)) >>> 0;
+
+  function rand(r, c) {
+    let v = (h ^ (r * 374761393 + c * 668265263)) >>> 0;
+    v = ((v >> 13) ^ v) >>> 0;
+    v = (v * 1274126177) >>> 0;
+    return (v >>> 16) & 1;
+  }
+  function isTiming(r, c) {
+    return (r === 6 && c >= 8 && c <= M - 9) || (c === 6 && r >= 8 && r <= M - 9);
+  }
+  function isFinderZone(r, c) {
+    return (r < 9 && c < 9) || (r < 9 && c > M - 9) || (r > M - 9 && c < 9);
+  }
+  function finder(ox, oy) {
+    ctx.fillStyle = '#111';
+    ctx.fillRect(ox * C, oy * C, 7 * C, 7 * C);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect((ox + 1) * C, (oy + 1) * C, 5 * C, 5 * C);
+    ctx.fillStyle = '#111';
+    ctx.fillRect((ox + 2) * C, (oy + 2) * C, 3 * C, 3 * C);
+  }
+
+  ctx.fillStyle = '#111';
+  for (let r = 0; r < M; r++) {
+    for (let c = 0; c < M; c++) {
+      if (isFinderZone(r, c)) continue;
+      if (isTiming(r, c)) {
+        if ((r === 6 ? c : r) % 2 === 0) ctx.fillRect(c * C, r * C, C, C);
+        continue;
+      }
+      if (rand(r, c)) ctx.fillRect(c * C, r * C, C, C);
+    }
+  }
+  finder(0, 0); finder(M - 7, 0); finder(0, M - 7);
+
+  const ap = M - 9;
+  ctx.fillStyle = '#111'; ctx.fillRect(ap * C, ap * C, 5 * C, 5 * C);
+  ctx.fillStyle = '#fff'; ctx.fillRect((ap+1)*C,(ap+1)*C,3*C,3*C);
+  ctx.fillStyle = '#111'; ctx.fillRect((ap+2)*C,(ap+2)*C,C,C);
+}
+
+// ── Copy ──────────────────────────────────────────────────────────────
+function copyAddr() {
+  const txt = document.getElementById('addrText').textContent.trim();
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(showToast);
+  } else {
+    const el = document.createElement('textarea');
+    el.value = txt;
+    el.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast();
+  }
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+renderAll();
+applyLang();
+</script>
+</body>
+</html>
