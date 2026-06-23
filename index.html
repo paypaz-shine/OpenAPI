@@ -74,26 +74,7 @@
     .step-title { font-size: 15px; font-weight: 500; color: #303133; }
     .step-body  { padding: 0 16px 16px; }
 
-    /* ── Select Wrapper & Box ── */
-    .sel-wrap { position: relative; }
-
-    .sel-box {
-      border: 1px solid #DCDFE6;
-      border-radius: 4px;
-      height: 40px;
-      padding: 0 12px;
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer;
-      background: #fff;
-      user-select: none;
-      transition: border-color .2s cubic-bezier(.645,.045,.355,1);
-    }
-    .sel-box:hover  { border-color: #C0C4CC; }
-    .sel-box.open   { border-color: #409EFF; }
-
-    .sel-left  { display: flex; align-items: center; gap: 8px; }
-    .sel-label { font-size: 14px; color: #303133; }
-
+    /* ── Token / Network Static Display ── */
     .tok-icon {
       width: 24px; height: 24px;
       display: flex; align-items: center; justify-content: center;
@@ -101,57 +82,15 @@
     }
     .tok-icon svg { width: 24px; height: 24px; display: block; }
 
-    .sel-caret {
-      color: #C0C4CC;
-      display: flex; align-items: center;
-      transition: transform .3s cubic-bezier(.645,.045,.355,1);
-      flex-shrink: 0;
-    }
-    .sel-box.open .sel-caret { transform: rotate(180deg); color: #409EFF; }
-    .sel-caret svg { width: 14px; height: 14px; }
-
-    /* ── Dropdown Panel ── */
-    .dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0; right: 0;
-      background: #fff;
-      border: 1px solid #E4E7ED;
+    .static-display {
+      border: 1px solid #EBEEF5;
       border-radius: 4px;
-      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: max-height .25s cubic-bezier(.645,.045,.355,1), opacity .2s ease;
-      z-index: 100;
-    }
-    .dropdown.open {
-      max-height: 220px;
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .dd-inner { padding: 6px 0; }
-
-    .opt {
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 16px;
       height: 40px;
-      cursor: pointer;
-      transition: background .15s;
-      position: relative;
+      padding: 0 12px;
+      display: flex; align-items: center; gap: 8px;
+      background: #F5F7FA;
     }
-    .opt:hover { background: #F5F7FA; }
-    .opt.selected { color: #409EFF; }
-    .opt-label { font-size: 14px; flex: 1; }
-    .opt-check {
-      color: #409EFF;
-      opacity: 0;
-      display: flex;
-      transition: opacity .15s;
-    }
-    .opt.selected .opt-check { opacity: 1; }
-    .opt-check svg { width: 14px; height: 14px; }
+    .display-label { font-size: 14px; color: #303133; font-weight: 500; }
 
     /* ── Detail Block ── */
     .detail-wrap {
@@ -235,9 +174,6 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Divider ── */
-    .dd-divider { height: 1px; background: #EBEEF5; margin: 4px 0; }
-
     @media (min-width: 520px) {
       .page { border-left: 1px solid #EBEEF5; border-right: 1px solid #EBEEF5; }
     }
@@ -272,21 +208,9 @@
         <div class="step-title" id="t-tokenStep">Token</div>
       </div>
       <div class="step-body">
-        <div class="sel-wrap">
-          <div class="sel-box" id="tokenBox" onclick="toggleDropdown('token')">
-            <div class="sel-left">
-              <div class="tok-icon" id="tokenIcon"></div>
-              <span class="sel-label" id="tokenLabel"></span>
-            </div>
-            <span class="sel-caret">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </span>
-          </div>
-          <div class="dropdown" id="tokenDropdown">
-            <div class="dd-inner" id="tokenOptions"></div>
-          </div>
+        <div class="static-display">
+          <div class="tok-icon" id="tokenIcon"></div>
+          <span class="display-label" id="tokenLabel"></span>
         </div>
       </div>
     </div>
@@ -297,21 +221,9 @@
         <div class="step-title" id="t-networkStep">Network</div>
       </div>
       <div class="step-body">
-        <div class="sel-wrap">
-          <div class="sel-box" id="networkBox" onclick="toggleDropdown('network')">
-            <div class="sel-left">
-              <div class="tok-icon" id="networkIcon"></div>
-              <span class="sel-label" id="networkLabel"></span>
-            </div>
-            <span class="sel-caret">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </span>
-          </div>
-          <div class="dropdown" id="networkDropdown">
-            <div class="dd-inner" id="networkOptions"></div>
-          </div>
+        <div class="static-display">
+          <div class="tok-icon" id="networkIcon"></div>
+          <span class="display-label" id="networkLabel"></span>
         </div>
       </div>
     </div>
@@ -472,53 +384,20 @@ const MIN_AMOUNTS = {
 };
 
 // ── State ─────────────────────────────────────────────────────────────
-let currentToken   = 'USDT';
-let currentNetwork = 'TRON';
-let openDropdown   = null;   // 'token' | 'network' | null
+const currentToken   = TOKENS[Math.floor(Math.random() * TOKENS.length)].id;
+const currentNetwork = NETWORKS[Math.floor(Math.random() * NETWORKS.length)].id;
 
 // ── Render ────────────────────────────────────────────────────────────
 function renderTokenSelector() {
   const t = TOKENS.find(x => x.id === currentToken);
-  const iconEl = document.getElementById('tokenIcon');
-  iconEl.style.background = '';
-  iconEl.innerHTML = t.svg;
+  document.getElementById('tokenIcon').innerHTML = t.svg;
   document.getElementById('tokenLabel').textContent = t.label;
-
-  const container = document.getElementById('tokenOptions');
-  container.innerHTML = TOKENS.map(tok => `
-    <div class="opt ${tok.id === currentToken ? 'selected' : ''}"
-         onclick="selectToken('${tok.id}')">
-      <div class="tok-icon">${tok.svg}</div>
-      <span class="opt-label">${tok.label}</span>
-      <span class="opt-check">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </span>
-    </div>
-  `).join('');
 }
 
 function renderNetworkSelector() {
   const n = NETWORKS.find(x => x.id === currentNetwork);
-  const netIconEl = document.getElementById('networkIcon');
-  netIconEl.style.cssText = '';
-  netIconEl.innerHTML = n.svg;
+  document.getElementById('networkIcon').innerHTML = n.svg;
   document.getElementById('networkLabel').textContent = n.label;
-
-  const container = document.getElementById('networkOptions');
-  container.innerHTML = NETWORKS.map(net => `
-    <div class="opt ${net.id === currentNetwork ? 'selected' : ''}"
-         onclick="selectNetwork('${net.id}')">
-      <div class="tok-icon">${net.svg}</div>
-      <span class="opt-label">${net.label}</span>
-      <span class="opt-check">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </span>
-    </div>
-  `).join('');
 }
 
 function renderDetail() {
@@ -544,43 +423,6 @@ function renderAll() {
   renderTokenSelector();
   renderNetworkSelector();
   renderDetail();
-}
-
-// ── Dropdown ──────────────────────────────────────────────────────────
-function toggleDropdown(which) {
-  if (openDropdown === which) {
-    closeAll();
-    return;
-  }
-  closeAll();
-  openDropdown = which;
-  document.getElementById(which + 'Box').classList.add('open');
-  document.getElementById(which + 'Dropdown').classList.add('open');
-}
-
-function closeAll() {
-  ['token', 'network'].forEach(w => {
-    document.getElementById(w + 'Box').classList.remove('open');
-    document.getElementById(w + 'Dropdown').classList.remove('open');
-  });
-  openDropdown = null;
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.sel-wrap')) closeAll();
-});
-
-// ── Select actions ────────────────────────────────────────────────────
-function selectToken(id) {
-  currentToken = id;
-  closeAll();
-  renderAll();
-}
-
-function selectNetwork(id) {
-  currentNetwork = id;
-  closeAll();
-  renderAll();
 }
 
 // ── QR Code ───────────────────────────────────────────────────────────
