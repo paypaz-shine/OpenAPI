@@ -45,9 +45,28 @@
     .lang-btn:hover { background: #ecf5ff; border-color: #409EFF; }
     .header-info  { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
     .info-row     { display: flex; justify-content: space-between; align-items: center; }
-    .info-label   { font-size: 12px; color: #909399; }
-    .info-val     { font-size: 13px; color: #606266; }
-    .info-amount  { color: #303133; font-weight: 500; }
+    .info-label        { font-size: 12px; color: #909399; }
+    .info-val          { font-size: 13px; color: #606266; }
+    .info-amount       { color: #303133; font-weight: 500; }
+    .info-label-danger { font-size: 12px; color: #E03A3A; }
+    .info-val-danger   { font-size: 13px; color: #E03A3A; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+    .info-val-warning  { font-size: 13px; color: #E6A23C; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+    /* ── State Screens ── */
+    .state-screen {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 64px 24px 48px; text-align: center;
+    }
+    .state-icon {
+      width: 84px; height: 84px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; flex-shrink: 0;
+    }
+    .state-icon svg     { width: 42px; height: 42px; }
+    .state-icon-expired { background: #fef0f0; }
+    .state-icon-invalid { background: #f4f4f5; }
+    .state-title { font-size: 17px; font-weight: 600; color: #303133; margin-bottom: 10px; }
+    .state-desc  { font-size: 13px; color: #909399; line-height: 1.8; max-width: 260px; }
 
     /* ── Content ── */
     .content { padding: 20px 12px 28px; flex: 1; }
@@ -189,18 +208,23 @@
       <button class="lang-btn" id="t-langBtn" onclick="toggleLang()">中文</button>
     </div>
     <div class="header-info">
-      <div class="info-row">
+      <div class="info-row" id="row-amount">
         <span class="info-label" id="t-amountLabel">Amount</span>
         <span class="info-val info-amount" id="amountDisplay">100 USDT</span>
       </div>
-      <div class="info-row">
+      <div class="info-row" id="row-order">
         <span class="info-label" id="t-orderLabel">Order No.</span>
         <span class="info-val" id="orderNo">1222395309</span>
+      </div>
+      <div class="info-row" id="row-expiry">
+        <span class="info-label" id="t-expiryLabel">Remaining</span>
+        <span class="info-val-warning" id="countdown">24:00:00</span>
       </div>
     </div>
   </div>
 
   <div class="content">
+  <div id="normal-content">
 
     <!-- Step 1: Token -->
     <div class="step-card">
@@ -272,9 +296,37 @@
       </span>
       <p class="warning-text" id="t-warning">Please ensure you select the correct network and token. Sending the wrong token or using the wrong network may result in permanent loss of assets. PayPaz assumes no liability.</p>
     </div>
+  </div><!-- /#normal-content -->
 
+  <!-- Expired State -->
+  <div id="expired-content" style="display:none">
+    <div class="state-screen">
+      <div class="state-icon state-icon-expired">
+        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#F56C6C" d="M512 146c-201.8 0-366 164.2-366 366s164.2 366 366 366 366-164.2 366-366-164.2-366-366-366z m308.8 366c0 170.3-138.5 308.8-308.8 308.8S203.2 682.3 203.2 512 341.7 203.2 512 203.2 820.8 341.7 820.8 512z"/>
+          <path fill="#F56C6C" d="M673.3 575.6H511.7c-17.4 0-31.6-14.1-31.6-31.6V348c0-17.4 14.2-31.6 31.6-31.6 17.4 0 31.5 14.2 31.5 31.6v164.4h130.1c17.5 0 31.5 14.1 31.5 31.6 0 17.4-14.1 31.6-31.5 31.6z"/>
+        </svg>
+      </div>
+      <div class="state-title" id="t-expiredTitle">Order Expired</div>
+      <div class="state-desc"  id="t-expiredDesc">Order expired. Please create a new order.</div>
+    </div>
   </div>
-</div>
+
+  <!-- Invalid State -->
+  <div id="invalid-content" style="display:none">
+    <div class="state-screen">
+      <div class="state-icon state-icon-invalid">
+        <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#909399" d="M786.32 1024c-131.04 0-237.68-106.64-237.68-237.68s106.64-237.68 237.68-237.68S1024 655.28 1024 786.32 917.36 1024 786.32 1024z m12.52-380.12c-19.64 0-39.36 4.52-57 13.08l-10.48 5.08 181.08 181.24 5.08-10.52c19.8-41.04 17.16-88.6-7.04-127.2-24.24-38.6-65.88-61.64-111.4-61.64h-0.24zM100.48 1024C46.92 1024 2.84 982.12 0.12 928.64L0 923.36V100.48C0 46.92 41.88 2.88 95.36 0.12L100.64 0h630.84c53.56 0 97.64 41.88 100.36 95.36l0.12 5.24v301.64c0 4.88-1.88 9.44-5.32 12.88-3.4 3.44-8.04 5.36-12.88 5.36h-54.88c-4.84 0-9.44-1.92-12.88-5.32a17.896 17.896 0 0 1-5.32-12.88V91.28H91.28v841.44h311c4.88 0 9.44 1.92 12.88 5.32 3.4 3.4 5.32 8.08 5.32 12.88v54.88c0 4.8-1.96 9.48-5.32 12.84-3.4 3.44-8.04 5.36-12.88 5.36H100.48z m137.2-438.92c-4.88 0-9.44-1.88-12.88-5.32a18.224 18.224 0 0 1-5.32-12.88V512c0-4.8 1.96-9.48 5.32-12.88 3.44-3.44 8-5.32 12.88-5.32h164.6c10.04 0 18.2 8.16 18.2 18.2v54.88c0 4.84-1.92 9.44-5.32 12.88-3.4 3.44-8.04 5.36-12.88 5.32H237.68z m0-219.48c-4.88 0-9.44-1.92-12.88-5.32a18.056 18.056 0 0 1-5.32-12.88V292.56c0-4.88 1.88-9.44 5.32-12.88 3.4-3.4 8.04-5.32 12.88-5.32h356.64c4.8 0 9.48 1.96 12.88 5.32 3.44 3.44 5.32 8 5.32 12.88v54.88c0 4.84-1.92 9.4-5.32 12.88-3.44 3.4-8.04 5.32-12.88 5.32H237.68z m543.88 562.36c19.64 0 39.36-4.52 57-13.08l10.48-5.08-181.08-181.24-5.08 10.52c-19.8 41.04-17.16 88.6 7.04 127.2 24.2 38.6 65.84 61.64 111.4 61.64h0.24z m0 0"/>
+        </svg>
+      </div>
+      <div class="state-title" id="t-invalidTitle">Invalid Order</div>
+      <div class="state-desc"  id="t-invalidDesc">The order does not exist. Please verify and try again.</div>
+    </div>
+  </div>
+
+  </div><!-- /.content -->
+</div><!-- /.page -->
 
 <div class="toast" id="toast">Address copied</div>
 
@@ -285,25 +337,35 @@ const I18N = {
     title:       'Deposit',
     amountLabel: 'Amount',
     orderLabel:  'Order No.',
+    expiryLabel: 'Remaining',
     tokenStep:   'Token',
     networkStep: 'Network',
     addrStep:    'Deposit Address',
     minLabel:    'Minimum Deposit:',
-    warning:     'Please ensure you select the correct network and token. Sending the wrong token or using the wrong network may result in permanent loss of assets. Platform assumes no liability.',
-    copied:      'Address copied',
-    langBtn:     '中文',
+    warning:      'Please ensure you select the correct network and token. Sending the wrong token or using the wrong network may result in permanent loss of assets. Platform assumes no liability.',
+    expiredTitle: 'Order Expired',
+    expiredDesc:  'Order expired. Please create a new order.',
+    invalidTitle: 'Invalid Order',
+    invalidDesc:  'The order does not exist. Please verify and try again.',
+    copied:       'Address copied',
+    langBtn:      '中文',
   },
   zh: {
     title:       '充币',
     amountLabel: '金额',
     orderLabel:  '订单号',
+    expiryLabel: '剩余时间',
     tokenStep:   '币种',
     networkStep: '网络',
     addrStep:    '充值地址',
     minLabel:    '最少充币数量：',
-    warning:     '请确保选择正确的网络和币种进行充值。发送错误的币种或使用错误的网络，可能导致资产永久丢失，平台不承担相关责任。',
-    copied:      '地址已复制',
-    langBtn:     'EN',
+    warning:      '请确保选择正确的网络和币种进行充值。发送错误的币种或使用错误的网络，可能导致资产永久丢失，平台不承担相关责任。',
+    expiredTitle: '订单已过期',
+    expiredDesc:  '订单已过期，请重新创建订单。',
+    invalidTitle: '无效订单',
+    invalidDesc:  '订单不存在，请确认后重试。',
+    copied:       '地址已复制',
+    langBtn:      'EN',
   },
 };
 
@@ -315,6 +377,11 @@ function applyLang() {
   document.getElementById('t-title').textContent         = t.title;
   document.getElementById('t-amountLabel').textContent   = t.amountLabel;
   document.getElementById('t-orderLabel').textContent    = t.orderLabel;
+  document.getElementById('t-expiryLabel').textContent   = t.expiryLabel;
+  document.getElementById('t-expiredTitle').textContent  = t.expiredTitle;
+  document.getElementById('t-expiredDesc').textContent   = t.expiredDesc;
+  document.getElementById('t-invalidTitle').textContent  = t.invalidTitle;
+  document.getElementById('t-invalidDesc').textContent   = t.invalidDesc;
   document.getElementById('t-tokenStep').textContent     = t.tokenStep;
   document.getElementById('t-networkStep').textContent   = t.networkStep;
   document.getElementById('t-addrStep').textContent      = t.addrStep;
@@ -500,7 +567,39 @@ function showToast() {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// ── Order Status ──────────────────────────────────────────────────────
+const ORDER_STATUS = new URLSearchParams(window.location.search).get('status') || 'active';
+
+function initPageState() {
+  const s = ORDER_STATUS;
+  document.getElementById('row-amount').style.display      = s === 'invalid'  ? 'none' : '';
+  document.getElementById('row-order').style.display       = s === 'invalid'  ? 'none' : '';
+  document.getElementById('row-expiry').style.display      = s === 'active'   ? ''     : 'none';
+  document.getElementById('normal-content').style.display  = s === 'active'   ? ''     : 'none';
+  document.getElementById('expired-content').style.display = s === 'expired'  ? ''     : 'none';
+  document.getElementById('invalid-content').style.display = s === 'invalid'  ? ''     : 'none';
+}
+
+// ── Countdown ─────────────────────────────────────────────────────────
+let remaining = 24 * 60 * 60;
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function tickCountdown() {
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  const s = remaining % 60;
+  document.getElementById('countdown').textContent = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  if (remaining > 0) remaining--;
+}
+
+if (ORDER_STATUS === 'active') {
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────
+initPageState();
 renderAll();
 applyLang();
 </script>
