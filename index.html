@@ -572,8 +572,8 @@ const ORDER_STATUS = new URLSearchParams(window.location.search).get('status') |
 
 function initPageState() {
   const s = ORDER_STATUS;
-  document.getElementById('row-amount').style.display      = s === 'invalid'  ? 'none' : '';
-  document.getElementById('row-order').style.display       = s === 'invalid'  ? 'none' : '';
+  document.getElementById('row-amount').style.display      = '';
+  document.getElementById('row-order').style.display       = '';
   document.getElementById('row-expiry').style.display      = s === 'active'   ? ''     : 'none';
   document.getElementById('normal-content').style.display  = s === 'active'   ? ''     : 'none';
   document.getElementById('expired-content').style.display = s === 'expired'  ? ''     : 'none';
