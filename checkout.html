@@ -1,0 +1,3331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Paypaz Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans SC', "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #303133;
+      background: #F5F7FA;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Demo Nav ── */
+    .demo-nav {
+      background: #1a2236;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .demo-label {
+      font-size: 11px;
+      color: #79bbff;
+      white-space: nowrap;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    .demo-nav button {
+      font-size: 11px;
+      color: #C0C4CC;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 3px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: background .15s, color .15s;
+    }
+    .demo-nav button:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .demo-nav button.active { background: #409EFF; border-color: #409EFF; color: #fff; }
+
+    /* ── Page wrapper ── */
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    @media (min-width: 520px) {
+      .page { border-left: 1px solid #EBEEF5; border-right: 1px solid #EBEEF5; }
+    }
+
+    /* ── Screen ── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ── Header ── */
+    .ck-header {
+      background: #fff;
+      padding: 12px 16px;
+      border-bottom: 1px solid #EBEEF5;
+      position: sticky;
+      top: 36px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .back-btn {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      cursor: pointer;
+      color: #606266;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .back-btn:hover { background: #F5F7FA; }
+    .header-center { flex: 1; min-width: 0; }
+    .ck-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #303133;
+      line-height: 1.3;
+    }
+    .ck-order-id {
+      font-size: 11px;
+      color: #909399;
+      font-family: 'Inter', sans-serif;
+      margin-top: 1px;
+    }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lang-btn {
+      font-size: 12px; color: #409EFF;
+      background: none; border: 1px solid #C6E2FF;
+      border-radius: 4px; padding: 2px 8px; line-height: 1.5;
+      cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .lang-btn:hover { background: #ecf5ff; }
+    .timer-chip {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #E6A23C;
+      background: #fdf6ec;
+      border: 1px solid #f5dab1;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .timer-chip.urgent { color: #F56C6C; background: #fef0f0; border-color: #fbc4c4; }
+
+    /* ── Step Bar ── */
+    .step-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 12px 20px;
+      background: #fff;
+      border-bottom: 1px solid #EBEEF5;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .2s, color .2s;
+    }
+    .step-dot.done { background: #67C23A; color: #fff; }
+    .step-dot.active { background: #409EFF; color: #fff; }
+    .step-dot.pending { background: #EBEEF5; color: #909399; }
+    .step-name {
+      font-size: 11px;
+      color: #909399;
+      white-space: nowrap;
+    }
+    .step-name.active { color: #409EFF; font-weight: 600; }
+    .step-name.done { color: #67C23A; }
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: #EBEEF5;
+      margin: 0 8px;
+      min-width: 20px;
+    }
+    .step-line.done { background: #67C23A; }
+
+    /* ── Content ── */
+    .ck-content { padding: 16px 12px 28px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Card ── */
+    .ck-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .card-section { padding: 14px 16px; }
+    .card-divider { height: 1px; background: #EBEEF5; }
+
+    /* ── Direction Tag ── */
+    .direction-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .dir-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 30px;
+    }
+    .dir-tag-buy { background: #f0f9eb; color: #67C23A; }
+    .dir-tag-sell { background: #fdf6ec; color: #E6A23C; }
+    .dir-tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── Quote Amounts ── */
+    .quote-block { display: flex; flex-direction: column; gap: 4px; }
+    .quote-label { font-size: 12px; color: #909399; margin-bottom: 4px; }
+    .quote-amount-row { display: flex; align-items: baseline; justify-content: space-between; }
+    .quote-amount {
+      font-family: 'Inter', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: #303133;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .currency-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: #F5F7FA;
+      border: 1px solid #EBEEF5;
+      border-radius: 20px;
+      padding: 5px 10px 5px 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #303133;
+    }
+    .currency-flag { font-size: 16px; line-height: 1; }
+    .currency-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+    .ci-usdt { background: transparent; }
+    .ci-usdc { background: transparent; }
+
+    .rate-divider {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0;
+    }
+    .rate-line { flex: 1; height: 1px; background: #EBEEF5; }
+    .rate-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #909399;
+      background: #F5F7FA;
+      border: 1px solid #EBEEF5;
+      border-radius: 20px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Fee Summary ── */
+    .fee-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      padding: 12px 16px;
+      user-select: none;
+    }
+    .fee-toggle-label { font-size: 13px; color: #606266; font-weight: 500; }
+    .fee-toggle-right { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #606266; }
+    .fee-toggle-amount { font-family: 'Inter', sans-serif; font-weight: 600; color: #303133; font-variant-numeric: tabular-nums; }
+    .fee-rows { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .fee-row { display: flex; align-items: center; justify-content: space-between; }
+    .fee-key { font-size: 12px; color: #909399; }
+    .fee-val { font-family: 'Inter', sans-serif; font-size: 12px; color: #606266; font-variant-numeric: tabular-nums; }
+    .fee-total-row { padding: 10px 16px 12px; border-top: 1px solid #EBEEF5; display: flex; justify-content: space-between; align-items: center; }
+    .fee-total-key { font-size: 13px; color: #303133; font-weight: 500; }
+    .fee-total-val { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: #303133; font-variant-numeric: tabular-nums; }
+
+    /* ── Wallet Info ── */
+    .wallet-row { display: flex; align-items: center; gap: 10px; }
+    .wallet-icon-wrap {
+      width: 36px; height: 36px;
+      background: #ecf5ff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #409EFF;
+      flex-shrink: 0;
+    }
+    .wallet-info { flex: 1; min-width: 0; }
+    .wallet-label { font-size: 11px; color: #909399; margin-bottom: 2px; }
+    .wallet-addr {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #303133;
+      font-weight: 500;
+      word-break: break-all;
+    }
+    .net-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 30px;
+      flex-shrink: 0;
+    }
+    .net-trc20 { background: #fde2e2; color: #E03A3A; }
+    .net-erc20 { background: #e8ebfd; color: #627EEA; }
+    .net-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+    /* ── KYC Screen ── */
+    .kyc-icon-wrap {
+      width: 60px; height: 60px;
+      background: #ecf5ff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #409EFF;
+      margin-bottom: 12px;
+    }
+    .kyc-title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
+    .kyc-desc { font-size: 13px; color: #606266; line-height: 1.7; }
+    .kyc-steps { display: flex; flex-direction: column; gap: 12px; padding: 16px 0 4px; }
+    .kyc-step { display: flex; align-items: flex-start; gap: 12px; }
+    .kyc-step-num {
+      width: 28px; height: 28px;
+      background: #409EFF;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .kyc-step-info { padding-top: 3px; }
+    .kyc-step-name { font-size: 13px; font-weight: 500; color: #303133; }
+    .kyc-step-hint { font-size: 12px; color: #909399; margin-top: 2px; }
+    .kyc-redirect-note {
+      display: flex; gap: 8px;
+      background: #ecf5ff;
+      border-radius: 6px;
+      padding: 10px 12px;
+      border-left: 3px solid #409EFF;
+    }
+    .kyc-redirect-note-text { font-size: 12px; color: #606266; line-height: 1.7; }
+    .kyc-time-note { font-size: 12px; color: #909399; text-align: center; padding-top: 4px; }
+
+    /* ── Payment Method ── */
+    .pm-amount-row {
+      display: flex; align-items: baseline; gap: 6px;
+      margin-bottom: 14px;
+    }
+    .pm-amount-label { font-size: 12px; color: #909399; }
+    .pm-amount-val {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: #303133;
+      font-variant-numeric: tabular-nums;
+    }
+    .pm-list { display: flex; flex-direction: column; gap: 8px; }
+    .pm-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      border: 2px solid #EBEEF5;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .pm-card:hover { border-color: #79bbff; }
+    .pm-card.selected { border-color: #409EFF; background: #f0f7ff; }
+    .pm-card.disabled { opacity: .5; cursor: not-allowed; }
+    .pm-icon-wrap {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: #F5F7FA;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pm-info { flex: 1; }
+    .pm-name { font-size: 14px; font-weight: 500; color: #303133; }
+    .pm-hint { font-size: 12px; color: #909399; margin-top: 2px; }
+    .pm-fee { font-size: 12px; color: #67C23A; font-weight: 500; }
+    .pm-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+    .pm-badge-safari { background: #F5F7FA; color: #909399; }
+    .pm-badge-p1 { background: #fdf6ec; color: #E6A23C; }
+    .pm-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #409EFF;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pm-check-empty {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid #DCDFE6;
+      flex-shrink: 0;
+    }
+
+    /* ── Bank Transfer ── */
+    .bt-amount-hero {
+      text-align: center;
+      padding: 20px 16px 16px;
+    }
+    .bt-amount-label { font-size: 12px; color: #909399; margin-bottom: 6px; }
+    .bt-amount-val {
+      font-family: 'Inter', sans-serif;
+      font-size: 34px; font-weight: 700;
+      color: #303133;
+      font-variant-numeric: tabular-nums;
+    }
+    .bt-amount-currency { font-size: 16px; font-weight: 500; color: #606266; }
+    .bt-exact-note { font-size: 11px; color: #E6A23C; margin-top: 4px; }
+    .bank-fields { display: flex; flex-direction: column; gap: 0; }
+    .bank-field {
+      display: flex; align-items: center;
+      padding: 11px 16px;
+      border-bottom: 1px solid #EBEEF5;
+      gap: 8px;
+    }
+    .bank-field:last-child { border-bottom: none; }
+    .bf-key { font-size: 12px; color: #909399; width: 72px; flex-shrink: 0; }
+    .bf-val {
+      font-size: 13px; color: #303133; font-weight: 500;
+      flex: 1; font-family: 'Noto Sans SC', sans-serif;
+    }
+    .bf-val-mono {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; color: #303133; font-weight: 600;
+      flex: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .copy-mini {
+      width: 28px; height: 28px;
+      border: 1px solid #DCDFE6; border-radius: 4px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #909399;
+      flex-shrink: 0;
+      transition: color .2s, border-color .2s;
+    }
+    .copy-mini:hover { border-color: #409EFF; color: #409EFF; }
+
+    .ref-block {
+      background: #fff7e6;
+      border-radius: 6px;
+      border: 1px solid #f5dab1;
+      padding: 12px 14px;
+    }
+    .ref-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .ref-label { font-size: 12px; font-weight: 600; color: #E6A23C; }
+    .ref-val-row { display: flex; align-items: center; gap: 8px; }
+    .ref-val {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #303133;
+      flex: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .03em;
+    }
+    .ref-desc { font-size: 11px; color: #909399; margin-top: 6px; line-height: 1.6; }
+
+    /* ── Warning ── */
+    .ck-warning {
+      display: flex; gap: 8px;
+      background: #fdf6ec;
+      border-radius: 6px;
+      padding: 10px 12px;
+      border-left: 3px solid #E6A23C;
+    }
+    .ck-warning-text { font-size: 12px; color: #909399; line-height: 1.7; }
+
+    /* ── Processing Screen ── */
+    .centered-screen {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 16px;
+    }
+    .spin-wrap {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: #ecf5ff;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .spin-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #409EFF;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status Screens ── */
+    .status-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-icon-success { background: #f0f9eb; }
+    .status-icon-failed  { background: #fef0f0; }
+    .status-icon-pending { background: #fdf6ec; }
+    .status-title { font-size: 18px; font-weight: 600; color: #303133; }
+    .status-desc  { font-size: 13px; color: #909399; line-height: 1.8; max-width: 260px; }
+    .result-card {
+      width: 100%;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .result-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px;
+      border-bottom: 1px solid #EBEEF5;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-key { font-size: 12px; color: #909399; }
+    .result-val { font-size: 13px; color: #303133; font-weight: 500; font-family: 'Inter', sans-serif; }
+
+    /* ── CTA Buttons ── */
+    .btn-cta {
+      width: 100%;
+      height: 48px;
+      background: #409EFF;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-cta:hover { background: #66b1ff; }
+    .btn-cta:active { background: #3a8ee6; }
+    .btn-cta-ghost {
+      width: 100%;
+      height: 44px;
+      background: #fff;
+      color: #606266;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid #DCDFE6;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-cta-ghost:hover { border-color: #409EFF; color: #409EFF; }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn-cta, .btn-row .btn-cta-ghost { flex: 1; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; left: 50%; bottom: 80px;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(0,0,0,.72); color: #fff;
+      font-size: 13px; padding: 8px 18px;
+      border-radius: 20px; white-space: nowrap;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Security Note ── */
+    .security-note {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      font-size: 11px; color: #C0C4CC;
+      padding: 8px 0 4px;
+    }
+
+    /* ── Google Pay SVG ── */
+    .gpay-text { font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; }
+    .gpay-g { color: #4285F4; }
+    .gpay-p { color: #EA4335; }
+    .gpay-a { color: #FBBC05; }
+    .gpay-y { color: #34A853; }
+
+    /* Fee row expand toggle icon */
+    .fee-caret { transition: transform .2s; }
+    .fee-caret.open { transform: rotate(180deg); }
+
+    /* ── Create Order Screen ── */
+    .cr-body { padding: 16px 14px 32px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    .dir-tabs {
+      display: flex;
+      background: #F0F2F5;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .dir-tab {
+      flex: 1; height: 40px;
+      font-size: 15px; font-weight: 600;
+      border: none; background: transparent;
+      border-radius: 8px;
+      cursor: pointer; color: #909399;
+      transition: all .2s;
+      font-family: 'Noto Sans SC', sans-serif;
+      letter-spacing: .01em;
+    }
+    .dir-tab.active {
+      background: #fff;
+      color: #303133;
+      box-shadow: 0 1px 4px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    .cr-balance-row {
+      display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+      font-size: 12px; color: #909399;
+    }
+    .cr-balance-val { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+    .cr-switch-btn {
+      background: none; border: none; cursor: pointer;
+      color: #409EFF; padding: 2px 4px; font-size: 16px; line-height: 1;
+    }
+
+    .cr-blocks-wrap { position: relative; display: flex; flex-direction: column; gap: 2px; }
+    .cr-block {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1.5px solid #E8ECF0;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .cr-block:focus-within {
+      border-color: #409EFF;
+      box-shadow: 0 0 0 3px rgba(64,158,255,.10);
+    }
+    .cr-block-label { font-size: 11px; color: #909399; margin-bottom: 6px; font-weight: 500; letter-spacing: .03em; text-transform: uppercase; }
+    .cr-block-row { display: flex; align-items: center; gap: 10px; }
+    .cr-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: #1A1A2E;
+      border: none; background: none; outline: none;
+      flex: 1; min-width: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-input::placeholder { color: #D0D5DD; }
+    .cr-amount-display {
+      font-family: 'Inter', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: #1A1A2E; flex: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-amount-display.zero { color: #D0D5DD; }
+    .cr-currency-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: #F5F7FA;
+      border: none;
+      border-radius: 24px;
+      padding: 7px 10px 7px 8px;
+      cursor: pointer; flex-shrink: 0;
+      font-size: 14px; font-weight: 600; color: #303133;
+      transition: background .15s;
+    }
+    .cr-currency-btn:hover { background: #EBEEF5; }
+    .cr-currency-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .cr-ci-usdt { background: transparent; }
+    .cr-ci-usdc { background: transparent; }
+    .cr-ci-jpy  { background: transparent; }
+    .cr-ci-usd  { background: transparent; }
+
+    .cr-block-hint {
+      margin-top: 5px;
+      font-size: 11px; color: #B0B7C3;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cr-all-btn {
+      font-size: 11px; font-weight: 600; color: #409EFF;
+      background: none; border: none; cursor: pointer; padding: 0;
+    }
+
+    /* Swap button between blocks */
+    .cr-swap-wrap {
+      display: flex; justify-content: center;
+      position: relative; z-index: 1; margin: -4px 0;
+    }
+    .cr-swap-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #fff; border: 1.5px solid #E8ECF0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #606266;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      transition: color .15s, border-color .15s, transform .2s;
+    }
+    .cr-swap-btn:hover { color: #409EFF; border-color: #409EFF; transform: rotate(180deg); }
+
+    .cr-rate-pill {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: #F5F7FA;
+      border-radius: 20px;
+      padding: 7px 14px;
+      align-self: center;
+    }
+    .cr-rate-val {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; color: #606266;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-pm-title { font-size: 12px; font-weight: 600; color: #909399; margin-bottom: 8px; letter-spacing: .04em; text-transform: uppercase; }
+    .cr-pm-list { display: flex; flex-direction: column; gap: 6px; }
+    .cr-pm-item {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border-radius: 12px; padding: 12px 14px;
+      border: 1.5px solid #E8ECF0; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .cr-pm-item:hover { border-color: #B3D4FF; }
+    .cr-pm-item.selected { border-color: #409EFF; background: #F0F7FF; }
+    .cr-pm-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: #F5F7FA;
+      display: flex; align-items: center; justify-content: center;
+      color: #409EFF; flex-shrink: 0;
+    }
+    .cr-pm-icon-bank { background: #EBF5FB; color: #2E86C1; }
+    .cr-pm-icon-gpay { background: #F8F9FA; }
+    .cr-pm-icon-apay { background: #F5F7FA; border-radius: 8px; }
+    .cr-pm-info { flex: 1; }
+    .cr-pm-name { font-size: 14px; font-weight: 500; color: #303133; }
+    .cr-pm-sub  { font-size: 11px; color: #67C23A; margin-top: 2px; font-weight: 500; }
+    .cr-pm-arrow { color: #C0C4CC; }
+    .cr-pm-check { color: #409EFF; }
+
+    /* ── Sell Order: Form ── */
+    .form-card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 11px; color: #909399; font-weight: 500; letter-spacing: .03em; text-transform: uppercase; }
+    .form-input {
+      height: 44px; padding: 0 12px;
+      border: 1.5px solid #E8ECF0; border-radius: 10px;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 15px; color: #303133;
+      outline: none; background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-input:focus { border-color: #409EFF; box-shadow: 0 0 0 3px rgba(64,158,255,.10); }
+    .form-input::placeholder { color: #C0C4CC; }
+
+    /* ── Sell Send: Network tabs + QR ── */
+    .net-tabs { display: flex; gap: 8px; }
+    .net-tab {
+      padding: 5px 16px; border-radius: 20px;
+      font-size: 13px; font-weight: 500;
+      border: 1.5px solid #E8ECF0; cursor: pointer;
+      background: #fff; color: #606266;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .net-tab.active { border-color: #409EFF; background: #EBF5FF; color: #409EFF; }
+    .qr-placeholder {
+      width: 128px; height: 128px;
+      background: #F5F7FA; border-radius: 10px;
+      border: 1px dashed #DCDFE6;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto;
+    }
+
+    .btn-cta { border-radius: 12px; letter-spacing: .01em; }
+    .btn-cta:disabled {
+      background: #E8ECF0; color: #B0B7C3; cursor: not-allowed;
+    }
+    .btn-cta:disabled:hover { background: #E8ECF0; }
+
+    /* Dropdown overlay */
+    .cr-dropdown-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 50; display: none; align-items: flex-end;
+    }
+    .cr-dropdown-overlay.show { display: flex; }
+    .cr-dropdown-sheet {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 480px; margin: 0 auto;
+      padding: 20px 16px 36px;
+    }
+    .cr-dropdown-title {
+      font-size: 15px; font-weight: 600; color: #303133;
+      margin-bottom: 12px; padding-bottom: 12px;
+      border-bottom: 1px solid #EBEEF5;
+    }
+    .cr-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 8px; cursor: pointer; border-radius: 10px;
+      transition: background .15s;
+    }
+    .cr-option:hover { background: #F5F7FA; }
+    .cr-option.selected { background: #EBF5FF; }
+    .cr-option-name { font-size: 15px; font-weight: 500; color: #303133; flex: 1; }
+    .cr-option-sub  { font-size: 12px; color: #909399; }
+    .cr-option-check { color: #409EFF; }
+
+    /* ── Merchant + API context ── */
+    .flow-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .flow-step-mini {
+      background: #fff;
+      border: 1px solid #E8ECF0;
+      border-radius: 10px;
+      padding: 9px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .flow-step-mini strong {
+      font-size: 11px;
+      color: #303133;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .flow-step-mini span {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: #909399;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .merchant-card {
+      background: #fff;
+      border: 1px solid #E8ECF0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .merchant-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .merchant-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .merchant-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #172033;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .merchant-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #303133;
+      line-height: 1.25;
+    }
+    .merchant-sub {
+      font-size: 11px;
+      color: #909399;
+      margin-top: 2px;
+    }
+    .scope-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: #409EFF;
+      background: #ECF5FF;
+      border: 1px solid #C6E2FF;
+      border-radius: 999px;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+    .api-flow-card {
+      border-radius: 10px;
+      background: #F8FAFC;
+      border: 1px solid #E8ECF0;
+      overflow: hidden;
+    }
+    .api-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      border-bottom: 1px solid #E8ECF0;
+    }
+    .api-row:last-child { border-bottom: none; }
+    .api-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: #67C23A;
+      background: #F0F9EB;
+      border-radius: 999px;
+      padding: 3px 6px;
+      flex-shrink: 0;
+    }
+    .api-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #606266;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .api-meta {
+      font-size: 10px;
+      color: #909399;
+      white-space: nowrap;
+    }
+    .checkout-context {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      border: 1px solid #E8ECF0;
+      border-radius: 12px;
+    }
+    .checkout-context-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #ECF5FF;
+      color: #409EFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .checkout-context-main { flex: 1; min-width: 0; }
+    .checkout-context-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #303133;
+      margin-bottom: 3px;
+    }
+    .checkout-context-desc {
+      font-size: 11px;
+      color: #909399;
+      line-height: 1.55;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #67C23A;
+      background: #F0F9EB;
+      border-radius: 999px;
+      padding: 3px 7px;
+      margin-top: 7px;
+    }
+    .wallet-button-note {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: #F8FAFC;
+      border: 1px solid #E8ECF0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #606266;
+    }
+
+    /* ── Sumsub handoff ── */
+    .sumsub-shell {
+      background: #fff;
+      min-height: calc(100vh - 37px);
+      display: flex;
+      flex-direction: column;
+    }
+    .sumsub-head {
+      background: #101828;
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sumsub-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+    }
+    .sumsub-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #19D3C5;
+      color: #101828;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+    .sumsub-secure {
+      font-size: 11px;
+      color: rgba(255,255,255,.68);
+      white-space: nowrap;
+    }
+    .sumsub-body {
+      padding: 18px 14px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+    .sumsub-card {
+      border: 1px solid #EAECF0;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(16,24,40,.04);
+    }
+    .sumsub-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #101828;
+      margin-bottom: 4px;
+    }
+    .sumsub-copy {
+      font-size: 12px;
+      color: #667085;
+      line-height: 1.65;
+    }
+    .sumsub-progress {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .sumsub-progress-item {
+      border-radius: 10px;
+      background: #F9FAFB;
+      border: 1px solid #EAECF0;
+      padding: 9px 8px;
+      text-align: center;
+    }
+    .sumsub-progress-item.done {
+      background: #ECFDF3;
+      border-color: #ABEFC6;
+      color: #067647;
+    }
+    .sumsub-progress-item.active {
+      background: #EFF8FF;
+      border-color: #B2DDFF;
+      color: #175CD3;
+    }
+    .sumsub-progress-item span {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .doc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .doc-option {
+      border: 1.5px solid #EAECF0;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      gap: 9px;
+      align-items: center;
+    }
+    .doc-option.active {
+      border-color: #175CD3;
+      background: #EFF8FF;
+    }
+    .doc-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #F2F4F7;
+      color: #475467;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .doc-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #101828;
+    }
+    .upload-box {
+      border: 1px dashed #B2DDFF;
+      background: #EFF8FF;
+      color: #175CD3;
+      border-radius: 12px;
+      padding: 14px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .liveness-box {
+      border-radius: 14px;
+      background: linear-gradient(135deg, #101828, #344054);
+      min-height: 118px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.82);
+      position: relative;
+      overflow: hidden;
+    }
+    .liveness-face {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.74);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sumsub-footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: #98A2B3;
+      line-height: 1.5;
+      padding: 2px 12px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Demo Navigation ── -->
+<div class="demo-nav">
+  <span class="demo-label">原型演示：</span>
+  <span class="demo-label" style="color:#79bbff;opacity:.5">买入：</span>
+  <button id="dnav-create"     onclick="goTo('create')"     class="active">商户发起</button>
+  <button id="dnav-order"      onclick="goTo('order')">订单详情</button>
+  <button id="dnav-kyc"        onclick="goTo('kyc')">KYC</button>
+  <button id="dnav-sumsub"     onclick="goTo('sumsub')">Sumsub</button>
+  <button id="dnav-payment"    onclick="goTo('payment')">支付方式</button>
+  <button id="dnav-bank"       onclick="goTo('bank')">银行转账</button>
+  <span class="demo-label" style="color:#79bbff;opacity:.5;margin-left:4px">卖出：</span>
+  <button id="dnav-sell-order" onclick="goTo('sell-order')">卖出详情</button>
+  <button id="dnav-sell-send"  onclick="goTo('sell-send')">发送加密货币</button>
+  <span class="demo-label" style="color:#79bbff;opacity:.5;margin-left:4px">通用：</span>
+  <button id="dnav-processing" onclick="goTo('processing')">处理中</button>
+  <button id="dnav-success"    onclick="goTo('success')">✓ 成功</button>
+  <button id="dnav-failed"     onclick="goTo('failed')">✕ 失败</button>
+  <button id="dnav-pending"    onclick="goTo('pending')">⏳ 待验证</button>
+  <span class="demo-label" style="color:#f0e040;opacity:.9;margin-left:8px">KYC路径：</span>
+  <button id="dnav-kyc-a" onclick="setKycStatus('approved')" class="active" style="border-color:#67C23A;color:#67C23A">A: Token</button>
+  <button id="dnav-kyc-b" onclick="setKycStatus('none')"     style="">B: Sumsub</button>
+  <button id="dnav-kyc-c" onclick="setKycStatus('data-filled')" style="">C: 回头用户</button>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════
+     SCREEN 0 · 创建订单（报价 & 选择）
+══════════════════════════════════════════ -->
+<div id="s-create" class="screen active">
+
+  <div class="ck-header">
+    <div style="width:32px"></div>
+    <div class="header-center" style="text-align:center">
+      <div class="ck-title" style="font-size:17px;letter-spacing:.02em">Apex CFD Wallet</div>
+      <div class="ck-order-id">Powered by Paypaz Open API</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()" id="cr-lang-btn">日本語</button>
+    </div>
+  </div>
+
+  <div class="cr-body">
+
+    <div class="flow-strip">
+      <div class="flow-step-mini">
+        <strong>1. Broker app</strong>
+        <span>user starts ramp</span>
+      </div>
+      <div class="flow-step-mini">
+        <strong>2. Paypaz API</strong>
+        <span id="merchant-flow-method">quote + order</span>
+      </div>
+      <div class="flow-step-mini">
+        <strong>3. Checkout</strong>
+        <span>Paypaz hosted UI</span>
+      </div>
+    </div>
+
+    <div class="merchant-card">
+      <div class="merchant-top">
+        <div class="merchant-brand">
+          <div class="merchant-logo">CFD</div>
+          <div>
+            <div class="merchant-name">Apex Markets</div>
+            <div class="merchant-sub">merchant_user_id: jp_user_8291</div>
+          </div>
+        </div>
+        <span class="scope-pill" id="merchant-scope">on-ramp scope</span>
+      </div>
+      <div class="api-flow-card">
+        <div class="api-row">
+          <span class="api-badge">POST</span>
+          <span class="api-copy" id="merchant-api-quote">/v1/ramp/onramp/quote</span>
+          <span class="api-meta">indicative</span>
+        </div>
+        <div class="api-row">
+          <span class="api-badge">POST</span>
+          <span class="api-copy" id="merchant-api-order">/v1/ramp/onramp/order</span>
+          <span class="api-meta" id="merchant-api-ref">broker_order_ref</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buy / Sell Tabs -->
+    <div class="dir-tabs">
+      <button class="dir-tab active" id="tab-buy"  onclick="setDir('buy')"><span id="t-tab-buy">Buy</span></button>
+      <button class="dir-tab"        id="tab-sell" onclick="setDir('sell')"><span id="t-tab-sell">Sell</span></button>
+    </div>
+
+    <!-- Balance row (sell only) -->
+    <div id="cr-balance-row" class="cr-balance-row" style="display:none">
+      <span id="t-cr-balance">Balance</span>：
+      <span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
+      <button class="cr-switch-btn" onclick="switchCrypto()" title="switch">⇌</button>
+    </div>
+
+    <!-- Pay + Receive blocks grouped with swap -->
+    <div class="cr-blocks-wrap">
+
+      <!-- Pay block -->
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-pay">YOU PAY</div>
+        <div class="cr-block-row">
+          <input class="cr-input" id="cr-pay-input" type="number" min="0"
+                 placeholder="0" oninput="onPayInput()" autocomplete="off">
+          <button class="cr-currency-btn" onclick="openDropdown('pay')">
+            <div class="cr-currency-icon cr-ci-jpy" id="cr-pay-icon"><img src="images/日本.svg" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+            <span id="cr-pay-name">JPY</span>
+            <i data-lucide="chevron-down" size="13"></i>
+          </button>
+        </div>
+        <div class="cr-block-hint">
+          <span id="cr-pay-range">¥2,000 – ¥1,560,000</span>
+          <button class="cr-all-btn" id="cr-all-btn" style="display:none" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
+        </div>
+      </div>
+
+      <!-- Swap arrow -->
+      <div class="cr-swap-wrap">
+        <button class="cr-swap-btn" onclick="setDir(crDir==='buy'?'sell':'buy')" title="Swap">
+          <i data-lucide="arrow-up-down" size="14"></i>
+        </button>
+      </div>
+
+      <!-- Receive block -->
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-receive">YOU RECEIVE</div>
+        <div class="cr-block-row">
+          <span class="cr-amount-display zero" id="cr-receive-display">0</span>
+          <button class="cr-currency-btn" onclick="openDropdown('receive')">
+            <div class="cr-currency-icon cr-ci-usdt" id="cr-receive-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+            <span id="cr-receive-name">USDT</span>
+            <i data-lucide="chevron-down" size="13"></i>
+          </button>
+        </div>
+        <div class="cr-block-hint">
+          <span id="cr-receive-hint"></span>
+        </div>
+      </div>
+
+    </div><!-- /cr-blocks-wrap -->
+
+    <!-- Exchange Rate (hidden from user) -->
+    <div class="cr-rate-pill" style="display:none">
+      <span class="cr-rate-val" id="cr-rate-display">1 USDT ≈ ¥156.0</span>
+    </div>
+
+    <!-- Payment Method -->
+    <div>
+      <div class="cr-pm-title" id="t-cr-pm-title">Available in Paypaz Checkout</div>
+      <div class="cr-pm-list">
+
+        <div class="cr-pm-item selected" id="cr-pm-bank" onclick="setCrPM('bank')">
+          <div class="cr-pm-icon cr-pm-icon-bank">
+            <i data-lucide="landmark" size="18"></i>
+          </div>
+          <div class="cr-pm-info">
+            <div class="cr-pm-name" id="t-cr-pm-bank">Bank Transfer</div>
+            <div class="cr-pm-sub">P0 · Native API bank transfer</div>
+          </div>
+          <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-bank-check"></i>
+        </div>
+
+        <div class="cr-pm-item" id="cr-pm-gpay" onclick="setCrPM('gpay')">
+          <div class="cr-pm-icon cr-pm-icon-gpay">
+            <img src="images/Google_Pay_Logo.svg" style="height:20px;object-fit:contain;max-width:32px">
+          </div>
+          <div class="cr-pm-info">
+            <div class="cr-pm-name">Google Pay</div>
+            <div class="cr-pm-sub">P1 · Embedded Payment Button</div>
+          </div>
+          <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-gpay-check" style="display:none"></i>
+          <i data-lucide="circle"       size="18" class="cr-pm-arrow" id="cr-pm-gpay-empty"></i>
+        </div>
+
+        <div class="cr-pm-item" id="cr-pm-apay" onclick="setCrPM('apay')">
+          <div class="cr-pm-icon cr-pm-icon-apay">
+            <img src="images/Apple_Pay_logo.svg" style="height:20px;object-fit:contain;max-width:32px">
+          </div>
+          <div class="cr-pm-info">
+            <div class="cr-pm-name">Apple Pay</div>
+            <div class="cr-pm-sub">P1 · Safari + registered domain</div>
+          </div>
+          <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-apay-check" style="display:none"></i>
+          <i data-lucide="circle"       size="18" class="cr-pm-arrow" id="cr-pm-apay-empty"></i>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- KYC demo path indicator -->
+    <div id="kyc-demo-hint" style="text-align:center;font-size:11px;color:#909399;padding:0 4px"></div>
+
+    <button class="btn-cta" id="cr-next-btn" onclick="proceedToCheckout()" disabled>
+      <span id="t-cr-next">Open Paypaz Checkout</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+  </div>
+
+  <!-- Currency Dropdown Sheet -->
+  <div class="cr-dropdown-overlay" id="cr-dropdown" onclick="closeDropdown(event)">
+    <div class="cr-dropdown-sheet">
+      <div class="cr-dropdown-title" id="cr-dropdown-title">Select Currency</div>
+      <div id="cr-dropdown-list"></div>
+    </div>
+  </div>
+
+</div><!-- /s-create -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 · 订单详情
+══════════════════════════════════════════ -->
+<div id="s-order" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="noop()" title="返回 CFD 平台">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-order-title">Review Order</div>
+      <div class="ck-order-id">PZ20260630-00123</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" id="t-langBtn" onclick="toggleLang()">中文</button>
+      <div class="timer-chip" id="order-timer">29:58</div>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item">
+      <div class="step-dot active">1</div>
+      <span class="step-name active" id="t-step1">Review</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">2</div>
+      <span class="step-name" id="t-step2">Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">3</div>
+      <span class="step-name" id="t-step3">Done</span>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <div class="checkout-context">
+      <div class="checkout-context-icon">
+        <i data-lucide="route" size="17"></i>
+      </div>
+      <div class="checkout-context-main">
+        <div class="checkout-context-title">Apex Markets redirected you to Paypaz Checkout</div>
+        <div class="checkout-context-desc">broker_order_ref: CFD-JP-20260630-001 · Paypaz will complete KYC, payment, status polling, and webhook delivery back to the merchant.</div>
+        <span class="status-pill"><i data-lucide="shield-check" size="11"></i> Banxa Native API · no Banxa-hosted UI</span>
+      </div>
+    </div>
+
+    <!-- Quote Card -->
+    <div class="ck-card">
+      <div class="card-section">
+        <div class="direction-row">
+          <div class="dir-tag dir-tag-buy">
+            <div class="dir-tag-dot" style="background:#67C23A"></div>
+            <span id="t-dir-buy">Buy Coins</span>
+          </div>
+          <span style="font-size:11px;color:#C0C4CC;" id="t-indicative">Rate is indicative</span>
+        </div>
+
+        <!-- Pay -->
+        <div class="quote-block">
+          <div class="quote-label" id="t-you-pay">You Pay</div>
+          <div class="quote-amount-row">
+            <span class="quote-amount">¥15,600</span>
+            <div class="currency-pill">
+              <img src="images/日本.svg" style="width:20px;height:20px;border-radius:50%;object-fit:cover">
+              JPY
+            </div>
+          </div>
+        </div>
+
+        <!-- Rate divider -->
+        <div class="rate-divider">
+          <div class="rate-line"></div>
+          <div class="rate-badge">
+            <i data-lucide="arrow-down" size="11"></i>
+            1 USDT = ¥156.00
+          </div>
+          <div class="rate-line"></div>
+        </div>
+
+        <!-- Receive -->
+        <div class="quote-block">
+          <div class="quote-label" id="t-you-receive">You Receive</div>
+          <div class="quote-amount-row">
+            <span class="quote-amount">≈ 100.00</span>
+            <div class="currency-pill">
+              <div class="currency-icon ci-usdt"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain"></div>
+              USDT
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Card -->
+    <div class="ck-card">
+      <div class="card-section">
+        <div class="wallet-row">
+          <div class="wallet-icon-wrap">
+            <i data-lucide="wallet" size="18"></i>
+          </div>
+          <div class="wallet-info">
+            <div class="wallet-label" id="t-wallet-label">Destination Wallet</div>
+            <div class="wallet-addr">TX3ogswuX8pX...VAmk</div>
+          </div>
+          <div class="net-tag net-trc20">
+            <div class="net-dot" style="background:#E03A3A"></div>
+            TRC20
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fee Summary Card -->
+    <div class="ck-card">
+      <div class="fee-toggle" onclick="toggleFee()">
+        <span class="fee-toggle-label" id="t-fee-summary">Fee Summary</span>
+        <div class="fee-toggle-right">
+          <span class="fee-toggle-amount">¥15,600 JPY</span>
+          <i data-lucide="chevron-down" size="14" class="fee-caret" id="feeCaret"></i>
+        </div>
+      </div>
+      <div id="feeRows" style="display:none">
+        <div class="card-divider"></div>
+        <div class="fee-rows">
+          <div class="fee-row">
+            <span class="fee-key" id="t-fee-rate">Exchange Rate</span>
+            <span class="fee-val">1 USDT = ¥156.00 JPY</span>
+          </div>
+          <div class="fee-row">
+            <span class="fee-key" id="t-fee-spread">Service Fee (in rate)</span>
+            <span class="fee-val">≈ ¥600 (4%)</span>
+          </div>
+          <div class="fee-row">
+            <span class="fee-key" id="t-fee-network">Network Fee</span>
+            <span class="fee-val">¥0</span>
+          </div>
+        </div>
+        <div class="fee-total-row">
+          <span class="fee-total-key" id="t-fee-total">Total Payable</span>
+          <span class="fee-total-val">¥15,600 JPY</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-cta" onclick="goTo('payment')">
+      <span id="t-continue">Continue</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+    <div class="security-note">
+      <i data-lucide="shield-check" size="12"></i>
+      <span id="t-secure">Secured by Paypaz · SSL Encrypted</span>
+    </div>
+
+  </div>
+</div><!-- /s-order -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 · KYC 认证（PATH B）
+══════════════════════════════════════════ -->
+<div id="s-kyc" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('order')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-kyc-title">Identity Verification</div>
+      <div class="ck-order-id">PZ20260630-00123</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item">
+      <div class="step-dot active">1</div>
+      <span class="step-name active" id="t-kstep1">Verify</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">2</div>
+      <span class="step-name" id="t-kstep2">Review</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">3</div>
+      <span class="step-name" id="t-kstep3">Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">4</div>
+      <span class="step-name" id="t-kstep4">Done</span>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <div class="ck-card">
+      <div class="card-section" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 20px 20px">
+        <div class="kyc-icon-wrap">
+          <i data-lucide="shield-check" size="28"></i>
+        </div>
+        <div class="kyc-title" id="t-kyc-heading">Identity Confirmation Required</div>
+        <div class="kyc-desc" id="t-kyc-desc">To complete your first transaction, we need to verify your identity. This is a one-time process — future purchases will be seamless.</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-section">
+        <div class="kyc-steps">
+          <div class="kyc-step">
+            <div class="kyc-step-num">1</div>
+            <div class="kyc-step-info">
+              <div class="kyc-step-name" id="t-kyc-s1">Provide identity document</div>
+              <div class="kyc-step-hint" id="t-kyc-s1h">Passport, driver's license, or national ID</div>
+            </div>
+          </div>
+          <div class="kyc-step">
+            <div class="kyc-step-num">2</div>
+            <div class="kyc-step-info">
+              <div class="kyc-step-name" id="t-kyc-s2">Perform a liveness check</div>
+              <div class="kyc-step-hint" id="t-kyc-s2h">Quick selfie to confirm it's you</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Path B: 需要完整KYC流程 -->
+    <div class="kyc-redirect-note" id="kyc-note-full">
+      <div style="color:#409EFF;flex-shrink:0;margin-top:1px"><i data-lucide="info" size="15"></i></div>
+      <div class="kyc-redirect-note-text" id="t-kyc-redirect">You'll be redirected to our verification partner Sumsub to complete the process. Once finished, you'll be automatically returned to Paypaz Checkout to complete your payment.</div>
+    </div>
+
+    <div class="wallet-button-note">
+      <i data-lucide="database-zap" size="15" style="color:#409EFF;flex-shrink:0;margin-top:1px"></i>
+      <span>Paypaz only stores provider mapping IDs and token TTL. Documents, selfies, and personal data stay with Banxa / Sumsub.</span>
+    </div>
+
+    <!-- Path C: 已有 Banxa customer mapping，生产流程会静默通过；此块仅用于手动演示 -->
+    <div class="kyc-redirect-note" id="kyc-note-existing" style="display:none;background:#f0f9eb;border-left-color:#67C23A">
+      <div style="color:#67C23A;flex-shrink:0;margin-top:1px"><i data-lucide="check-circle" size="15"></i></div>
+      <div class="kyc-redirect-note-text" id="t-kyc-existing">Existing Banxa customer mapping found. In production this KYC screen is skipped and the user continues directly in Paypaz Checkout.</div>
+    </div>
+
+    <div class="kyc-time-note" id="t-kyc-time">Usually takes 2–3 minutes</div>
+
+    <button class="btn-cta" onclick="handleKycPrimary()">
+      <i data-lucide="external-link" size="16"></i>
+      <span id="t-kyc-btn">Start Identity Verification</span>
+    </button>
+
+    <div class="security-note">
+      <i data-lucide="lock" size="12"></i>
+      <span id="t-kyc-secure">Your data is encrypted and only used for verification</span>
+    </div>
+
+  </div>
+</div><!-- /s-kyc -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2b · Sumsub KYC 页面（PATH B）
+══════════════════════════════════════════ -->
+<div id="s-sumsub" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <div class="sumsub-brand">
+        <div class="sumsub-mark">S</div>
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure">Secure session · jp_user_8291</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="sumsub-card">
+        <div class="sumsub-title">Verify your identity</div>
+        <div class="sumsub-copy">This verification is required for your first Paypaz ramp order. After approval, Paypaz returns you to Checkout and future orders can use the saved provider mapping.</div>
+      </div>
+
+      <div class="sumsub-progress">
+        <div class="sumsub-progress-item done">
+          <span>1. Profile</span>
+        </div>
+        <div class="sumsub-progress-item active">
+          <span>2. Document</span>
+        </div>
+        <div class="sumsub-progress-item">
+          <span>3. Liveness</span>
+        </div>
+      </div>
+
+      <div class="sumsub-card">
+        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:10px">Select document type</div>
+        <div class="doc-grid">
+          <div class="doc-option active">
+            <div class="doc-icon"><i data-lucide="book-open-check" size="17"></i></div>
+            <div>
+              <div class="doc-name">Passport</div>
+              <div class="sumsub-copy" style="font-size:10px">Recommended</div>
+            </div>
+          </div>
+          <div class="doc-option">
+            <div class="doc-icon"><i data-lucide="id-card" size="17"></i></div>
+            <div>
+              <div class="doc-name">Driver license</div>
+              <div class="sumsub-copy" style="font-size:10px">JP accepted</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sumsub-card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="upload-box">
+          <i data-lucide="upload-cloud" size="18"></i>
+          <span>Passport photo uploaded · page is readable</span>
+        </div>
+        <div class="liveness-box">
+          <div class="liveness-face">
+            <i data-lucide="scan-face" size="34"></i>
+          </div>
+        </div>
+        <div class="sumsub-copy">Liveness check completed. Sumsub sends the result to Banxa; Paypaz polls order identity status and resumes Checkout.</div>
+      </div>
+
+      <button class="btn-cta" onclick="completeSumsub()">
+        <i data-lucide="check-circle" size="16"></i>
+        <span>Complete verification and return</span>
+      </button>
+
+      <button class="btn-cta-ghost" onclick="goTo('kyc')">Back to Paypaz Checkout</button>
+
+      <div class="sumsub-footer-note">Demo screen for the external Sumsub KYC handoff. In production the return_url brings the user back to checkout.paypaz.tech.</div>
+    </div>
+  </div>
+
+</div><!-- /s-sumsub -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 · 选择支付方式
+══════════════════════════════════════════ -->
+<div id="s-payment" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('order')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-pay-title">Select Payment</div>
+      <div class="ck-order-id">PZ20260630-00123</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+      <div class="timer-chip" id="pay-timer">29:52</div>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item">
+      <div class="step-dot done"><i data-lucide="check" size="12"></i></div>
+      <span class="step-name done" id="t-pstep1">Review</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-dot active">2</div>
+      <span class="step-name active" id="t-pstep2">Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">3</div>
+      <span class="step-name" id="t-pstep3">Done</span>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <div class="ck-card">
+      <div class="card-section">
+        <div class="pm-amount-row">
+          <span class="pm-amount-label" id="t-amount-to-pay">Amount to pay</span>
+          <span class="pm-amount-val">¥15,600</span>
+          <span style="font-size:13px;color:#909399;margin-left:2px">JPY</span>
+        </div>
+
+        <div class="pm-list">
+
+          <!-- Bank Transfer -->
+          <div class="pm-card selected" id="pm-bank" onclick="selectPM('bank')">
+            <div class="pm-icon-wrap" style="background:#e8f4fd">
+              <i data-lucide="landmark" size="20" style="color:#409EFF"></i>
+            </div>
+            <div class="pm-info">
+              <div class="pm-name" id="t-pm-bank">Bank Transfer (振込)</div>
+            </div>
+            <div class="pm-check" id="pc-bank"><i data-lucide="check" size="11"></i></div>
+          </div>
+
+          <!-- Google Pay -->
+          <div class="pm-card" id="pm-gpay" onclick="selectPM('gpay')">
+            <div class="pm-icon-wrap">
+              <img src="images/Google_Pay_Logo.svg" style="height:24px;object-fit:contain;max-width:36px">
+            </div>
+            <div class="pm-info">
+              <div class="pm-name">Google Pay</div>
+            </div>
+            <div class="pm-check" id="pc-gpay" style="display:none"><i data-lucide="check" size="11"></i></div>
+            <div class="pm-check-empty" id="pe-gpay"></div>
+          </div>
+
+          <!-- Apple Pay -->
+          <div class="pm-card" id="pm-apay" onclick="selectPM('apay')">
+            <div class="pm-icon-wrap">
+              <img src="images/Apple_Pay_logo.svg" style="height:24px;object-fit:contain;max-width:36px">
+            </div>
+            <div class="pm-info">
+              <div class="pm-name">Apple Pay <span class="pm-badge pm-badge-safari" id="t-safari">Safari only</span></div>
+            </div>
+            <div class="pm-check" id="pc-apay" style="display:none"><i data-lucide="check" size="11"></i></div>
+            <div class="pm-check-empty" id="pe-apay"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="wallet-button-note">
+      <i data-lucide="info" size="15" style="color:#409EFF;flex-shrink:0;margin-top:1px"></i>
+      <span id="t-wallet-note">Bank transfer is P0 via Banxa Native API. Google Pay and Apple Pay use the embedded payment button; web card entry is not shown until Banxa confirms a Web SDK path.</span>
+    </div>
+
+    <button class="btn-cta" onclick="proceedPayment()" id="payNowBtn">
+      <span id="t-pay-now">Pay with Bank Transfer</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+    <div class="security-note">
+      <i data-lucide="shield-check" size="12"></i>
+      <span id="t-pay-secure">Secured by Paypaz · SSL Encrypted</span>
+    </div>
+
+  </div>
+</div><!-- /s-payment -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 · 银行转账详情
+══════════════════════════════════════════ -->
+<div id="s-bank" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('payment')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-bank-title">Bank Transfer</div>
+      <div class="ck-order-id">PZ20260630-00123</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+      <div class="timer-chip" id="bank-timer">29:46</div>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <!-- Amount Hero -->
+    <div class="ck-card">
+      <div class="bt-amount-hero">
+        <div class="bt-amount-label" id="t-transfer-exact">Transfer exactly</div>
+        <div>
+          <span class="bt-amount-val">¥15,600</span>
+          <span class="bt-amount-currency"> JPY</span>
+        </div>
+        <div class="bt-exact-note" id="t-exact-note">⚠ Amount must match exactly to be processed</div>
+      </div>
+    </div>
+
+    <!-- Bank Details -->
+    <div class="ck-card">
+      <div class="bank-fields">
+        <div class="bank-field">
+          <span class="bf-key" id="t-bf-bank">Bank</span>
+          <span class="bf-val">三菱UFJ銀行</span>
+          <button class="copy-mini" onclick="copyText('三菱UFJ銀行')"><i data-lucide="copy" size="13"></i></button>
+        </div>
+        <div class="bank-field">
+          <span class="bf-key" id="t-bf-branch">Branch</span>
+          <span class="bf-val">大手町支店</span>
+          <button class="copy-mini" onclick="copyText('大手町支店')"><i data-lucide="copy" size="13"></i></button>
+        </div>
+        <div class="bank-field">
+          <span class="bf-key" id="t-bf-type">Type</span>
+          <span class="bf-val" id="t-bf-type-val">普通（Futsu）</span>
+          <button class="copy-mini" onclick="copyText('普通')"><i data-lucide="copy" size="13"></i></button>
+        </div>
+        <div class="bank-field">
+          <span class="bf-key" id="t-bf-account">Account No.</span>
+          <span class="bf-val-mono">1234567</span>
+          <button class="copy-mini" onclick="copyText('1234567')"><i data-lucide="copy" size="13"></i></button>
+        </div>
+        <div class="bank-field">
+          <span class="bf-key" id="t-bf-name">Account Name</span>
+          <span class="bf-val">PAYPAZ合同会社</span>
+          <button class="copy-mini" onclick="copyText('PAYPAZ合同会社')"><i data-lucide="copy" size="13"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reference Block -->
+    <div class="ref-block">
+      <div class="ref-top">
+        <i data-lucide="alert-triangle" size="14" style="color:#E6A23C;flex-shrink:0"></i>
+        <span class="ref-label" id="t-ref-label">Reference Code (必須 · Required)</span>
+      </div>
+      <div class="ref-val-row">
+        <span class="ref-val">PZ20260630-00123</span>
+        <button class="copy-mini" onclick="copyText('PZ20260630-00123')"><i data-lucide="copy" size="13"></i></button>
+      </div>
+      <div class="ref-desc" id="t-ref-desc">You must include this reference code as the transfer remark / 振込依頼人名. Orders without the correct reference cannot be matched and may be delayed.</div>
+    </div>
+
+    <!-- Warning -->
+    <div class="ck-warning">
+      <div style="color:#E6A23C;flex-shrink:0;margin-top:1px"><i data-lucide="clock" size="15"></i></div>
+      <div class="ck-warning-text" id="t-bank-warning">Transfer must be received within the order time limit. Funds sent after expiry will be returned within 3–5 business days.</div>
+    </div>
+
+    <button class="btn-cta" onclick="goToProcessing()">
+      <i data-lucide="check-circle" size="16"></i>
+      <span id="t-transferred">I've Completed the Transfer</span>
+    </button>
+
+  </div>
+</div><!-- /s-bank -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5 · 处理中
+══════════════════════════════════════════ -->
+<div id="s-processing" class="screen">
+
+  <div class="ck-header">
+    <div style="width:32px"></div>
+    <div class="header-center" style="text-align:center">
+      <div class="ck-title" id="t-proc-title">Processing</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="spin-wrap">
+      <div class="spin-ring"></div>
+      <i data-lucide="refresh-cw" size="28" style="color:#409EFF"></i>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+      <div class="status-title" id="t-proc-heading">Confirming Your Payment</div>
+      <div class="status-desc" id="t-proc-desc">We're waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:12px;color:#C0C4CC">PZ20260630-00123</div>
+    <div class="result-card" style="text-align:left">
+      <div class="result-row">
+        <span class="result-key">Paypaz status</span>
+        <span class="result-val">payment_received</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">Provider status</span>
+        <span class="result-val">paymentReceived → inProgress</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">Merchant webhook</span>
+        <span class="result-val">pending</span>
+      </div>
+    </div>
+    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('success')" id="t-proc-return">Return to Platform</button>
+    <div style="font-size:11px;color:#C0C4CC" id="t-proc-note">You'll receive a notification when your order completes</div>
+  </div>
+</div><!-- /s-processing -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 6 · 成功
+══════════════════════════════════════════ -->
+<div id="s-success" class="screen">
+
+  <div class="ck-header">
+    <div style="width:32px"></div>
+    <div class="header-center" style="text-align:center">
+      <div class="ck-title" id="t-suc-title">Order Completed</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-success">
+      <i data-lucide="check-circle-2" size="36" style="color:#67C23A"></i>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+      <div class="status-title" id="t-suc-heading">Order Completed</div>
+      <div class="status-desc" id="t-suc-desc">Your crypto has been sent to your wallet.</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-row">
+        <span class="result-key" id="t-res-paid">You Paid</span>
+        <span class="result-val" id="res-paid-val">¥15,600 JPY</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-received">You Received</span>
+        <span class="result-val" id="res-received-val" style="color:#67C23A;font-weight:700">100.00 USDT</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-wallet">Wallet</span>
+        <span class="result-val" id="res-wallet-val" style="font-size:12px">TX3ogswu...VAmk</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-network">Network</span>
+        <span class="result-val" id="res-network-val">Tron (TRC20)</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-method">Payment</span>
+        <span class="result-val" id="t-res-method-val">Bank Transfer</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-order">Order ID</span>
+        <span class="result-val" style="font-size:11px">PZ20260630-00123</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">Broker Ref</span>
+        <span class="result-val" id="res-broker-ref" style="font-size:11px">CFD-JP-20260630-001</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key">Webhook</span>
+        <span class="result-val" style="font-size:12px;color:#67C23A">order.completed sent</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-time">Completed</span>
+        <span class="result-val" style="font-size:12px">2026-06-30 14:32:08</span>
+      </div>
+    </div>
+
+    <button class="btn-cta" onclick="noop()" id="t-suc-return">Return to Platform</button>
+  </div>
+</div><!-- /s-success -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 7 · 失败
+══════════════════════════════════════════ -->
+<div id="s-failed" class="screen">
+
+  <div class="ck-header">
+    <div style="width:32px"></div>
+    <div class="header-center" style="text-align:center">
+      <div class="ck-title" id="t-fail-title">Transaction Failed</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-failed">
+      <i data-lucide="x-circle" size="36" style="color:#F56C6C"></i>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+      <div class="status-title" id="t-fail-heading">Transaction Failed</div>
+      <div class="status-desc" id="t-fail-desc">Your payment could not be processed. No funds were deducted. Please try again or contact support.</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:12px;color:#C0C4CC">PZ20260630-00123</div>
+    <div class="btn-row" style="width:100%">
+      <button class="btn-cta-ghost" onclick="goTo('order')" id="t-fail-return">Return</button>
+      <button class="btn-cta" onclick="goTo('order')" id="t-fail-retry">Try Again</button>
+    </div>
+  </div>
+</div><!-- /s-failed -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 8 · 待追加验证
+══════════════════════════════════════════ -->
+<div id="s-pending" class="screen">
+
+  <div class="ck-header">
+    <div style="width:32px"></div>
+    <div class="header-center" style="text-align:center">
+      <div class="ck-title" id="t-pend-title">Verification Required</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-pending">
+      <i data-lucide="mail" size="36" style="color:#E6A23C"></i>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+      <div class="status-title" id="t-pend-heading">Additional Verification Needed</div>
+      <div class="status-desc" id="t-pend-desc">Your order is on hold. Please check your email for a verification request and complete the steps to resume processing.</div>
+    </div>
+    <div class="ck-card" style="width:100%;text-align:left">
+      <div class="card-section" style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="check-circle" size="14" style="color:#67C23A;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-pend-s1">Payment received and held securely</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="circle" size="14" style="color:#E6A23C;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-pend-s2">Awaiting your identity verification</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="circle" size="14" style="color:#C0C4CC;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#C0C4CC" id="t-pend-s3">Crypto will be released after verification</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:12px;color:#C0C4CC">PZ20260630-00123</div>
+    <button class="btn-cta" onclick="noop()" id="t-pend-return">Return to Platform</button>
+  </div>
+</div><!-- /s-pending -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 卖出订单详情
+══════════════════════════════════════════ -->
+<div id="s-sell-order" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('create')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-sell-order-title">Review Order</div>
+      <div class="ck-order-id">PZ20260630-00124</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+      <div class="timer-chip">29:58</div>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item">
+      <div class="step-dot active">1</div>
+      <span class="step-name active" id="t-sstep1">Review</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">2</div>
+      <span class="step-name" id="t-sstep2">Transfer</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">3</div>
+      <span class="step-name" id="t-sstep3">Done</span>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <div class="checkout-context">
+      <div class="checkout-context-icon">
+        <i data-lucide="route" size="17"></i>
+      </div>
+      <div class="checkout-context-main">
+        <div class="checkout-context-title">Apex Markets redirected you to Paypaz Checkout</div>
+        <div class="checkout-context-desc">broker_order_ref: CFD-JP-20260630-002 · Fill payout details here, then send crypto to the provider address generated by Paypaz.</div>
+        <span class="status-pill"><i data-lucide="shield-check" size="11"></i> off-ramp scope verified</span>
+      </div>
+    </div>
+
+    <!-- Quote Card -->
+    <div class="ck-card">
+      <div class="card-section">
+        <div class="direction-row">
+          <div class="dir-tag dir-tag-sell">
+            <div class="dir-tag-dot" style="background:#E6A23C"></div>
+            <span id="t-sell-dir">Sell Coins</span>
+          </div>
+          <span style="font-size:11px;color:#C0C4CC" id="t-sell-indicative">Rate is indicative</span>
+        </div>
+
+        <!-- You Send (crypto) -->
+        <div class="quote-block">
+          <div class="quote-label" id="t-sell-you-send">You Send</div>
+          <div class="quote-amount-row">
+            <span class="quote-amount" id="sell-send-amount">100.00</span>
+            <div class="currency-pill">
+              <div class="currency-icon ci-usdt" id="sell-crypto-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain"></div>
+              <span id="sell-crypto-label">USDT</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rate-divider">
+          <div class="rate-line"></div>
+          <div class="rate-badge">
+            <i data-lucide="arrow-down" size="11"></i>
+            <span id="sell-rate-badge">1 USDT = ¥144.0</span>
+          </div>
+          <div class="rate-line"></div>
+        </div>
+
+        <!-- You Receive (fiat) -->
+        <div class="quote-block">
+          <div class="quote-label" id="t-sell-you-receive">You Receive</div>
+          <div class="quote-amount-row">
+            <span class="quote-amount" id="sell-receive-amount">≈ ¥14,400</span>
+            <div class="currency-pill">
+              <img id="sell-fiat-flag" src="images/日本.svg" style="width:20px;height:20px;border-radius:50%;object-fit:cover">
+              <span id="sell-fiat-label">JPY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receiving Bank Account Form -->
+    <div class="ck-card">
+      <div class="card-section" style="padding-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:2px" id="t-sell-account-title">Receiving Bank Account</div>
+        <div style="font-size:12px;color:#909399" id="t-sell-account-hint">JPY will be deposited here after confirmation</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="form-card-body">
+        <div class="form-field">
+          <label class="form-label" id="t-sf-bank">Bank</label>
+          <input class="form-input" id="sf-bank" type="text" placeholder="e.g. 三菱UFJ銀行" value="三菱UFJ銀行">
+        </div>
+        <div class="form-field">
+          <label class="form-label" id="t-sf-branch">Branch</label>
+          <input class="form-input" id="sf-branch" type="text" placeholder="e.g. 大手町支店" value="大手町支店">
+        </div>
+        <div class="form-field">
+          <label class="form-label" id="t-sf-account">Account Number</label>
+          <input class="form-input" id="sf-account" type="text" placeholder="1234567" value="1234567">
+        </div>
+        <div class="form-field">
+          <label class="form-label" id="t-sf-holder">Account Holder Name</label>
+          <input class="form-input" id="sf-holder" type="text" placeholder="YAMADA TARO" value="YAMADA TARO">
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="ck-warning">
+      <div style="color:#E6A23C;flex-shrink:0;margin-top:1px"><i data-lucide="clock" size="15"></i></div>
+      <div class="ck-warning-text" id="t-sell-order-warning">Your crypto must be sent within the order time limit. Once sent, fiat will be deposited within 1 business day.</div>
+    </div>
+
+    <button class="btn-cta" onclick="goTo('sell-send')">
+      <span id="t-sell-continue">Confirm & Continue</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+    <div class="security-note">
+      <i data-lucide="shield-check" size="12"></i>
+      <span id="t-sell-secure">Secured by Paypaz · SSL Encrypted</span>
+    </div>
+
+  </div>
+</div><!-- /s-sell-order -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 卖出 — 发送加密货币
+══════════════════════════════════════════ -->
+<div id="s-sell-send" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('sell-order')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-sell-send-title">Send Crypto</div>
+      <div class="ck-order-id">PZ20260630-00124</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+      <div class="timer-chip">29:52</div>
+    </div>
+  </div>
+
+  <div class="step-bar">
+    <div class="step-item">
+      <div class="step-dot done"><i data-lucide="check" size="12"></i></div>
+      <span class="step-name done" id="t-ssstep1">Review</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-dot active">2</div>
+      <span class="step-name active" id="t-ssstep2">Transfer</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot pending">3</div>
+      <span class="step-name" id="t-ssstep3">Done</span>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <!-- Amount Hero -->
+    <div class="ck-card">
+      <div class="bt-amount-hero">
+        <div class="bt-amount-label" id="t-sell-send-label">Send exactly</div>
+        <div>
+          <span class="bt-amount-val" id="sell-send-hero-amount">100.00</span>
+          <span class="bt-amount-currency"> <span id="sell-send-hero-unit">USDT</span></span>
+        </div>
+        <div class="bt-exact-note" id="t-sell-exact-note">⚠ Amount must match exactly</div>
+      </div>
+    </div>
+
+    <!-- Address + Network -->
+    <div class="ck-card">
+      <div class="card-section" style="padding-bottom:10px">
+        <div style="font-size:12px;color:#909399;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.03em" id="t-sell-network-label">Select Network</div>
+        <div class="net-tabs">
+          <button class="net-tab active" id="net-trc20" onclick="selectNet('trc20')">TRC20</button>
+          <button class="net-tab"        id="net-erc20" onclick="selectNet('erc20')">ERC20</button>
+        </div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="bank-fields">
+        <div class="bank-field" style="align-items:flex-start;padding-top:14px">
+          <span class="bf-key" style="padding-top:2px" id="t-sell-addr-label">Address</span>
+          <span class="bf-val-mono" id="sell-addr-val" style="font-size:12px;line-height:1.5;word-break:break-all">TX3ogswuX8pXyQkLwUt3aqVAmk</span>
+          <button class="copy-mini" onclick="copyText(document.getElementById('sell-addr-val').textContent)">
+            <i data-lucide="copy" size="13"></i>
+          </button>
+        </div>
+      </div>
+      <!-- QR Code placeholder -->
+      <div style="padding:16px 16px 20px;text-align:center">
+        <div class="qr-placeholder">
+          <i data-lucide="qr-code" size="44" style="color:#C0C4CC"></i>
+        </div>
+        <div style="font-size:11px;color:#C0C4CC;margin-top:8px" id="t-sell-qr-hint">Scan to copy address</div>
+      </div>
+    </div>
+
+    <!-- Warnings -->
+    <div class="ck-warning">
+      <div style="color:#E6A23C;flex-shrink:0;margin-top:1px"><i data-lucide="alert-triangle" size="15"></i></div>
+      <div class="ck-warning-text" id="t-sell-net-warning">Only send USDT on the selected network. Sending on the wrong network will result in permanent loss of funds.</div>
+    </div>
+
+    <div class="ck-warning" style="background:#ecf5ff;border-left-color:#409EFF">
+      <div style="color:#409EFF;flex-shrink:0;margin-top:1px"><i data-lucide="clock" size="15"></i></div>
+      <div class="ck-warning-text" style="color:#606266" id="t-sell-time-warning">Order will expire if crypto is not received within the time limit. Send the exact amount shown above.</div>
+    </div>
+
+    <button class="btn-cta" onclick="goToProcessingSell()">
+      <i data-lucide="check-circle" size="16"></i>
+      <span id="t-sell-sent">I've Sent the Crypto</span>
+    </button>
+
+  </div>
+</div><!-- /s-sell-send -->
+
+
+</div><!-- /.page -->
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    langBtn: '日本語',
+    'tab-buy':          'Buy',
+    'tab-sell':         'Sell',
+    'cr-balance':       'Balance',
+    'cr-pay':           'You Pay',
+    'cr-receive':       'You Receive',
+    'cr-rate-label':    'Estimated price',
+    'cr-pm-title':      'Available in Paypaz Checkout',
+    'cr-pm-bank':       'Bank Transfer',
+    'cr-pm-bank-sub':   'No additional fee',
+    'cr-pm-gpay-sub':   'No additional fee',
+    'cr-pm-apay-sub':   'No additional fee',
+    'cr-next':          'Open Paypaz Checkout',
+    'cr-all':           'All',
+    'order-title':      'Review Order',
+    'dir-buy':          'Buy Coins',
+    'dir-sell':         'Sell Coins',
+    'indicative':       'Rate is indicative',
+    'you-pay':          'You Pay',
+    'you-receive':      'You Receive',
+    'wallet-label':     'Destination Wallet',
+    'fee-summary':      'Fee Summary',
+    'fee-rate':         'Exchange Rate',
+    'fee-spread':       'Service Fee (included in rate)',
+    'fee-network':      'Network Fee',
+    'fee-total':        'Total Payable',
+    'continue':         'Continue',
+    'secure':           'Secured by Paypaz · SSL Encrypted',
+    'step1':            'Review',
+    'step2':            'Payment',
+    'step3':            'Done',
+    'kyc-title':        'Identity Verification',
+    'kyc-heading':      'Identity Confirmation Required',
+    'kyc-desc':         'To complete your first transaction, we need to verify your identity. This is a one-time process — future purchases will be seamless.',
+    'kyc-s1':           'Provide identity document',
+    'kyc-s1h':          'Passport, driver\'s license, or national ID',
+    'kyc-s2':           'Perform a liveness check',
+    'kyc-s2h':          'Quick selfie to confirm it\'s you',
+    'kyc-redirect':     'You\'ll be redirected to our verification partner Sumsub to complete the process. Once finished, you\'ll be automatically returned to Paypaz Checkout to complete your payment.',
+    'kyc-existing':     'Existing Banxa customer mapping found. In production this KYC screen is skipped and the user continues directly in Paypaz Checkout.',
+    'kyc-time':         'Usually takes 2–3 minutes',
+    'kyc-btn':          'Start Identity Verification',
+    'kyc-secure':       'Your data is encrypted and only used for verification',
+    'kstep1':           'Verify',
+    'kstep2':           'Review',
+    'kstep3':           'Payment',
+    'kstep4':           'Done',
+    'pay-title':        'Select Payment',
+    'amount-to-pay':    'Amount to pay',
+    'pm-bank':          'Bank Transfer',
+    'pm-bank-fee':      'No additional fee',
+    'pm-gpay-fee':      'No additional fee',
+    'pm-apay-fee':      'No additional fee',
+    'safari':           'Safari only',
+    'pay-now':          'Pay with Bank Transfer',
+    'pay-secure':       'Secured by Paypaz · SSL Encrypted',
+    'wallet-note':      'Bank transfer is P0 via Banxa Native API. Google Pay and Apple Pay use the embedded payment button; web card entry is not shown until Banxa confirms a Web SDK path.',
+    'pstep1':           'Review',
+    'pstep2':           'Payment',
+    'pstep3':           'Done',
+    'bank-title':       'Bank Transfer',
+    'transfer-exact':   'Transfer exactly',
+    'exact-note':       '⚠ Amount must match exactly to be processed',
+    'bf-bank':          'Bank',
+    'bf-branch':        'Branch',
+    'bf-type':          'Account Type',
+    'bf-type-val':      'Savings (Futsu)',
+    'bf-account':       'Account No.',
+    'bf-name':          'Account Name',
+    'ref-label':        'Reference Code (Required)',
+    'ref-desc':         'You must include this reference code in the transfer remark field. Orders without the correct reference cannot be matched and may be delayed.',
+    'bank-warning':     'Transfer must be received within the order time limit. Funds sent after expiry will be returned within 3–5 business days.',
+    'transferred':      'I\'ve Completed the Transfer',
+    'proc-title':       'Processing',
+    'proc-heading':     'Confirming Your Payment',
+    'proc-desc':        'We\'re waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.',
+    'proc-return':      'Return to Platform',
+    'proc-note':        'You\'ll receive a notification when your order completes',
+    'suc-title':        'Order Completed',
+    'suc-heading':      'Order Completed',
+    'suc-desc':         'Your crypto has been sent to your wallet.',
+    'res-paid':         'You Paid',
+    'res-received':     'You Received',
+    'res-wallet':       'Wallet',
+    'res-network':      'Network',
+    'res-method':       'Payment',
+    'res-method-val':   'Bank Transfer',
+    'res-order':        'Order ID',
+    'res-time':         'Completed',
+    'suc-return':       'Return to Platform',
+    'fail-title':       'Transaction Failed',
+    'fail-heading':     'Transaction Failed',
+    'fail-desc':        'Your payment could not be processed. No funds were deducted. Please try again or contact support.',
+    'fail-return':      'Return',
+    'fail-retry':       'Try Again',
+    'pend-title':       'Verification Required',
+    'pend-heading':     'Additional Verification Needed',
+    'pend-desc':        'Your order is on hold. Please check your email for a verification request and complete the steps to resume processing.',
+    'pend-s1':          'Payment received and held securely',
+    'pend-s2':          'Awaiting your identity verification',
+    'pend-s3':          'Crypto will be released after verification',
+    'pend-return':      'Return to Platform',
+    'sell-order-title': 'Review Order',
+    'sstep1':           'Review',
+    'sstep2':           'Transfer',
+    'sstep3':           'Done',
+    'sell-dir':         'Sell Coins',
+    'sell-indicative':  'Rate is indicative',
+    'sell-you-send':    'You Send',
+    'sell-you-receive': 'You Receive',
+    'sell-account-title':'Receiving Bank Account',
+    'sell-account-hint':'JPY will be deposited here after confirmation',
+    'sf-bank':          'Bank',
+    'sf-branch':        'Branch',
+    'sf-account':       'Account Number',
+    'sf-holder':        'Account Holder Name',
+    'sell-order-warning':'Your crypto must be sent within the order time limit. Once sent, fiat will be deposited within 1 business day.',
+    'sell-continue':    'Confirm & Continue',
+    'sell-secure':      'Secured by Paypaz · SSL Encrypted',
+    'sell-send-title':  'Send Crypto',
+    'ssstep1':          'Review',
+    'ssstep2':          'Transfer',
+    'ssstep3':          'Done',
+    'sell-send-label':  'Send exactly',
+    'sell-exact-note':  '⚠ Amount must match exactly',
+    'sell-network-label':'Select Network',
+    'sell-addr-label':  'Address',
+    'sell-qr-hint':     'Scan to copy address',
+    'sell-net-warning': 'Only send USDT on the selected network. Sending on the wrong network will result in permanent loss of funds.',
+    'sell-time-warning':'Order will expire if crypto is not received within the time limit. Send the exact amount shown above.',
+    'sell-sent':        'I\'ve Sent the Crypto',
+  },
+  ja: {
+    langBtn: '中文',
+    'tab-buy':          '購入',
+    'tab-sell':         '売却',
+    'cr-balance':       '残高',
+    'cr-pay':           'お支払い',
+    'cr-receive':       '受取',
+    'cr-rate-label':    '参考レート',
+    'cr-pm-title':      'Paypaz Checkout で利用可能',
+    'cr-pm-bank':       '銀行振込',
+    'cr-pm-bank-sub':   '追加手数料なし',
+    'cr-pm-gpay-sub':   '追加手数料なし',
+    'cr-pm-apay-sub':   '追加手数料なし',
+    'cr-next':          'Paypaz Checkout を開く',
+    'cr-all':           '全額',
+    'order-title':      '注文内容の確認',
+    'dir-buy':          'コイン購入',
+    'dir-sell':         'コイン売却',
+    'indicative':       'レートは参考値です',
+    'you-pay':          'お支払い金額',
+    'you-receive':      '受取金額',
+    'wallet-label':     '送金先ウォレット',
+    'fee-summary':      '手数料明細',
+    'fee-rate':         '為替レート',
+    'fee-spread':       'サービス手数料（レート内）',
+    'fee-network':      'ネットワーク手数料',
+    'fee-total':        'お支払い合計',
+    'continue':         '次へ',
+    'secure':           'Paypaz セキュリティ保護 · SSL 暗号化',
+    'step1':            '確認',
+    'step2':            'お支払い',
+    'step3':            '完了',
+    'kyc-title':        '本人確認',
+    'kyc-heading':      '本人確認が必要です',
+    'kyc-desc':         '初回取引には本人確認が必要です。一度完了すれば、次回以降はスムーズにご利用いただけます。',
+    'kyc-s1':           '身分証明書の提出',
+    'kyc-s1h':          'パスポート、運転免許証、またはマイナンバーカード',
+    'kyc-s2':           '本人確認（顔認証）',
+    'kyc-s2h':          'セルフィーで本人確認を行います',
+    'kyc-redirect':     '本人確認パートナーの Sumsub に遷移して認証を完了します。完了後、自動的に Paypaz Checkout に戻り、お支払いを続けることができます。',
+    'kyc-existing':     '既存の Banxa 顧客マッピングが見つかりました。本番環境ではこの KYC 画面をスキップし、Paypaz Checkout に直接進みます。',
+    'kyc-time':         '通常 2〜3 分で完了します',
+    'kyc-btn':          '本人確認を開始する',
+    'kyc-secure':       'お客様の情報は暗号化され、本人確認のみに使用されます',
+    'kstep1':           '本人確認',
+    'kstep2':           '確認',
+    'kstep3':           'お支払い',
+    'kstep4':           '完了',
+    'pay-title':        'お支払い方法の選択',
+    'amount-to-pay':    'お支払い金額',
+    'pm-bank':          '銀行振込',
+    'pm-bank-fee':      '追加手数料なし',
+    'pm-gpay-fee':      '追加手数料なし',
+    'pm-apay-fee':      '追加手数料なし',
+    'safari':           'Safari のみ',
+    'pay-now':          '銀行振込で支払う',
+    'pay-secure':       'Paypaz セキュリティ保護 · SSL 暗号化',
+    'wallet-note':      '銀行振込は Banxa Native API の P0 対応です。Google Pay / Apple Pay は Embedded Payment Button を使用します。Webカード入力は Banxa のWeb SDK方針確認後に表示します。',
+    'pstep1':           '確認',
+    'pstep2':           'お支払い',
+    'pstep3':           '完了',
+    'bank-title':       '銀行振込',
+    'transfer-exact':   '以下の金額を振り込んでください',
+    'exact-note':       '⚠ 金額は必ず一致させてください',
+    'bf-bank':          '金融機関名',
+    'bf-branch':        '支店名',
+    'bf-type':          '口座種別',
+    'bf-type-val':      '普通',
+    'bf-account':       '口座番号',
+    'bf-name':          '口座名義',
+    'ref-label':        '振込依頼人名（必須）',
+    'ref-desc':         '振込依頼人名に必ず上記の参照コードを入力してください。入力がない場合、注文の照合ができず、処理が遅延する場合があります。',
+    'bank-warning':     '有効期限内に着金が必要です。期限を過ぎた場合、送金は 3〜5 営業日以内に返金されます。',
+    'transferred':      '振込が完了しました',
+    'proc-title':       '処理中',
+    'proc-heading':     'お支払いを確認中です',
+    'proc-desc':        '銀行振込の着金を確認しています。通常、数分〜1 営業日かかります。',
+    'proc-return':      'プラットフォームに戻る',
+    'proc-note':        '注文が完了したら通知をお送りします',
+    'suc-title':        '注文完了',
+    'suc-heading':      '注文が完了しました',
+    'suc-desc':         '暗号資産をウォレットに送金しました。',
+    'res-paid':         'お支払い金額',
+    'res-received':     '受取金額',
+    'res-wallet':       'ウォレット',
+    'res-network':      'ネットワーク',
+    'res-method':       'お支払い方法',
+    'res-method-val':   '銀行振込',
+    'res-order':        '注文番号',
+    'res-time':         '完了日時',
+    'suc-return':       'プラットフォームに戻る',
+    'fail-title':       '取引失敗',
+    'fail-heading':     '取引に失敗しました',
+    'fail-desc':        'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。',
+    'fail-return':      '戻る',
+    'fail-retry':       '再試行',
+    'pend-title':       '追加確認が必要です',
+    'pend-heading':     '追加の本人確認が必要です',
+    'pend-desc':        '注文が保留中です。メールをご確認いただき、本人確認の手続きを完了してください。',
+    'pend-s1':          'お支払いを安全に受領・保留しています',
+    'pend-s2':          '本人確認の完了をお待ちしています',
+    'pend-s3':          '確認完了後に暗号資産を送金します',
+    'pend-return':      'プラットフォームに戻る',
+    'sell-order-title': '注文内容の確認',
+    'sstep1':           '確認',
+    'sstep2':           '送金',
+    'sstep3':           '完了',
+    'sell-dir':         'コイン売却',
+    'sell-indicative':  'レートは参考値です',
+    'sell-you-send':    '送金額',
+    'sell-you-receive': '受取金額',
+    'sell-account-title':'受取銀行口座',
+    'sell-account-hint':'確認後、指定口座に法定通貨を振り込みます',
+    'sf-bank':          '金融機関名',
+    'sf-branch':        '支店名',
+    'sf-account':       '口座番号',
+    'sf-holder':        '口座名義',
+    'sell-order-warning':'有効期限内に暗号資産を送金してください。送金確認後、1営業日以内に法定通貨を振り込みます。',
+    'sell-continue':    '確認して次へ',
+    'sell-secure':      'Paypaz セキュリティ保護 · SSL 暗号化',
+    'sell-send-title':  '暗号資産の送金',
+    'ssstep1':          '確認',
+    'ssstep2':          '送金',
+    'ssstep3':          '完了',
+    'sell-send-label':  '以下の金額を送金してください',
+    'sell-exact-note':  '⚠ 金額は必ず一致させてください',
+    'sell-network-label':'ネットワークを選択',
+    'sell-addr-label':  'アドレス',
+    'sell-qr-hint':     'QRコードをスキャン',
+    'sell-net-warning': '選択したネットワークのみ USDT を送金してください。誤ったネットワークへの送金は資産の永久喪失につながります。',
+    'sell-time-warning':'期限内に暗号資産が届かない場合、注文はキャンセルされます。上記の正確な金額を送金してください。',
+    'sell-sent':        '送金が完了しました',
+  },
+  zh: {
+    langBtn: 'EN',
+    'tab-buy':          '买入',
+    'tab-sell':         '卖出',
+    'cr-balance':       '余额',
+    'cr-pay':           '支付',
+    'cr-receive':       '收到',
+    'cr-rate-label':    '预估价格',
+    'cr-pm-title':      'Paypaz Checkout 可用方式',
+    'cr-pm-bank':       '银行转账',
+    'cr-pm-bank-sub':   '无额外费用',
+    'cr-pm-gpay-sub':   '无额外费用',
+    'cr-pm-apay-sub':   '无额外费用',
+    'cr-next':          '打开 Paypaz Checkout',
+    'cr-all':           '全部',
+    'order-title':      '确认订单',
+    'dir-buy':          '买币',
+    'dir-sell':         '卖币',
+    'indicative':       '汇率为参考价格',
+    'you-pay':          '您支付',
+    'you-receive':      '您获得',
+    'wallet-label':     '目标钱包',
+    'fee-summary':      '费用明细',
+    'fee-rate':         '汇率',
+    'fee-spread':       '服务费（含于汇率中）',
+    'fee-network':      '网络费',
+    'fee-total':        '实际支付',
+    'continue':         '继续',
+    'secure':           'Paypaz 安全保障 · SSL 加密传输',
+    'step1':            '确认',
+    'step2':            '支付',
+    'step3':            '完成',
+    'kyc-title':        '身份验证',
+    'kyc-heading':      '需要完成身份验证',
+    'kyc-desc':         '首次交易需要验证您的身份，此为一次性流程，后续交易将无需重复验证。',
+    'kyc-s1':           '提供身份证件',
+    'kyc-s1h':          '护照、驾照或国民身份证',
+    'kyc-s2':           '活体人脸检测',
+    'kyc-s2h':          '简单自拍确认本人',
+    'kyc-redirect':     '您将被跳转至我们的身份验证合作方 Sumsub 完成认证，完成后将自动返回 Paypaz Checkout 继续支付。',
+    'kyc-existing':     '已找到 Banxa 用户映射。生产流程会跳过此 KYC 页面，用户直接继续 Paypaz Checkout。',
+    'kyc-time':         '通常需要 2–3 分钟',
+    'kyc-btn':          '开始身份验证',
+    'kyc-secure':       '您的信息已加密，仅用于身份验证',
+    'kstep1':           '身份验证',
+    'kstep2':           '确认',
+    'kstep3':           '支付',
+    'kstep4':           '完成',
+    'pay-title':        '选择支付方式',
+    'amount-to-pay':    '支付金额',
+    'pm-bank':          '银行转账',
+    'pm-bank-fee':      '无额外费用',
+    'pm-gpay-fee':      '无额外费用',
+    'pm-apay-fee':      '无额外费用',
+    'safari':           '仅 Safari',
+    'pay-now':          '使用银行转账支付',
+    'pay-secure':       'Paypaz 安全保障 · SSL 加密传输',
+    'wallet-note':      '银行转账为 P0，通过 Banxa Native API 处理。Google Pay / Apple Pay 使用 Embedded Payment Button；Web 卡支付需待 Banxa 确认 Web SDK 路线后再展示。',
+    'pstep1':           '确认',
+    'pstep2':           '支付',
+    'pstep3':           '完成',
+    'bank-title':       '银行转账',
+    'transfer-exact':   '请精确转入',
+    'exact-note':       '⚠ 转账金额必须与上方金额完全一致',
+    'bf-bank':          '银行',
+    'bf-branch':        '支店',
+    'bf-type':          '账户类型',
+    'bf-type-val':      '普通储蓄',
+    'bf-account':       '账户号码',
+    'bf-name':          '账户名',
+    'ref-label':        '转账备注（必填）',
+    'ref-desc':         '转账时必须在备注栏填写此参考码，否则无法自动匹配订单，资金可能被延迟处理。',
+    'bank-warning':     '转账须在订单有效期内到账，逾期资金将在 3–5 个工作日内原路退回。',
+    'transferred':      '我已完成转账',
+    'proc-title':       '处理中',
+    'proc-heading':     '正在确认您的付款',
+    'proc-desc':        '我们正在等待您的银行转账到账，通常需要几分钟至 1 个工作日。',
+    'proc-return':      '返回平台',
+    'proc-note':        '订单完成后您将收到通知',
+    'suc-title':        '订单完成',
+    'suc-heading':      '订单已完成',
+    'suc-desc':         '加密资产已发送至您的钱包。',
+    'res-paid':         '实际支付',
+    'res-received':     '获得加密资产',
+    'res-wallet':       '钱包地址',
+    'res-network':      '网络',
+    'res-method':       '支付方式',
+    'res-method-val':   '银行转账',
+    'res-order':        '订单号',
+    'res-time':         '完成时间',
+    'suc-return':       '返回平台',
+    'fail-title':       '交易失败',
+    'fail-heading':     '交易失败',
+    'fail-desc':        '您的付款未能处理，未扣除任何资金，请重试或联系客服。',
+    'fail-return':      '返回',
+    'fail-retry':       '重新尝试',
+    'pend-title':       '需要追加验证',
+    'pend-heading':     '需要追加身份验证',
+    'pend-desc':        '您的订单已暂停，请查收邮件并按要求完成身份验证以继续处理。',
+    'pend-s1':          '付款已安全接收并冻结',
+    'pend-s2':          '等待完成身份验证',
+    'pend-s3':          '验证完成后将释放加密资产',
+    'pend-return':      '返回平台',
+    'sell-order-title': '确认订单',
+    'sstep1':           '确认',
+    'sstep2':           '转账',
+    'sstep3':           '完成',
+    'sell-dir':         '卖出加密货币',
+    'sell-indicative':  '汇率仅供参考',
+    'sell-you-send':    '您发送',
+    'sell-you-receive': '您收到',
+    'sell-account-title':'收款银行账户',
+    'sell-account-hint':'确认到账后，法币将划转至此账户',
+    'sf-bank':          '银行',
+    'sf-branch':        '支行',
+    'sf-account':       '账号',
+    'sf-holder':        '账户姓名',
+    'sell-order-warning':'请在订单有效期内发送加密货币。确认到账后，法币将在1个工作日内划转。',
+    'sell-continue':    '确认并继续',
+    'sell-secure':      '由 Paypaz 安全保障 · SSL 加密',
+    'sell-send-title':  '发送加密货币',
+    'ssstep1':          '确认',
+    'ssstep2':          '转账',
+    'ssstep3':          '完成',
+    'sell-send-label':  '请发送以下精确金额',
+    'sell-exact-note':  '⚠ 金额必须完全匹配',
+    'sell-network-label':'选择网络',
+    'sell-addr-label':  '地址',
+    'sell-qr-hint':     '扫描二维码复制地址',
+    'sell-net-warning': '请仅在所选网络发送 USDT，发送至错误网络将导致资产永久损失。',
+    'sell-time-warning':'若在有效期内未收到加密货币，订单将自动取消。请按上方金额精确发送。',
+    'sell-sent':        '我已完成转账',
+  }
+};
+
+let lang = 'en';
+const LANG_CYCLE = { en: 'ja', ja: 'zh', zh: 'en' };
+let successMode = 'buy';
+
+function renderIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function applyLang() {
+  const t = I18N[lang];
+  Object.keys(t).forEach(k => {
+    const el = document.getElementById('t-' + k);
+    if (el) el.textContent = t[k];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.textContent = t.langBtn);
+  // Re-sync pay-now label to selected payment method
+  const labels = PM_LABELS[selectedPM] || PM_LABELS['bank'];
+  const payNow = document.getElementById('t-pay-now');
+  if (payNow) payNow.textContent = labels[lang] || labels['en'];
+  // Update KYC demo hint to current language
+  updateKycDemoHint();
+  if (typeof setSuccessMode === 'function') setSuccessMode(successMode);
+}
+
+function toggleLang() {
+  lang = LANG_CYCLE[lang];
+  applyLang();
+}
+
+// ── Screen Navigation ────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  // Demo nav highlight
+  document.querySelectorAll('.demo-nav button').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('dnav-' + id);
+  if (nb) nb.classList.add('active');
+  refreshKycButtons();
+  if (id === 'kyc') updateKycScreen();
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+// ── Payment Method Selection ─────────────────────────────────────────
+let selectedPM = 'bank';
+const PM_LABELS = {
+  bank: { en: 'Pay with Bank Transfer', ja: '銀行振込で支払う',    zh: '使用银行转账支付' },
+  gpay: { en: 'Pay with Google Pay',    ja: 'Google Pay で支払う', zh: '使用 Google Pay 支付' },
+  apay: { en: 'Pay with Apple Pay',     ja: 'Apple Pay で支払う',  zh: '使用 Apple Pay 支付' },
+};
+
+function selectPM(id) {
+  selectedPM = id;
+  ['bank','gpay','apay'].forEach(pm => {
+    const card = document.getElementById('pm-' + pm);
+    const check = document.getElementById('pc-' + pm);
+    const empty = document.getElementById('pe-' + pm);
+    if (pm === id) {
+      card.classList.add('selected');
+      if (check) check.style.display = 'flex';
+      if (empty) empty.style.display = 'none';
+    } else {
+      card.classList.remove('selected');
+      if (check) check.style.display = 'none';
+      if (empty) empty.style.display = 'flex';
+    }
+  });
+  // Update CTA label
+  const labels = PM_LABELS[id] || PM_LABELS['bank'];
+  document.getElementById('t-pay-now').textContent = labels[lang];
+}
+
+function proceedPayment() {
+  if (selectedPM === 'bank') {
+    goTo('bank');
+  } else {
+    // Google Pay / Apple Pay: show embedded payment button (demo only)
+    showToast(lang === 'zh' ? '数字钱包支付仅演示，跳转处理中...' : 'Digital wallet demo — going to processing...');
+    setTimeout(() => goTo('processing'), 1200);
+  }
+}
+
+// ── KYC Demo ────────────────────────────────────────────────────────
+function simulateKYCReturn() {
+  let msg;
+  if (kycStatus === 'data-filled') {
+    msg = lang === 'ja' ? '既存の認証が検出されました、返却中...'
+        : lang === 'zh' ? '检测到已有认证记录，即时返回...'
+        : 'Existing verification detected — returning now...';
+  } else {
+    msg = lang === 'zh' ? '演示：Sumsub 认证完成，正在返回...'
+        : lang === 'ja' ? 'デモ：Sumsub KYC 完了、返却中...'
+        : 'Demo: Sumsub KYC complete, returning...';
+  }
+  showToast(msg);
+  setTimeout(() => goTo(kycReturnTarget || 'order'), 1200);
+}
+
+// ── Processing Demo ──────────────────────────────────────────────────
+function goToProcessing() {
+  setSuccessMode('buy');
+  goTo('processing');
+}
+
+// ── Fee Toggle ──────────────────────────────────────────────────────
+let feeOpen = false;
+function toggleFee() {
+  feeOpen = !feeOpen;
+  document.getElementById('feeRows').style.display = feeOpen ? 'block' : 'none';
+  const caret = document.getElementById('feeCaret');
+  caret.classList.toggle('open', feeOpen);
+}
+
+// ── Copy ────────────────────────────────────────────────────────────
+function copyText(txt) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(() => showToast(lang === 'zh' ? '已复制' : 'Copied!'));
+  } else {
+    const el = document.createElement('textarea');
+    el.value = txt;
+    el.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast(lang === 'zh' ? '已复制' : 'Copied!');
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || 'Copied!';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Countdown ────────────────────────────────────────────────────────
+let remaining = 29 * 60 + 58;
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function tickTimer() {
+  if (remaining <= 0) return;
+  remaining--;
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  const str = `${pad2(m)}:${pad2(s)}`;
+  ['order-timer', 'pay-timer', 'bank-timer'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = str;
+    el.classList.toggle('urgent', remaining < 300);
+  });
+}
+setInterval(tickTimer, 1000);
+
+// ── Noop (placeholder for CFD return_url) ───────────────────────────
+function noop() {
+  showToast(lang === 'zh' ? '演示模式，此按钮将跳转至 CFD 平台' : 'Demo mode — this would return to CFD platform');
+}
+
+// ── KYC Status State ────────────────────────────────────────────────
+// 'approved'    → Path A: merchant has valid Sumsub token, skip KYC entirely
+// 'none'        → Path B: user has no Sumsub record, full KYC required
+// 'data-filled' → Path C: existing Banxa customer mapping, skip KYC entirely
+let kycStatus = 'approved';
+let kycReturnTarget = 'order'; // 'order' for buy, 'sell-order' for sell
+
+function refreshKycButtons() {
+  const map = { approved: 'a', none: 'b', 'data-filled': 'c' };
+  ['a','b','c'].forEach(k => {
+    const btn = document.getElementById('dnav-kyc-' + k);
+    if (btn) btn.classList.toggle('active', k === map[kycStatus]);
+  });
+}
+
+function setKycStatus(s) {
+  kycStatus = s;
+  refreshKycButtons();
+  updateKycDemoHint();
+}
+
+function updateKycDemoHint() {
+  const el = document.getElementById('kyc-demo-hint');
+  if (!el) return;
+  const hints = {
+    approved: {
+      en: '[Path A] Merchant already holds a valid KYC token → Next goes directly to order review',
+      zh: '[路径 A] 商户已有合规 Sumsub Token → 点击下一步直接进入订单确认',
+      ja: '[パス A] 有効なKYCトークンあり → 次へで注文確認へ直進',
+    },
+    none: {
+      en: '[Path B] No KYC record → Next redirects to Sumsub for full verification (~2–3 min)',
+      zh: '[路径 B] 无KYC记录 → 点击下一步进入 Sumsub 完整认证流程（约2–3分钟）',
+      ja: '[パス B] KYC未完了 → 次へでSumsub認証へ（約2〜3分）',
+    },
+    'data-filled': {
+      en: '[Path C] Existing Banxa customer mapping → Checkout skips KYC and goes straight to payment',
+      zh: '[路径 C] 已有 Banxa 用户映射 → Checkout 跳过 KYC，直接进入支付/转账',
+      ja: '[パス C] 既存のBanxa顧客マッピングあり → KYCをスキップして支払いへ',
+    },
+  };
+  const h = hints[kycStatus] || hints['approved'];
+  el.textContent = h[lang] || h['en'];
+}
+
+function updateKycScreen() {
+  const noteFullEl  = document.getElementById('kyc-note-full');
+  const noteExistEl = document.getElementById('kyc-note-existing');
+  const timeEl      = document.getElementById('t-kyc-time');
+  const isC = kycStatus === 'data-filled';
+  if (noteFullEl)  noteFullEl.style.display  = isC ? 'none' : 'flex';
+  if (noteExistEl) noteExistEl.style.display = isC ? 'flex' : 'none';
+  if (timeEl) {
+    const t = isC
+      ? { en: 'No KYC action required', zh: '无需 KYC 操作', ja: 'KYC 操作は不要です' }
+      : { en: 'Usually takes 2–3 minutes', zh: '通常需要 2–3 分钟', ja: '通常 2〜3 分で完了します' };
+    timeEl.textContent = t[lang] || t['en'];
+  }
+  renderIcons();
+}
+
+function handleKycPrimary() {
+  if (kycStatus === 'data-filled') {
+    goTo(kycReturnTarget || 'order');
+  } else {
+    goToSumsub();
+  }
+}
+
+function goToSumsub() {
+  showToast(lang === 'zh' ? '正在打开 Sumsub 身份验证页面...' : lang === 'ja' ? 'Sumsub 本人確認ページを開いています...' : 'Opening Sumsub verification...');
+  setTimeout(() => goTo('sumsub'), 450);
+}
+
+function completeSumsub() {
+  showToast(lang === 'zh' ? 'Sumsub 验证完成，正在返回 Paypaz Checkout...' : lang === 'ja' ? 'Sumsub 本人確認が完了しました。Checkout に戻ります...' : 'Sumsub verification complete — returning to Paypaz Checkout...');
+  kycStatus = 'data-filled';
+  updateKycDemoHint();
+  refreshKycButtons();
+  setTimeout(() => goTo(kycReturnTarget || 'order'), 900);
+}
+
+// ── Create Order State ───────────────────────────────────────────────
+let crDir = 'buy';
+let crCrPM = 'bank';
+
+const FIAT_CFG = {
+  JPY: { sym: '¥', cls: 'cr-ci-jpy', icon: 'images/日本.svg',      label: 'JPY', min: 2000,  max: 1560000, dp: 0 },
+  USD: { sym: '$', cls: 'cr-ci-usd', icon: 'images/美国国旗.svg',   label: 'USD', min: 15,    max: 10400,   dp: 2 },
+};
+const CRYPTO_CFG = {
+  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 10, max: 10000 },
+  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 10, max: 10000 },
+};
+const BASE_RATES = { JPY: 150, USD: 1.0 };
+const BUY_SPREAD  = 1.04;
+const SELL_SPREAD = 0.96;
+
+let crFiat   = 'JPY';
+let crCrypto = 'USDT';
+
+function effectiveRate() {
+  const base = BASE_RATES[crFiat] || 150;
+  return crDir === 'buy' ? base * BUY_SPREAD : base * SELL_SPREAD;
+}
+
+function fmtFiat(v) {
+  const cfg = FIAT_CFG[crFiat];
+  return cfg.sym + Number(v.toFixed(cfg.dp)).toLocaleString('en-US', { minimumFractionDigits: cfg.dp, maximumFractionDigits: cfg.dp });
+}
+
+function setDir(dir) {
+  crDir = dir;
+  document.getElementById('tab-buy').classList.toggle('active', dir === 'buy');
+  document.getElementById('tab-sell').classList.toggle('active', dir === 'sell');
+  const isSell = dir === 'sell';
+  document.getElementById('cr-balance-row').style.display = isSell ? 'flex' : 'none';
+  document.getElementById('cr-all-btn').style.display     = isSell ? '' : 'none';
+  const scopeEl = document.getElementById('merchant-scope');
+  if (scopeEl) scopeEl.textContent = isSell ? 'off-ramp scope' : 'on-ramp scope';
+  const quoteEl = document.getElementById('merchant-api-quote');
+  if (quoteEl) quoteEl.textContent = isSell ? '/v1/ramp/offramp/quote' : '/v1/ramp/onramp/quote';
+  const orderEl = document.getElementById('merchant-api-order');
+  if (orderEl) orderEl.textContent = isSell ? '/v1/ramp/offramp/order' : '/v1/ramp/onramp/order';
+  const refEl = document.getElementById('merchant-api-ref');
+  if (refEl) refEl.textContent = isSell ? 'CFD-JP-20260630-002' : 'CFD-JP-20260630-001';
+  const methodEl = document.getElementById('merchant-flow-method');
+  if (methodEl) methodEl.textContent = isSell ? 'sell quote + order' : 'buy quote + order';
+  document.getElementById('cr-pay-input').value = '';
+  refreshCurrencyUI();
+  updateReceiveDisplay(0);
+  updateNextBtn();
+}
+
+function refreshCurrencyUI() {
+  const isSell = crDir === 'sell';
+  const fc = FIAT_CFG[crFiat];
+  const cc = CRYPTO_CFG[crCrypto];
+
+  if (!isSell) {
+    // buy: pay fiat, receive crypto
+    setIconRow('cr-pay-icon',     fc.sym, fc.cls, 'cr-pay-name',     fc.label, fc.icon);
+    setIconRow('cr-receive-icon', cc.sym, cc.cls, 'cr-receive-name', cc.label, cc.icon);
+    const hint = document.getElementById('cr-pay-range');
+    if (hint) hint.textContent = `${fmtFiat(fc.min)} – ${fmtFiat(fc.max)}`;
+  } else {
+    // sell: pay crypto, receive fiat
+    setIconRow('cr-pay-icon',     cc.sym, cc.cls, 'cr-pay-name',     cc.label, cc.icon);
+    setIconRow('cr-receive-icon', fc.sym, fc.cls, 'cr-receive-name', fc.label, fc.icon);
+    const hint = document.getElementById('cr-pay-range');
+    if (hint) hint.textContent = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
+    const bal = document.getElementById('cr-balance-val');
+    if (bal) bal.textContent = (crCrypto === 'USDT' ? '2,500' : '1,200') + ' ' + crCrypto;
+  }
+  updateRateDisplay();
+}
+
+function setIconRow(iconId, sym, cls, nameId, name, icon) {
+  const el = document.getElementById(iconId);
+  if (!el) return;
+  if (icon) {
+    el.innerHTML = `<img src="${icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%">`;
+  } else {
+    el.textContent = sym;
+  }
+  el.className = 'cr-currency-icon ' + cls;
+  const nm = document.getElementById(nameId);
+  if (nm) nm.textContent = name;
+}
+
+function updateRateDisplay() {
+  const rate = effectiveRate();
+  const fc = FIAT_CFG[crFiat];
+  const rateStr = rate % 1 === 0 ? fc.sym + rate : fc.sym + rate.toFixed(4);
+  const el = document.getElementById('cr-rate-display');
+  if (el) el.textContent = `1 ${crCrypto} ≈ ${rateStr}`;
+}
+
+function onPayInput() {
+  const val = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  const rate = effectiveRate();
+  const receive = crDir === 'buy' ? val / rate : val * rate;
+  updateReceiveDisplay(receive);
+  updateNextBtn();
+}
+
+function updateReceiveDisplay(val) {
+  const el = document.getElementById('cr-receive-display');
+  if (!el) return;
+  if (val <= 0) {
+    el.textContent = '0';
+    el.classList.add('zero');
+  } else {
+    el.classList.remove('zero');
+    el.textContent = crDir === 'buy'
+      ? (parseFloat(val.toFixed(6)) + '')
+      : fmtFiat(val);
+  }
+}
+
+function updateNextBtn() {
+  const val = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  let valid = false;
+  if (crDir === 'buy') {
+    const fc = FIAT_CFG[crFiat];
+    valid = val >= fc.min && val <= fc.max;
+  } else {
+    const cc = CRYPTO_CFG[crCrypto];
+    valid = val >= cc.min && val <= cc.max;
+  }
+  const btn = document.getElementById('cr-next-btn');
+  if (btn) btn.disabled = !valid;
+}
+
+function fillAll() {
+  document.getElementById('cr-pay-input').value = crCrypto === 'USDT' ? 100 : 100;
+  onPayInput();
+}
+
+function switchCrypto() {
+  crCrypto = crCrypto === 'USDT' ? 'USDC' : 'USDT';
+  refreshCurrencyUI();
+  onPayInput();
+}
+
+// ── Currency Dropdown ─────────────────────────────────────
+let crDropTarget = 'pay';
+
+function openDropdown(target) {
+  crDropTarget = target;
+  const isBuy = crDir === 'buy';
+  // buy: pay=fiat, receive=crypto  |  sell: pay=crypto, receive=fiat
+  const showFiat = (isBuy && target === 'pay') || (!isBuy && target === 'receive');
+
+  const titleEl = document.getElementById('cr-dropdown-title');
+  if (titleEl) titleEl.textContent = showFiat
+    ? (lang==='zh'?'选择法币': lang==='ja'?'法定通貨を選択':'Select Fiat')
+    : (lang==='zh'?'选择加密货币': lang==='ja'?'暗号資産を選択':'Select Crypto');
+
+  const list = document.getElementById('cr-dropdown-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (showFiat) {
+    Object.entries(FIAT_CFG).forEach(([k, f]) => {
+      const sel = k === crFiat;
+      list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectCur('${k}','fiat')">
+        <span class="cr-currency-icon ${f.cls}"><img src="${f.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
+        <span class="cr-option-name">${f.label}</span>
+        ${sel?'<i data-lucide="check" class="cr-option-check"></i>':''}
+      </div>`;
+    });
+  } else {
+    Object.entries(CRYPTO_CFG).forEach(([k, c]) => {
+      const sel = k === crCrypto;
+      list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectCur('${k}','crypto')">
+        <span class="cr-currency-icon ${c.cls}"><img src="${c.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
+        <span class="cr-option-name">${c.label}</span>
+        ${sel?'<i data-lucide="check" class="cr-option-check"></i>':''}
+      </div>`;
+    });
+  }
+
+  document.getElementById('cr-dropdown').classList.add('show');
+  renderIcons();
+}
+
+function selectCur(key, type) {
+  if (type === 'fiat')   crFiat   = key;
+  if (type === 'crypto') crCrypto = key;
+  document.getElementById('cr-dropdown').classList.remove('show');
+  refreshCurrencyUI();
+  onPayInput();
+}
+
+function closeDropdown(e) {
+  if (e && e.target !== document.getElementById('cr-dropdown')) return;
+  document.getElementById('cr-dropdown').classList.remove('show');
+}
+
+// ── Create screen PM ─────────────────────────────────────
+function setCrPM(id) {
+  crCrPM = id;
+  ['bank','gpay','apay'].forEach(pm => {
+    const item  = document.getElementById('cr-pm-' + pm);
+    const chk   = document.getElementById('cr-pm-' + pm + '-check');
+    const empty = document.getElementById('cr-pm-' + pm + '-empty');
+    const sel   = pm === id;
+    if (item)  item.classList.toggle('selected', sel);
+    if (chk)   chk.style.display   = sel ? '' : 'none';
+    if (empty) empty.style.display  = sel ? 'none' : '';
+  });
+}
+
+// ── Proceed to Checkout ──────────────────────────────────
+function proceedToCheckout() {
+  const payVal     = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  const rate       = effectiveRate();
+  const receiveVal = crDir === 'buy' ? payVal / rate : payVal * rate;
+
+  if (crDir === 'buy') {
+    // ── Buy flow: update s-order ──────────────────────────────────────
+    const qAmounts = document.querySelectorAll('#s-order .quote-amount');
+    if (qAmounts[0]) qAmounts[0].textContent = fmtFiat(payVal);
+    if (qAmounts[1]) qAmounts[1].textContent = '≈ ' + receiveVal.toFixed(2);
+
+    const rateBadgeSpan = document.querySelector('#s-order .rate-badge');
+    if (rateBadgeSpan) {
+      const spans = rateBadgeSpan.querySelectorAll('span');
+      if (spans[0]) spans[0].textContent = '1 ' + crCrypto + ' = ' + fmtFiat(Math.round(BASE_RATES[crFiat]));
+    }
+
+    selectedPM = crCrPM;
+    selectPM(crCrPM);
+    kycReturnTarget = 'order';
+
+  } else {
+    // ── Sell flow: update s-sell-order ───────────────────────────────
+    const baseRate = BASE_RATES[crFiat] * SELL_SPREAD;
+
+    const sendAmtEl = document.getElementById('sell-send-amount');
+    if (sendAmtEl) sendAmtEl.textContent = payVal.toFixed(2);
+
+    const recvAmtEl = document.getElementById('sell-receive-amount');
+    if (recvAmtEl) recvAmtEl.textContent = '≈ ' + fmtFiat(Math.floor(receiveVal));
+
+    const rateBadgeEl = document.getElementById('sell-rate-badge');
+    if (rateBadgeEl) rateBadgeEl.textContent = '1 ' + crCrypto + ' = ' + fmtFiat(Math.floor(baseRate));
+
+    const cryptoLabel = document.getElementById('sell-crypto-label');
+    if (cryptoLabel) cryptoLabel.textContent = crCrypto;
+    const cryptoIcon = document.getElementById('sell-crypto-icon');
+    if (cryptoIcon) {
+      const cIcon = CRYPTO_CFG[crCrypto].icon;
+      cryptoIcon.innerHTML = `<img src="${cIcon}" style="width:100%;height:100%;object-fit:contain">`;
+      cryptoIcon.className = 'currency-icon ' + (crCrypto === 'USDT' ? 'ci-usdt' : 'ci-usdc');
+    }
+    const fiatFlag = document.getElementById('sell-fiat-flag');
+    if (fiatFlag) fiatFlag.src = crFiat === 'JPY' ? 'images/日本.svg' : 'images/美国国旗.svg';
+    const fiatLabel = document.getElementById('sell-fiat-label');
+    if (fiatLabel) fiatLabel.textContent = crFiat;
+
+    // Propagate to send screen
+    const heroAmt = document.getElementById('sell-send-hero-amount');
+    if (heroAmt) heroAmt.textContent = payVal.toFixed(2);
+    const heroUnit = document.getElementById('sell-send-hero-unit');
+    if (heroUnit) heroUnit.textContent = crCrypto;
+
+    kycReturnTarget = 'sell-order';
+  }
+
+  // ── KYC check happens here, at the merchant "Open Paypaz Checkout" button ──
+  if (kycStatus === 'approved' || kycStatus === 'data-filled') {
+    // Path A: valid Sumsub token. Path C: existing provider mapping. Both skip KYC UI.
+    goTo(kycReturnTarget);
+  } else {
+    // Path B: no reusable token or provider mapping; user must complete Sumsub.
+    updateKycScreen();
+    goTo('kyc');
+  }
+}
+
+// ── Sell: Network selector ───────────────────────────────────────────
+const SELL_ADDRS = {
+  trc20: 'TX3ogswuX8pXyQkLwUt3aqVAmk',
+  erc20: '0x4A7BdF61c2eA4d8B1D67c9e3F2a0C8b5E9f3D2A',
+};
+function selectNet(net) {
+  ['trc20','erc20'].forEach(function(n) {
+    var btn = document.getElementById('net-' + n);
+    if (btn) btn.classList.toggle('active', n === net);
+  });
+  var addrEl = document.getElementById('sell-addr-val');
+  if (addrEl) addrEl.textContent = SELL_ADDRS[net] || '';
+}
+
+// ── Sell: confirm sent → processing ─────────────────────────────────
+function setSuccessMode(mode) {
+  successMode = mode || 'buy';
+  const isSell = mode === 'sell';
+  const paid = document.getElementById('res-paid-val');
+  const received = document.getElementById('res-received-val');
+  const wallet = document.getElementById('res-wallet-val');
+  const network = document.getElementById('res-network-val');
+  const method = document.getElementById('t-res-method-val');
+  const broker = document.getElementById('res-broker-ref');
+  const successDesc = document.getElementById('t-suc-desc');
+  const procDesc = document.getElementById('t-proc-desc');
+
+  if (paid) paid.textContent = isSell ? '100.00 ' + crCrypto : '¥15,600 JPY';
+  if (received) received.textContent = isSell ? '≈ ¥14,400 JPY' : '100.00 ' + crCrypto;
+  if (wallet) wallet.textContent = isSell ? '三菱UFJ銀行 · ****4567' : 'TX3ogswu...VAmk';
+  if (network) network.textContent = isSell ? 'Payout bank account' : 'Tron (TRC20)';
+  if (method) method.textContent = isSell ? 'Crypto transfer' : (PM_LABELS[selectedPM] ? PM_LABELS[selectedPM][lang] : 'Bank Transfer');
+  if (broker) broker.textContent = isSell ? 'CFD-JP-20260630-002' : 'CFD-JP-20260630-001';
+  if (successDesc) {
+    successDesc.textContent = isSell
+      ? (lang === 'ja' ? '法定通貨はご指定の銀行口座に振り込まれます（通常1営業日以内）。' : lang === 'zh' ? '法币已安排划转至您的银行账户（通常1个工作日内到账）。' : 'Fiat will be deposited to your bank account (usually within 1 business day).')
+      : (lang === 'ja' ? '暗号資産をウォレットに送金しました。' : lang === 'zh' ? '加密资产已发送至您的钱包。' : 'Your crypto has been sent to your wallet.');
+  }
+  if (procDesc) {
+    procDesc.textContent = isSell
+      ? (lang === 'ja' ? 'お客様の送金を確認しています。確認次第、法定通貨を振り込みます。' : lang === 'zh' ? '正在确认加密货币到账，确认后将划转法币至您的银行账户。' : 'Confirming your crypto transfer. Once received, we will send fiat to your bank account.')
+      : (lang === 'ja' ? '銀行振込の着金を確認しています。通常、数分〜1営業日かかります。' : lang === 'zh' ? '我们正在等待您的银行转账到账，通常需要几分钟至1个工作日。' : 'We are waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.');
+  }
+}
+
+function goToProcessingSell() {
+  setSuccessMode('sell');
+  goTo('processing');
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+applyLang();
+refreshCurrencyUI();
+updateKycDemoHint();
+renderIcons();
+</script>
+</body>
+</html>
