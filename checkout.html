@@ -255,7 +255,7 @@
       padding: 12px 16px;
       user-select: none;
     }
-    .fee-toggle-label { font-size: 13px; color: #606266; font-weight: 500; }
+    .fee-toggle-label { font-size: 13px; color: #909399; }
     .fee-toggle-right { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #606266; }
     .fee-toggle-amount { font-family: 'Inter', sans-serif; font-weight: 600; color: #303133; font-variant-numeric: tabular-nums; }
     .fee-rows { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 8px; }
@@ -266,24 +266,32 @@
     .fee-total-key { font-size: 13px; color: #303133; font-weight: 500; }
     .fee-total-val { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: #303133; font-variant-numeric: tabular-nums; }
 
-    /* ── Wallet Info ── */
-    .wallet-row { display: flex; align-items: center; gap: 10px; }
-    .wallet-icon-wrap {
-      width: 36px; height: 36px;
-      background: #ecf5ff;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: #409EFF;
-      flex-shrink: 0;
+    /* ── Key/Value Row (wallet address, payment method) ── */
+    .kv-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
-    .wallet-info { flex: 1; min-width: 0; }
-    .wallet-label { font-size: 11px; color: #909399; margin-bottom: 2px; }
-    .wallet-addr {
+    .kv-key { font-size: 13px; color: #909399; flex-shrink: 0; }
+    .kv-val-group {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 0;
+    }
+    .kv-val {
       font-family: 'Inter', sans-serif;
       font-size: 13px;
       color: #303133;
-      font-weight: 500;
-      word-break: break-all;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kv-pm-icon {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: #409EFF;
     }
     .net-tag {
       display: inline-flex; align-items: center; gap: 3px;
@@ -330,6 +338,30 @@
     }
     .kyc-redirect-note-text { font-size: 12px; color: #606266; line-height: 1.7; }
     .kyc-time-note { font-size: 12px; color: #909399; text-align: center; padding-top: 4px; }
+    .kyc-quick-card {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: linear-gradient(135deg, #1c2b52, #5b3aa0);
+      border-radius: 10px;
+      padding: 13px 14px;
+      cursor: pointer;
+    }
+    .kyc-quick-check {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      border: 1.5px solid rgba(255,255,255,.5);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+      color: #fff;
+      transition: background .15s, border-color .15s;
+    }
+    .kyc-quick-check.checked { background: #67C23A; border-color: #67C23A; }
+    .kyc-quick-info { flex: 1; min-width: 0; }
+    .kyc-quick-title {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .kyc-quick-title i { color: #F7BA2A; flex-shrink: 0; }
+    .kyc-quick-sub { font-size: 11px; color: rgba(255,255,255,.72); margin-top: 3px; line-height: 1.5; }
 
     /* ── Payment Method ── */
     .pm-amount-row {
@@ -613,10 +645,6 @@
       font-size: 12px; color: #909399;
     }
     .cr-balance-val { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
-    .cr-switch-btn {
-      background: none; border: none; cursor: pointer;
-      color: #409EFF; padding: 2px 4px; font-size: 16px; line-height: 1;
-    }
 
     .cr-blocks-wrap { position: relative; display: flex; flex-direction: column; gap: 2px; }
     .cr-block {
@@ -727,7 +755,6 @@
     .cr-pm-icon-apay { background: #F5F7FA; border-radius: 8px; }
     .cr-pm-info { flex: 1; }
     .cr-pm-name { font-size: 14px; font-weight: 500; color: #303133; }
-    .cr-pm-sub  { font-size: 11px; color: #67C23A; margin-top: 2px; font-weight: 500; }
     .cr-pm-arrow { color: #C0C4CC; }
     .cr-pm-check { color: #409EFF; }
 
@@ -797,134 +824,7 @@
     .cr-option-sub  { font-size: 12px; color: #909399; }
     .cr-option-check { color: #409EFF; }
 
-    /* ── Merchant + API context ── */
-    .flow-strip {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 2px;
-    }
-    .flow-step-mini {
-      background: #fff;
-      border: 1px solid #E8ECF0;
-      border-radius: 10px;
-      padding: 9px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-    .flow-step-mini strong {
-      font-size: 11px;
-      color: #303133;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .flow-step-mini span {
-      font-family: 'Inter', sans-serif;
-      font-size: 10px;
-      color: #909399;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .merchant-card {
-      background: #fff;
-      border: 1px solid #E8ECF0;
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .merchant-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .merchant-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    .merchant-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: #172033;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .merchant-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: #303133;
-      line-height: 1.25;
-    }
-    .merchant-sub {
-      font-size: 11px;
-      color: #909399;
-      margin-top: 2px;
-    }
-    .scope-pill {
-      font-family: 'Inter', sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      color: #409EFF;
-      background: #ECF5FF;
-      border: 1px solid #C6E2FF;
-      border-radius: 999px;
-      padding: 4px 8px;
-      white-space: nowrap;
-    }
-    .api-flow-card {
-      border-radius: 10px;
-      background: #F8FAFC;
-      border: 1px solid #E8ECF0;
-      overflow: hidden;
-    }
-    .api-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 10px;
-      border-bottom: 1px solid #E8ECF0;
-    }
-    .api-row:last-child { border-bottom: none; }
-    .api-badge {
-      font-family: 'Inter', sans-serif;
-      font-size: 9px;
-      font-weight: 700;
-      color: #67C23A;
-      background: #F0F9EB;
-      border-radius: 999px;
-      padding: 3px 6px;
-      flex-shrink: 0;
-    }
-    .api-copy {
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      color: #606266;
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .api-meta {
-      font-size: 10px;
-      color: #909399;
-      white-space: nowrap;
-    }
+    /* ── Merchant context ── */
     .checkout-context {
       display: flex;
       align-items: flex-start;
@@ -952,22 +852,23 @@
       color: #303133;
       margin-bottom: 3px;
     }
+    .checkout-context-order-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .checkout-context-order-id {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #303133;
+    }
     .checkout-context-desc {
       font-size: 11px;
       color: #909399;
       line-height: 1.55;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      color: #67C23A;
-      background: #F0F9EB;
-      border-radius: 999px;
-      padding: 3px 7px;
-      margin-top: 7px;
     }
     .wallet-button-note {
       display: flex;
@@ -1138,13 +1039,6 @@
       align-items: center;
       justify-content: center;
     }
-    .sumsub-footer-note {
-      text-align: center;
-      font-size: 11px;
-      color: #98A2B3;
-      line-height: 1.5;
-      padding: 2px 12px 0;
-    }
   </style>
 </head>
 <body>
@@ -1171,6 +1065,7 @@
   <button id="dnav-kyc-a" onclick="setKycStatus('approved')" class="active" style="border-color:#67C23A;color:#67C23A">A: Token</button>
   <button id="dnav-kyc-b" onclick="setKycStatus('none')"     style="">B: Sumsub</button>
   <button id="dnav-kyc-c" onclick="setKycStatus('data-filled')" style="">C: 回头用户</button>
+  <span class="demo-label" id="kyc-demo-hint" style="color:#f0e040;opacity:.85;margin-left:8px"></span>
 </div>
 
 <div class="page">
@@ -1183,8 +1078,8 @@
   <div class="ck-header">
     <div style="width:32px"></div>
     <div class="header-center" style="text-align:center">
-      <div class="ck-title" style="font-size:17px;letter-spacing:.02em">Apex CFD Wallet</div>
-      <div class="ck-order-id">Powered by Paypaz Open API</div>
+      <div class="ck-title" style="font-size:17px;letter-spacing:.02em">On/Off Ramp</div>
+      <div class="ck-order-id" id="t-cr-subtitle">Buy & sell crypto instantly</div>
     </div>
     <div class="header-right">
       <button class="lang-btn" onclick="toggleLang()" id="cr-lang-btn">日本語</button>
@@ -1193,57 +1088,10 @@
 
   <div class="cr-body">
 
-    <div class="flow-strip">
-      <div class="flow-step-mini">
-        <strong>1. Broker app</strong>
-        <span>user starts ramp</span>
-      </div>
-      <div class="flow-step-mini">
-        <strong>2. Paypaz API</strong>
-        <span id="merchant-flow-method">quote + order</span>
-      </div>
-      <div class="flow-step-mini">
-        <strong>3. Checkout</strong>
-        <span>Paypaz hosted UI</span>
-      </div>
-    </div>
-
-    <div class="merchant-card">
-      <div class="merchant-top">
-        <div class="merchant-brand">
-          <div class="merchant-logo">CFD</div>
-          <div>
-            <div class="merchant-name">Apex Markets</div>
-            <div class="merchant-sub">merchant_user_id: jp_user_8291</div>
-          </div>
-        </div>
-        <span class="scope-pill" id="merchant-scope">on-ramp scope</span>
-      </div>
-      <div class="api-flow-card">
-        <div class="api-row">
-          <span class="api-badge">POST</span>
-          <span class="api-copy" id="merchant-api-quote">/v1/ramp/onramp/quote</span>
-          <span class="api-meta">indicative</span>
-        </div>
-        <div class="api-row">
-          <span class="api-badge">POST</span>
-          <span class="api-copy" id="merchant-api-order">/v1/ramp/onramp/order</span>
-          <span class="api-meta" id="merchant-api-ref">broker_order_ref</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Buy / Sell Tabs -->
     <div class="dir-tabs">
       <button class="dir-tab active" id="tab-buy"  onclick="setDir('buy')"><span id="t-tab-buy">Buy</span></button>
       <button class="dir-tab"        id="tab-sell" onclick="setDir('sell')"><span id="t-tab-sell">Sell</span></button>
-    </div>
-
-    <!-- Balance row (sell only) -->
-    <div id="cr-balance-row" class="cr-balance-row" style="display:none">
-      <span id="t-cr-balance">Balance</span>：
-      <span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
-      <button class="cr-switch-btn" onclick="switchCrypto()" title="switch">⇌</button>
     </div>
 
     <!-- Pay + Receive blocks grouped with swap -->
@@ -1263,7 +1111,10 @@
         </div>
         <div class="cr-block-hint">
           <span id="cr-pay-range">¥2,000 – ¥1,560,000</span>
-          <button class="cr-all-btn" id="cr-all-btn" style="display:none" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
+          <div class="cr-balance-row" id="cr-balance-row" style="display:none">
+            <span id="t-cr-balance">Balance</span>：<span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
+            <button class="cr-all-btn" id="cr-all-btn" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
+          </div>
         </div>
       </div>
 
@@ -1299,7 +1150,7 @@
 
     <!-- Payment Method -->
     <div>
-      <div class="cr-pm-title" id="t-cr-pm-title">Available in Paypaz Checkout</div>
+      <div class="cr-pm-title" id="t-cr-pm-title">Payment Method</div>
       <div class="cr-pm-list">
 
         <div class="cr-pm-item selected" id="cr-pm-bank" onclick="setCrPM('bank')">
@@ -1308,9 +1159,9 @@
           </div>
           <div class="cr-pm-info">
             <div class="cr-pm-name" id="t-cr-pm-bank">Bank Transfer</div>
-            <div class="cr-pm-sub">P0 · Native API bank transfer</div>
           </div>
           <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-bank-check"></i>
+          <i data-lucide="circle"       size="18" class="cr-pm-arrow" id="cr-pm-bank-empty" style="display:none"></i>
         </div>
 
         <div class="cr-pm-item" id="cr-pm-gpay" onclick="setCrPM('gpay')">
@@ -1319,7 +1170,6 @@
           </div>
           <div class="cr-pm-info">
             <div class="cr-pm-name">Google Pay</div>
-            <div class="cr-pm-sub">P1 · Embedded Payment Button</div>
           </div>
           <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-gpay-check" style="display:none"></i>
           <i data-lucide="circle"       size="18" class="cr-pm-arrow" id="cr-pm-gpay-empty"></i>
@@ -1331,7 +1181,6 @@
           </div>
           <div class="cr-pm-info">
             <div class="cr-pm-name">Apple Pay</div>
-            <div class="cr-pm-sub">P1 · Safari + registered domain</div>
           </div>
           <i data-lucide="check-circle" size="18" class="cr-pm-check" id="cr-pm-apay-check" style="display:none"></i>
           <i data-lucide="circle"       size="18" class="cr-pm-arrow" id="cr-pm-apay-empty"></i>
@@ -1340,11 +1189,8 @@
       </div>
     </div>
 
-    <!-- KYC demo path indicator -->
-    <div id="kyc-demo-hint" style="text-align:center;font-size:11px;color:#909399;padding:0 4px"></div>
-
     <button class="btn-cta" id="cr-next-btn" onclick="proceedToCheckout()" disabled>
-      <span id="t-cr-next">Open Paypaz Checkout</span>
+      <span id="t-cr-next">Continue</span>
       <i data-lucide="arrow-right" size="16"></i>
     </button>
 
@@ -1370,13 +1216,11 @@
     <button class="back-btn" onclick="noop()" title="返回 CFD 平台">
       <i data-lucide="chevron-left" size="20"></i>
     </button>
-    <div class="header-center">
+    <div class="header-center" style="text-align:center">
       <div class="ck-title" id="t-order-title">Review Order</div>
-      <div class="ck-order-id">PZ20260630-00123</div>
     </div>
     <div class="header-right">
       <button class="lang-btn" id="t-langBtn" onclick="toggleLang()">中文</button>
-      <div class="timer-chip" id="order-timer">29:58</div>
     </div>
   </div>
 
@@ -1401,12 +1245,14 @@
 
     <div class="checkout-context">
       <div class="checkout-context-icon">
-        <i data-lucide="route" size="17"></i>
+        <i data-lucide="shield-check" size="17"></i>
       </div>
       <div class="checkout-context-main">
-        <div class="checkout-context-title">Apex Markets redirected you to Paypaz Checkout</div>
-        <div class="checkout-context-desc">broker_order_ref: CFD-JP-20260630-001 · Paypaz will complete KYC, payment, status polling, and webhook delivery back to the merchant.</div>
-        <span class="status-pill"><i data-lucide="shield-check" size="11"></i> Banxa Native API · no Banxa-hosted UI</span>
+        <div class="checkout-context-order-row">
+          <span class="checkout-context-order-id">PZ20260630-00123</span>
+          <div class="timer-chip" id="order-timer">29:58</div>
+        </div>
+        <div class="checkout-context-desc" id="t-order-context-desc">Review your order below, then complete payment to receive your crypto.</div>
       </div>
     </div>
 
@@ -1460,17 +1306,14 @@
     <!-- Wallet Card -->
     <div class="ck-card">
       <div class="card-section">
-        <div class="wallet-row">
-          <div class="wallet-icon-wrap">
-            <i data-lucide="wallet" size="18"></i>
-          </div>
-          <div class="wallet-info">
-            <div class="wallet-label" id="t-wallet-label">Destination Wallet</div>
-            <div class="wallet-addr">TX3ogswuX8pX...VAmk</div>
-          </div>
-          <div class="net-tag net-trc20">
-            <div class="net-dot" style="background:#E03A3A"></div>
-            TRC20
+        <div class="kv-row">
+          <span class="kv-key" id="t-wallet-label">Receiving Address</span>
+          <div class="kv-val-group">
+            <span class="kv-val">TX3ogswuX8pX...VAmk</span>
+            <div class="net-tag net-trc20">
+              <div class="net-dot" style="background:#E03A3A"></div>
+              TRC20
+            </div>
           </div>
         </div>
       </div>
@@ -1489,12 +1332,16 @@
         <div class="card-divider"></div>
         <div class="fee-rows">
           <div class="fee-row">
-            <span class="fee-key" id="t-fee-rate">Exchange Rate</span>
-            <span class="fee-val">1 USDT = ¥156.00 JPY</span>
+            <span class="fee-key" id="t-fee-rate">Market Rate</span>
+            <span class="fee-val">1 USDT = ¥150.00 JPY</span>
           </div>
           <div class="fee-row">
-            <span class="fee-key" id="t-fee-spread">Service Fee (in rate)</span>
-            <span class="fee-val">≈ ¥600 (4%)</span>
+            <span class="fee-key" id="t-fee-subtotal">Subtotal</span>
+            <span class="fee-val">¥15,000 JPY</span>
+          </div>
+          <div class="fee-row">
+            <span class="fee-key" id="t-fee-spread">Service Fee (4%)</span>
+            <span class="fee-val">¥600 JPY</span>
           </div>
           <div class="fee-row">
             <span class="fee-key" id="t-fee-network">Network Fee</span>
@@ -1508,8 +1355,21 @@
       </div>
     </div>
 
+    <!-- Payment Method Card -->
+    <div class="ck-card">
+      <div class="card-section">
+        <div class="kv-row">
+          <span class="kv-key" id="t-order-pm-label">Payment Method</span>
+          <div class="kv-val-group">
+            <span class="kv-pm-icon" id="order-pm-icon"><i data-lucide="landmark" size="15"></i></span>
+            <span class="kv-val" id="order-pm-name">Bank Transfer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CTA -->
-    <button class="btn-cta" onclick="goTo('payment')">
+    <button class="btn-cta" onclick="proceedPayment()">
       <span id="t-continue">Continue</span>
       <i data-lucide="arrow-right" size="16"></i>
     </button>
@@ -1570,8 +1430,8 @@
         <div class="kyc-icon-wrap">
           <i data-lucide="shield-check" size="28"></i>
         </div>
-        <div class="kyc-title" id="t-kyc-heading">Identity Confirmation Required</div>
-        <div class="kyc-desc" id="t-kyc-desc">To complete your first transaction, we need to verify your identity. This is a one-time process — future purchases will be seamless.</div>
+        <div class="kyc-title" id="t-kyc-heading">Let's verify you quickly</div>
+        <div class="kyc-desc" id="t-kyc-desc">Just two quick steps — this is a one-time process and future purchases will be seamless.</div>
       </div>
       <div class="card-divider"></div>
       <div class="card-section">
@@ -1595,27 +1455,35 @@
     </div>
 
     <!-- Path B: 需要完整KYC流程 -->
+    <div class="kyc-quick-card" id="kyc-quick-card" onclick="toggleQuickKyc()">
+      <div class="kyc-quick-check checked" id="kyc-quick-check"><i data-lucide="check" size="12"></i></div>
+      <div class="kyc-quick-info">
+        <div class="kyc-quick-title"><i data-lucide="zap" size="14"></i> <span id="t-kyc-quick-title">Speed up verification with Sumsub ID</span></div>
+        <div class="kyc-quick-sub" id="t-kyc-quick-sub">Reuse your securely stored information from other Sumsub-verified apps</div>
+      </div>
+    </div>
+
     <div class="kyc-redirect-note" id="kyc-note-full">
       <div style="color:#409EFF;flex-shrink:0;margin-top:1px"><i data-lucide="info" size="15"></i></div>
-      <div class="kyc-redirect-note-text" id="t-kyc-redirect">You'll be redirected to our verification partner Sumsub to complete the process. Once finished, you'll be automatically returned to Paypaz Checkout to complete your payment.</div>
+      <div class="kyc-redirect-note-text" id="t-kyc-redirect">You'll be redirected to our verification partner Sumsub to complete the process, then automatically brought back here to finish your payment.</div>
     </div>
 
     <div class="wallet-button-note">
-      <i data-lucide="database-zap" size="15" style="color:#409EFF;flex-shrink:0;margin-top:1px"></i>
-      <span>Paypaz only stores provider mapping IDs and token TTL. Documents, selfies, and personal data stay with Banxa / Sumsub.</span>
+      <i data-lucide="lock" size="15" style="color:#409EFF;flex-shrink:0;margin-top:1px"></i>
+      <span id="t-kyc-wallet-note">Your documents and selfie are encrypted and used only to verify your identity — they're never shared with the merchant.</span>
     </div>
 
-    <!-- Path C: 已有 Banxa customer mapping，生产流程会静默通过；此块仅用于手动演示 -->
+    <!-- Path C: 已完成验证的回头用户，生产流程会静默通过；此块仅用于手动演示 -->
     <div class="kyc-redirect-note" id="kyc-note-existing" style="display:none;background:#f0f9eb;border-left-color:#67C23A">
       <div style="color:#67C23A;flex-shrink:0;margin-top:1px"><i data-lucide="check-circle" size="15"></i></div>
-      <div class="kyc-redirect-note-text" id="t-kyc-existing">Existing Banxa customer mapping found. In production this KYC screen is skipped and the user continues directly in Paypaz Checkout.</div>
+      <div class="kyc-redirect-note-text" id="t-kyc-existing">You're already verified — no further action is needed. Continue to complete your payment.</div>
     </div>
 
     <div class="kyc-time-note" id="t-kyc-time">Usually takes 2–3 minutes</div>
 
     <button class="btn-cta" onclick="handleKycPrimary()">
       <i data-lucide="external-link" size="16"></i>
-      <span id="t-kyc-btn">Start Identity Verification</span>
+      <span id="t-kyc-btn">Continue with Sumsub ID</span>
     </button>
 
     <div class="security-note">
@@ -1638,45 +1506,45 @@
         <div class="sumsub-mark">S</div>
         <div>
           <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500">Identity verification</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" id="t-ss-subtitle">Identity verification</div>
         </div>
       </div>
-      <div class="sumsub-secure">Secure session · jp_user_8291</div>
+      <div class="sumsub-secure"><span id="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
     </div>
 
     <div class="sumsub-body">
       <div class="sumsub-card">
-        <div class="sumsub-title">Verify your identity</div>
-        <div class="sumsub-copy">This verification is required for your first Paypaz ramp order. After approval, Paypaz returns you to Checkout and future orders can use the saved provider mapping.</div>
+        <div class="sumsub-title" id="t-ss-verify-title">Verify your identity</div>
+        <div class="sumsub-copy" id="t-ss-verify-copy">This one-time verification keeps your account secure. Once approved, you can complete this and future purchases without doing it again.</div>
       </div>
 
       <div class="sumsub-progress">
         <div class="sumsub-progress-item done">
-          <span>1. Profile</span>
+          <span id="t-ss-step1">1. Profile</span>
         </div>
         <div class="sumsub-progress-item active">
-          <span>2. Document</span>
+          <span id="t-ss-step2">2. Document</span>
         </div>
         <div class="sumsub-progress-item">
-          <span>3. Liveness</span>
+          <span id="t-ss-step3">3. Liveness</span>
         </div>
       </div>
 
       <div class="sumsub-card">
-        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:10px">Select document type</div>
+        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:10px" id="t-ss-doc-title">Select document type</div>
         <div class="doc-grid">
           <div class="doc-option active">
             <div class="doc-icon"><i data-lucide="book-open-check" size="17"></i></div>
             <div>
-              <div class="doc-name">Passport</div>
-              <div class="sumsub-copy" style="font-size:10px">Recommended</div>
+              <div class="doc-name" id="t-ss-doc-passport">Passport</div>
+              <div class="sumsub-copy" style="font-size:10px" id="t-ss-doc-passport-sub">Recommended</div>
             </div>
           </div>
           <div class="doc-option">
             <div class="doc-icon"><i data-lucide="id-card" size="17"></i></div>
             <div>
-              <div class="doc-name">Driver license</div>
-              <div class="sumsub-copy" style="font-size:10px">JP accepted</div>
+              <div class="doc-name" id="t-ss-doc-license">Driver license</div>
+              <div class="sumsub-copy" style="font-size:10px" id="t-ss-doc-license-sub">JP accepted</div>
             </div>
           </div>
         </div>
@@ -1685,24 +1553,22 @@
       <div class="sumsub-card" style="display:flex;flex-direction:column;gap:10px">
         <div class="upload-box">
           <i data-lucide="upload-cloud" size="18"></i>
-          <span>Passport photo uploaded · page is readable</span>
+          <span id="t-ss-upload">Passport photo uploaded · page is readable</span>
         </div>
         <div class="liveness-box">
           <div class="liveness-face">
             <i data-lucide="scan-face" size="34"></i>
           </div>
         </div>
-        <div class="sumsub-copy">Liveness check completed. Sumsub sends the result to Banxa; Paypaz polls order identity status and resumes Checkout.</div>
+        <div class="sumsub-copy" id="t-ss-liveness-caption">Liveness check completed. Verifying your details now...</div>
       </div>
 
       <button class="btn-cta" onclick="completeSumsub()">
         <i data-lucide="check-circle" size="16"></i>
-        <span>Complete verification and return</span>
+        <span id="t-ss-complete-btn">Complete verification and return</span>
       </button>
 
-      <button class="btn-cta-ghost" onclick="goTo('kyc')">Back to Paypaz Checkout</button>
-
-      <div class="sumsub-footer-note">Demo screen for the external Sumsub KYC handoff. In production the return_url brings the user back to checkout.paypaz.tech.</div>
+      <button class="btn-cta-ghost" onclick="goTo('kyc')" id="t-ss-back-btn">Back</button>
     </div>
   </div>
 
@@ -1798,7 +1664,7 @@
 
     <div class="wallet-button-note">
       <i data-lucide="info" size="15" style="color:#409EFF;flex-shrink:0;margin-top:1px"></i>
-      <span id="t-wallet-note">Bank transfer is P0 via Banxa Native API. Google Pay and Apple Pay use the embedded payment button; web card entry is not shown until Banxa confirms a Web SDK path.</span>
+      <span id="t-wallet-note">Bank transfer usually confirms within a few minutes. Google Pay and Apple Pay complete instantly.</span>
     </div>
 
     <button class="btn-cta" onclick="proceedPayment()" id="payNowBtn">
@@ -1821,7 +1687,7 @@
 <div id="s-bank" class="screen">
 
   <div class="ck-header">
-    <button class="back-btn" onclick="goTo('payment')">
+    <button class="back-btn" onclick="goTo('order')">
       <i data-lucide="chevron-left" size="20"></i>
     </button>
     <div class="header-center">
@@ -1932,18 +1798,20 @@
       <div class="status-desc" id="t-proc-desc">We're waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.</div>
     </div>
     <div style="font-family:'Inter',sans-serif;font-size:12px;color:#C0C4CC">PZ20260630-00123</div>
-    <div class="result-card" style="text-align:left">
-      <div class="result-row">
-        <span class="result-key">Paypaz status</span>
-        <span class="result-val">payment_received</span>
-      </div>
-      <div class="result-row">
-        <span class="result-key">Provider status</span>
-        <span class="result-val">paymentReceived → inProgress</span>
-      </div>
-      <div class="result-row">
-        <span class="result-key">Merchant webhook</span>
-        <span class="result-val">pending</span>
+    <div class="ck-card" style="width:100%;text-align:left">
+      <div class="card-section" style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="check-circle" size="14" style="color:#67C23A;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-proc-s1">Payment received</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="loader-circle" size="14" style="color:#409EFF;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-proc-s2">Confirming with your bank</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="circle" size="14" style="color:#C0C4CC;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#C0C4CC" id="t-proc-s3">Crypto sent to your wallet</span>
+        </div>
       </div>
     </div>
     <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('success')" id="t-proc-return">Return to Platform</button>
@@ -2000,14 +1868,6 @@
       <div class="result-row">
         <span class="result-key" id="t-res-order">Order ID</span>
         <span class="result-val" style="font-size:11px">PZ20260630-00123</span>
-      </div>
-      <div class="result-row">
-        <span class="result-key">Broker Ref</span>
-        <span class="result-val" id="res-broker-ref" style="font-size:11px">CFD-JP-20260630-001</span>
-      </div>
-      <div class="result-row">
-        <span class="result-key">Webhook</span>
-        <span class="result-val" style="font-size:12px;color:#67C23A">order.completed sent</span>
       </div>
       <div class="result-row">
         <span class="result-key" id="t-res-time">Completed</span>
@@ -2137,12 +1997,11 @@
 
     <div class="checkout-context">
       <div class="checkout-context-icon">
-        <i data-lucide="route" size="17"></i>
+        <i data-lucide="shield-check" size="17"></i>
       </div>
       <div class="checkout-context-main">
-        <div class="checkout-context-title">Apex Markets redirected you to Paypaz Checkout</div>
-        <div class="checkout-context-desc">broker_order_ref: CFD-JP-20260630-002 · Fill payout details here, then send crypto to the provider address generated by Paypaz.</div>
-        <span class="status-pill"><i data-lucide="shield-check" size="11"></i> off-ramp scope verified</span>
+        <div class="checkout-context-title" id="t-sell-context-title">Sale for Apex Markets</div>
+        <div class="checkout-context-desc" id="t-sell-context-desc">Confirm your payout account below, then send your crypto to complete the sale.</div>
       </div>
     </div>
 
@@ -2352,23 +2211,24 @@ const I18N = {
     'cr-pay':           'You Pay',
     'cr-receive':       'You Receive',
     'cr-rate-label':    'Estimated price',
-    'cr-pm-title':      'Available in Paypaz Checkout',
+    'cr-pm-title':      'Payment Method',
     'cr-pm-bank':       'Bank Transfer',
-    'cr-pm-bank-sub':   'No additional fee',
-    'cr-pm-gpay-sub':   'No additional fee',
-    'cr-pm-apay-sub':   'No additional fee',
-    'cr-next':          'Open Paypaz Checkout',
+    'cr-next':          'Continue',
     'cr-all':           'All',
+    'cr-subtitle':      'Buy & sell crypto instantly',
     'order-title':      'Review Order',
+    'order-context-desc':  'Review your order below, then complete payment to receive your crypto.',
     'dir-buy':          'Buy Coins',
     'dir-sell':         'Sell Coins',
     'indicative':       'Rate is indicative',
     'you-pay':          'You Pay',
     'you-receive':      'You Receive',
-    'wallet-label':     'Destination Wallet',
+    'wallet-label':     'Receiving Address',
+    'order-pm-label':   'Payment Method',
     'fee-summary':      'Fee Summary',
-    'fee-rate':         'Exchange Rate',
-    'fee-spread':       'Service Fee (included in rate)',
+    'fee-rate':         'Market Rate',
+    'fee-subtotal':     'Subtotal',
+    'fee-spread':       'Service Fee (4%)',
     'fee-network':      'Network Fee',
     'fee-total':        'Total Payable',
     'continue':         'Continue',
@@ -2377,21 +2237,41 @@ const I18N = {
     'step2':            'Payment',
     'step3':            'Done',
     'kyc-title':        'Identity Verification',
-    'kyc-heading':      'Identity Confirmation Required',
-    'kyc-desc':         'To complete your first transaction, we need to verify your identity. This is a one-time process — future purchases will be seamless.',
+    'kyc-heading':      'Let\'s verify you quickly',
+    'kyc-desc':         'Just two quick steps — this is a one-time process and future purchases will be seamless.',
     'kyc-s1':           'Provide identity document',
     'kyc-s1h':          'Passport, driver\'s license, or national ID',
     'kyc-s2':           'Perform a liveness check',
     'kyc-s2h':          'Quick selfie to confirm it\'s you',
-    'kyc-redirect':     'You\'ll be redirected to our verification partner Sumsub to complete the process. Once finished, you\'ll be automatically returned to Paypaz Checkout to complete your payment.',
-    'kyc-existing':     'Existing Banxa customer mapping found. In production this KYC screen is skipped and the user continues directly in Paypaz Checkout.',
+    'kyc-redirect':     'You\'ll be redirected to our verification partner Sumsub to complete the process, then automatically brought back here to finish your payment.',
+    'kyc-existing':     'You\'re already verified — no further action is needed. Continue to complete your payment.',
+    'kyc-wallet-note':  'Your documents and selfie are encrypted and used only to verify your identity — they\'re never shared with the merchant.',
     'kyc-time':         'Usually takes 2–3 minutes',
     'kyc-btn':          'Start Identity Verification',
+    'kyc-btn-quick':    'Continue with Sumsub ID',
+    'kyc-quick-title':  'Speed up verification with Sumsub ID',
+    'kyc-quick-sub':    'Reuse your securely stored information from other Sumsub-verified apps',
     'kyc-secure':       'Your data is encrypted and only used for verification',
     'kstep1':           'Verify',
     'kstep2':           'Review',
     'kstep3':           'Payment',
     'kstep4':           'Done',
+    'ss-subtitle':      'Identity verification',
+    'ss-secure-label':  'Secure session',
+    'ss-verify-title':  'Verify your identity',
+    'ss-verify-copy':   'This one-time verification keeps your account secure. Once approved, you can complete this and future purchases without doing it again.',
+    'ss-step1':         '1. Profile',
+    'ss-step2':         '2. Document',
+    'ss-step3':         '3. Liveness',
+    'ss-doc-title':     'Select document type',
+    'ss-doc-passport':  'Passport',
+    'ss-doc-passport-sub': 'Recommended',
+    'ss-doc-license':   'Driver\'s license',
+    'ss-doc-license-sub': 'JP accepted',
+    'ss-upload':        'Passport photo uploaded · page is readable',
+    'ss-liveness-caption': 'Liveness check completed. Verifying your details now...',
+    'ss-complete-btn':  'Complete verification and return',
+    'ss-back-btn':      'Back',
     'pay-title':        'Select Payment',
     'amount-to-pay':    'Amount to pay',
     'pm-bank':          'Bank Transfer',
@@ -2401,7 +2281,7 @@ const I18N = {
     'safari':           'Safari only',
     'pay-now':          'Pay with Bank Transfer',
     'pay-secure':       'Secured by Paypaz · SSL Encrypted',
-    'wallet-note':      'Bank transfer is P0 via Banxa Native API. Google Pay and Apple Pay use the embedded payment button; web card entry is not shown until Banxa confirms a Web SDK path.',
+    'wallet-note':      'Bank transfer usually confirms within a few minutes. Google Pay and Apple Pay complete instantly.',
     'pstep1':           'Review',
     'pstep2':           'Payment',
     'pstep3':           'Done',
@@ -2448,6 +2328,8 @@ const I18N = {
     'pend-s3':          'Crypto will be released after verification',
     'pend-return':      'Return to Platform',
     'sell-order-title': 'Review Order',
+    'sell-context-title': 'Sale for Apex Markets',
+    'sell-context-desc':  'Confirm your payout account below, then send your crypto to complete the sale.',
     'sstep1':           'Review',
     'sstep2':           'Transfer',
     'sstep3':           'Done',
@@ -2485,23 +2367,24 @@ const I18N = {
     'cr-pay':           'お支払い',
     'cr-receive':       '受取',
     'cr-rate-label':    '参考レート',
-    'cr-pm-title':      'Paypaz Checkout で利用可能',
+    'cr-pm-title':      'お支払い方法',
     'cr-pm-bank':       '銀行振込',
-    'cr-pm-bank-sub':   '追加手数料なし',
-    'cr-pm-gpay-sub':   '追加手数料なし',
-    'cr-pm-apay-sub':   '追加手数料なし',
-    'cr-next':          'Paypaz Checkout を開く',
+    'cr-next':          '次へ',
     'cr-all':           '全額',
+    'cr-subtitle':      '暗号資産をすぐに購入・売却',
     'order-title':      '注文内容の確認',
+    'order-context-desc':  '注文内容をご確認のうえ、お支払いを完了して暗号資産を受け取ってください。',
     'dir-buy':          'コイン購入',
     'dir-sell':         'コイン売却',
     'indicative':       'レートは参考値です',
     'you-pay':          'お支払い金額',
     'you-receive':      '受取金額',
-    'wallet-label':     '送金先ウォレット',
+    'wallet-label':     '受け取りアドレス',
+    'order-pm-label':   'お支払い方法',
     'fee-summary':      '手数料明細',
-    'fee-rate':         '為替レート',
-    'fee-spread':       'サービス手数料（レート内）',
+    'fee-rate':         '基準レート',
+    'fee-subtotal':     '小計',
+    'fee-spread':       'サービス手数料（4%）',
     'fee-network':      'ネットワーク手数料',
     'fee-total':        'お支払い合計',
     'continue':         '次へ',
@@ -2510,21 +2393,41 @@ const I18N = {
     'step2':            'お支払い',
     'step3':            '完了',
     'kyc-title':        '本人確認',
-    'kyc-heading':      '本人確認が必要です',
-    'kyc-desc':         '初回取引には本人確認が必要です。一度完了すれば、次回以降はスムーズにご利用いただけます。',
+    'kyc-heading':      'すばやく本人確認を行いましょう',
+    'kyc-desc':         '簡単な2つのステップだけです。一度完了すれば、次回以降はスムーズにご利用いただけます。',
     'kyc-s1':           '身分証明書の提出',
     'kyc-s1h':          'パスポート、運転免許証、またはマイナンバーカード',
     'kyc-s2':           '本人確認（顔認証）',
     'kyc-s2h':          'セルフィーで本人確認を行います',
-    'kyc-redirect':     '本人確認パートナーの Sumsub に遷移して認証を完了します。完了後、自動的に Paypaz Checkout に戻り、お支払いを続けることができます。',
-    'kyc-existing':     '既存の Banxa 顧客マッピングが見つかりました。本番環境ではこの KYC 画面をスキップし、Paypaz Checkout に直接進みます。',
+    'kyc-redirect':     '本人確認パートナーの Sumsub に遷移して認証を完了します。完了後、自動的にこちらに戻りお支払いを続けられます。',
+    'kyc-existing':     'すでに本人確認は完了しています。追加の操作は不要です。そのままお支払いにお進みください。',
+    'kyc-wallet-note':  'ご提出いただいた書類とセルフィーは暗号化され、本人確認のみに使用されます。加盟店と共有されることはありません。',
     'kyc-time':         '通常 2〜3 分で完了します',
     'kyc-btn':          '本人確認を開始する',
+    'kyc-btn-quick':    'Sumsub ID で続ける',
+    'kyc-quick-title':  'Sumsub ID で本人確認を高速化',
+    'kyc-quick-sub':    '他の Sumsub 認証済みアプリで安全に保存された情報を再利用します',
     'kyc-secure':       'お客様の情報は暗号化され、本人確認のみに使用されます',
     'kstep1':           '本人確認',
     'kstep2':           '確認',
     'kstep3':           'お支払い',
     'kstep4':           '完了',
+    'ss-subtitle':      '本人確認',
+    'ss-secure-label':  'セキュアセッション',
+    'ss-verify-title':  '本人確認を行います',
+    'ss-verify-copy':   'この確認は一度限りです。承認後は、今回および今後のお取引で再度行う必要はありません。',
+    'ss-step1':         '1. 基本情報',
+    'ss-step2':         '2. 証明書類',
+    'ss-step3':         '3. 顔認証',
+    'ss-doc-title':     '証明書類の種類を選択',
+    'ss-doc-passport':  'パスポート',
+    'ss-doc-passport-sub': 'おすすめ',
+    'ss-doc-license':   '運転免許証',
+    'ss-doc-license-sub': '日本の免許証に対応',
+    'ss-upload':        'パスポート画像をアップロードしました · 判読可能です',
+    'ss-liveness-caption': '顔認証が完了しました。情報を確認しています...',
+    'ss-complete-btn':  '確認を完了して戻る',
+    'ss-back-btn':      '戻る',
     'pay-title':        'お支払い方法の選択',
     'amount-to-pay':    'お支払い金額',
     'pm-bank':          '銀行振込',
@@ -2534,7 +2437,7 @@ const I18N = {
     'safari':           'Safari のみ',
     'pay-now':          '銀行振込で支払う',
     'pay-secure':       'Paypaz セキュリティ保護 · SSL 暗号化',
-    'wallet-note':      '銀行振込は Banxa Native API の P0 対応です。Google Pay / Apple Pay は Embedded Payment Button を使用します。Webカード入力は Banxa のWeb SDK方針確認後に表示します。',
+    'wallet-note':      '銀行振込は通常数分で着金確認が完了します。Google Pay / Apple Pay は即時にお支払いが完了します。',
     'pstep1':           '確認',
     'pstep2':           'お支払い',
     'pstep3':           '完了',
@@ -2581,6 +2484,8 @@ const I18N = {
     'pend-s3':          '確認完了後に暗号資産を送金します',
     'pend-return':      'プラットフォームに戻る',
     'sell-order-title': '注文内容の確認',
+    'sell-context-title': 'Apex Markets での売却',
+    'sell-context-desc':  '受取口座をご確認のうえ、暗号資産を送付して売却を完了してください。',
     'sstep1':           '確認',
     'sstep2':           '送金',
     'sstep3':           '完了',
@@ -2618,23 +2523,24 @@ const I18N = {
     'cr-pay':           '支付',
     'cr-receive':       '收到',
     'cr-rate-label':    '预估价格',
-    'cr-pm-title':      'Paypaz Checkout 可用方式',
+    'cr-pm-title':      '支付方式',
     'cr-pm-bank':       '银行转账',
-    'cr-pm-bank-sub':   '无额外费用',
-    'cr-pm-gpay-sub':   '无额外费用',
-    'cr-pm-apay-sub':   '无额外费用',
-    'cr-next':          '打开 Paypaz Checkout',
+    'cr-next':          '继续',
     'cr-all':           '全部',
+    'cr-subtitle':      '快速买卖加密货币',
     'order-title':      '确认订单',
+    'order-context-desc':  '请核对以下订单信息，完成支付后即可获得加密货币。',
     'dir-buy':          '买币',
     'dir-sell':         '卖币',
     'indicative':       '汇率为参考价格',
-    'you-pay':          '您支付',
-    'you-receive':      '您获得',
-    'wallet-label':     '目标钱包',
+    'you-pay':          '支付',
+    'you-receive':      '获得',
+    'wallet-label':     '收款地址',
+    'order-pm-label':   '支付方式',
     'fee-summary':      '费用明细',
-    'fee-rate':         '汇率',
-    'fee-spread':       '服务费（含于汇率中）',
+    'fee-rate':         '基础汇率',
+    'fee-subtotal':     '小计',
+    'fee-spread':       '服务费（4%）',
     'fee-network':      '网络费',
     'fee-total':        '实际支付',
     'continue':         '继续',
@@ -2643,21 +2549,41 @@ const I18N = {
     'step2':            '支付',
     'step3':            '完成',
     'kyc-title':        '身份验证',
-    'kyc-heading':      '需要完成身份验证',
-    'kyc-desc':         '首次交易需要验证您的身份，此为一次性流程，后续交易将无需重复验证。',
+    'kyc-heading':      '快速完成身份验证',
+    'kyc-desc':         '只需两个简单步骤，这是一次性流程，后续交易将无需重复验证。',
     'kyc-s1':           '提供身份证件',
     'kyc-s1h':          '护照、驾照或国民身份证',
     'kyc-s2':           '活体人脸检测',
     'kyc-s2h':          '简单自拍确认本人',
-    'kyc-redirect':     '您将被跳转至我们的身份验证合作方 Sumsub 完成认证，完成后将自动返回 Paypaz Checkout 继续支付。',
-    'kyc-existing':     '已找到 Banxa 用户映射。生产流程会跳过此 KYC 页面，用户直接继续 Paypaz Checkout。',
+    'kyc-redirect':     '您将被跳转至我们的身份验证合作方 Sumsub 完成认证，完成后将自动返回此处继续支付。',
+    'kyc-existing':     '您已完成身份验证，无需再次操作，可直接继续支付。',
+    'kyc-wallet-note':  '您的证件和自拍照均已加密，仅用于身份验证，不会与商户共享。',
     'kyc-time':         '通常需要 2–3 分钟',
     'kyc-btn':          '开始身份验证',
+    'kyc-btn-quick':    '使用 Sumsub ID 继续',
+    'kyc-quick-title':  '使用 Sumsub ID 加速验证',
+    'kyc-quick-sub':    '复用您在其他 Sumsub 认证应用中已安全存储的信息',
     'kyc-secure':       '您的信息已加密，仅用于身份验证',
     'kstep1':           '身份验证',
     'kstep2':           '确认',
     'kstep3':           '支付',
     'kstep4':           '完成',
+    'ss-subtitle':      '身份验证',
+    'ss-secure-label':  '安全会话',
+    'ss-verify-title':  '验证您的身份',
+    'ss-verify-copy':   '此为一次性验证，用于保护您的账户安全。通过后，本次及后续购买都无需重复验证。',
+    'ss-step1':         '1. 基本信息',
+    'ss-step2':         '2. 证件',
+    'ss-step3':         '3. 活体检测',
+    'ss-doc-title':     '选择证件类型',
+    'ss-doc-passport':  '护照',
+    'ss-doc-passport-sub': '推荐',
+    'ss-doc-license':   '驾照',
+    'ss-doc-license-sub': '支持日本驾照',
+    'ss-upload':        '护照照片已上传 · 页面清晰可读',
+    'ss-liveness-caption': '活体检测已完成，正在核实您的信息...',
+    'ss-complete-btn':  '完成验证并返回',
+    'ss-back-btn':      '返回',
     'pay-title':        '选择支付方式',
     'amount-to-pay':    '支付金额',
     'pm-bank':          '银行转账',
@@ -2667,7 +2593,7 @@ const I18N = {
     'safari':           '仅 Safari',
     'pay-now':          '使用银行转账支付',
     'pay-secure':       'Paypaz 安全保障 · SSL 加密传输',
-    'wallet-note':      '银行转账为 P0，通过 Banxa Native API 处理。Google Pay / Apple Pay 使用 Embedded Payment Button；Web 卡支付需待 Banxa 确认 Web SDK 路线后再展示。',
+    'wallet-note':      '银行转账通常几分钟内即可确认到账，Google Pay / Apple Pay 可即时完成支付。',
     'pstep1':           '确认',
     'pstep2':           '支付',
     'pstep3':           '完成',
@@ -2714,6 +2640,8 @@ const I18N = {
     'pend-s3':          '验证完成后将释放加密资产',
     'pend-return':      '返回平台',
     'sell-order-title': '确认订单',
+    'sell-context-title': 'Apex Markets 的卖出订单',
+    'sell-context-desc':  '请确认收款账户信息，发送加密货币后即可完成卖出。',
     'sstep1':           '确认',
     'sstep2':           '转账',
     'sstep3':           '完成',
@@ -2745,7 +2673,7 @@ const I18N = {
   }
 };
 
-let lang = 'en';
+let lang = 'zh';
 const LANG_CYCLE = { en: 'ja', ja: 'zh', zh: 'en' };
 let successMode = 'buy';
 
@@ -2766,6 +2694,10 @@ function applyLang() {
   const labels = PM_LABELS[selectedPM] || PM_LABELS['bank'];
   const payNow = document.getElementById('t-pay-now');
   if (payNow) payNow.textContent = labels[lang] || labels['en'];
+  // Re-sync KYC CTA label to quick-verification toggle state
+  refreshKycQuickLabel();
+  // Re-sync order-review payment method display
+  updateOrderPmDisplay();
   // Update KYC demo hint to current language
   updateKycDemoHint();
   if (typeof setSuccessMode === 'function') setSuccessMode(successMode);
@@ -2797,6 +2729,11 @@ const PM_LABELS = {
   gpay: { en: 'Pay with Google Pay',    ja: 'Google Pay で支払う', zh: '使用 Google Pay 支付' },
   apay: { en: 'Pay with Apple Pay',     ja: 'Apple Pay で支払う',  zh: '使用 Apple Pay 支付' },
 };
+const PM_NAME = {
+  bank: { en: 'Bank Transfer', ja: '銀行振込', zh: '银行转账' },
+  gpay: { en: 'Google Pay',    ja: 'Google Pay', zh: 'Google Pay' },
+  apay: { en: 'Apple Pay',     ja: 'Apple Pay', zh: 'Apple Pay' },
+};
 
 function selectPM(id) {
   selectedPM = id;
@@ -2817,6 +2754,26 @@ function selectPM(id) {
   // Update CTA label
   const labels = PM_LABELS[id] || PM_LABELS['bank'];
   document.getElementById('t-pay-now').textContent = labels[lang];
+  updateOrderPmDisplay();
+}
+
+// ── Order review: selected payment method display ────────────────────
+function updateOrderPmDisplay() {
+  const nameEl = document.getElementById('order-pm-name');
+  const iconEl = document.getElementById('order-pm-icon');
+  if (!nameEl) return;
+  const name = (PM_NAME[selectedPM] || PM_NAME['bank'])[lang] || PM_NAME['bank'].en;
+  nameEl.textContent = name;
+  if (iconEl) {
+    if (selectedPM === 'gpay') {
+      iconEl.innerHTML = '<img src="images/Google_Pay_Logo.svg" style="height:14px;object-fit:contain;max-width:22px">';
+    } else if (selectedPM === 'apay') {
+      iconEl.innerHTML = '<img src="images/Apple_Pay_logo.svg" style="height:14px;object-fit:contain;max-width:22px">';
+    } else {
+      iconEl.innerHTML = '<i data-lucide="landmark" size="15"></i>';
+    }
+    renderIcons();
+  }
 }
 
 function proceedPayment() {
@@ -2957,17 +2914,37 @@ function updateKycDemoHint() {
 function updateKycScreen() {
   const noteFullEl  = document.getElementById('kyc-note-full');
   const noteExistEl = document.getElementById('kyc-note-existing');
+  const quickCardEl = document.getElementById('kyc-quick-card');
   const timeEl      = document.getElementById('t-kyc-time');
   const isC = kycStatus === 'data-filled';
   if (noteFullEl)  noteFullEl.style.display  = isC ? 'none' : 'flex';
   if (noteExistEl) noteExistEl.style.display = isC ? 'flex' : 'none';
+  if (quickCardEl) quickCardEl.style.display = isC ? 'none' : 'flex';
   if (timeEl) {
     const t = isC
       ? { en: 'No KYC action required', zh: '无需 KYC 操作', ja: 'KYC 操作は不要です' }
       : { en: 'Usually takes 2–3 minutes', zh: '通常需要 2–3 分钟', ja: '通常 2〜3 分で完了します' };
     timeEl.textContent = t[lang] || t['en'];
   }
+  refreshKycQuickLabel();
   renderIcons();
+}
+
+// ── KYC quick-verification (Sumsub ID reuse) toggle ─────────────────
+let kycQuickEnabled = true;
+function toggleQuickKyc() {
+  kycQuickEnabled = !kycQuickEnabled;
+  const chk = document.getElementById('kyc-quick-check');
+  if (chk) chk.classList.toggle('checked', kycQuickEnabled);
+  refreshKycQuickLabel();
+}
+function refreshKycQuickLabel() {
+  const btn = document.getElementById('t-kyc-btn');
+  if (!btn) return;
+  const t = I18N[lang];
+  btn.textContent = kycStatus === 'data-filled'
+    ? t['continue']
+    : (kycQuickEnabled ? t['kyc-btn-quick'] : t['kyc-btn']);
 }
 
 function handleKycPrimary() {
@@ -3026,17 +3003,6 @@ function setDir(dir) {
   document.getElementById('tab-sell').classList.toggle('active', dir === 'sell');
   const isSell = dir === 'sell';
   document.getElementById('cr-balance-row').style.display = isSell ? 'flex' : 'none';
-  document.getElementById('cr-all-btn').style.display     = isSell ? '' : 'none';
-  const scopeEl = document.getElementById('merchant-scope');
-  if (scopeEl) scopeEl.textContent = isSell ? 'off-ramp scope' : 'on-ramp scope';
-  const quoteEl = document.getElementById('merchant-api-quote');
-  if (quoteEl) quoteEl.textContent = isSell ? '/v1/ramp/offramp/quote' : '/v1/ramp/onramp/quote';
-  const orderEl = document.getElementById('merchant-api-order');
-  if (orderEl) orderEl.textContent = isSell ? '/v1/ramp/offramp/order' : '/v1/ramp/onramp/order';
-  const refEl = document.getElementById('merchant-api-ref');
-  if (refEl) refEl.textContent = isSell ? 'CFD-JP-20260630-002' : 'CFD-JP-20260630-001';
-  const methodEl = document.getElementById('merchant-flow-method');
-  if (methodEl) methodEl.textContent = isSell ? 'sell quote + order' : 'buy quote + order';
   document.getElementById('cr-pay-input').value = '';
   refreshCurrencyUI();
   updateReceiveDisplay(0);
@@ -3125,12 +3091,6 @@ function updateNextBtn() {
 
 function fillAll() {
   document.getElementById('cr-pay-input').value = crCrypto === 'USDT' ? 100 : 100;
-  onPayInput();
-}
-
-function switchCrypto() {
-  crCrypto = crCrypto === 'USDT' ? 'USDC' : 'USDT';
-  refreshCurrencyUI();
   onPayInput();
 }
 
@@ -3294,16 +3254,17 @@ function setSuccessMode(mode) {
   const wallet = document.getElementById('res-wallet-val');
   const network = document.getElementById('res-network-val');
   const method = document.getElementById('t-res-method-val');
-  const broker = document.getElementById('res-broker-ref');
   const successDesc = document.getElementById('t-suc-desc');
   const procDesc = document.getElementById('t-proc-desc');
+  const procS1 = document.getElementById('t-proc-s1');
+  const procS2 = document.getElementById('t-proc-s2');
+  const procS3 = document.getElementById('t-proc-s3');
 
   if (paid) paid.textContent = isSell ? '100.00 ' + crCrypto : '¥15,600 JPY';
   if (received) received.textContent = isSell ? '≈ ¥14,400 JPY' : '100.00 ' + crCrypto;
   if (wallet) wallet.textContent = isSell ? '三菱UFJ銀行 · ****4567' : 'TX3ogswu...VAmk';
   if (network) network.textContent = isSell ? 'Payout bank account' : 'Tron (TRC20)';
   if (method) method.textContent = isSell ? 'Crypto transfer' : (PM_LABELS[selectedPM] ? PM_LABELS[selectedPM][lang] : 'Bank Transfer');
-  if (broker) broker.textContent = isSell ? 'CFD-JP-20260630-002' : 'CFD-JP-20260630-001';
   if (successDesc) {
     successDesc.textContent = isSell
       ? (lang === 'ja' ? '法定通貨はご指定の銀行口座に振り込まれます（通常1営業日以内）。' : lang === 'zh' ? '法币已安排划转至您的银行账户（通常1个工作日内到账）。' : 'Fiat will be deposited to your bank account (usually within 1 business day).')
@@ -3313,6 +3274,21 @@ function setSuccessMode(mode) {
     procDesc.textContent = isSell
       ? (lang === 'ja' ? 'お客様の送金を確認しています。確認次第、法定通貨を振り込みます。' : lang === 'zh' ? '正在确认加密货币到账，确认后将划转法币至您的银行账户。' : 'Confirming your crypto transfer. Once received, we will send fiat to your bank account.')
       : (lang === 'ja' ? '銀行振込の着金を確認しています。通常、数分〜1営業日かかります。' : lang === 'zh' ? '我们正在等待您的银行转账到账，通常需要几分钟至1个工作日。' : 'We are waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.');
+  }
+  if (procS1) {
+    procS1.textContent = isSell
+      ? (lang === 'ja' ? '暗号資産を受領しました' : lang === 'zh' ? '已收到加密货币' : 'Crypto received')
+      : (lang === 'ja' ? 'お支払いを受領しました' : lang === 'zh' ? '已收到您的付款' : 'Payment received');
+  }
+  if (procS2) {
+    procS2.textContent = isSell
+      ? (lang === 'ja' ? '送金内容を確認中です' : lang === 'zh' ? '正在确认到账' : 'Confirming your transfer')
+      : (lang === 'ja' ? '銀行と着金を確認中です' : lang === 'zh' ? '正在向银行确认到账' : 'Confirming with your bank');
+  }
+  if (procS3) {
+    procS3.textContent = isSell
+      ? (lang === 'ja' ? 'ご指定口座に振込予定です' : lang === 'zh' ? '款项将划转至您的银行账户' : 'Funds sent to your bank account')
+      : (lang === 'ja' ? 'ウォレットへ送金予定です' : lang === 'zh' ? '加密货币将发送至您的钱包' : 'Crypto sent to your wallet');
   }
 }
 
