@@ -706,6 +706,13 @@
       font-size: 11px; font-weight: 600; color: #409EFF;
       background: none; border: none; cursor: pointer; padding: 0;
     }
+    .cr-pay-error {
+      display: none;
+      align-items: center; gap: 4px;
+      margin-top: 5px;
+      font-size: 11px; color: #F56C6C;
+    }
+    .cr-pay-error.show { display: flex; }
 
     /* Swap button between blocks */
     .cr-swap-wrap {
@@ -1115,6 +1122,9 @@
             <span id="t-cr-balance">Balance</span>：<span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
             <button class="cr-all-btn" id="cr-all-btn" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
           </div>
+        </div>
+        <div class="cr-pay-error" id="cr-pay-error">
+          <span id="cr-pay-error-text"></span>
         </div>
       </div>
 
@@ -2701,6 +2711,7 @@ function applyLang() {
   // Update KYC demo hint to current language
   updateKycDemoHint();
   if (typeof setSuccessMode === 'function') setSuccessMode(successMode);
+  if (typeof updateNextBtn === 'function') updateNextBtn();
 }
 
 function toggleLang() {
@@ -3076,17 +3087,31 @@ function updateReceiveDisplay(val) {
 }
 
 function updateNextBtn() {
-  const val = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  const raw = document.getElementById('cr-pay-input').value;
+  const val = parseFloat(raw) || 0;
   let valid = false;
+  let rangeText;
   if (crDir === 'buy') {
     const fc = FIAT_CFG[crFiat];
     valid = val >= fc.min && val <= fc.max;
+    rangeText = `${fmtFiat(fc.min)} – ${fmtFiat(fc.max)}`;
   } else {
     const cc = CRYPTO_CFG[crCrypto];
     valid = val >= cc.min && val <= cc.max;
+    rangeText = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
   }
   const btn = document.getElementById('cr-next-btn');
   if (btn) btn.disabled = !valid;
+
+  const errEl = document.getElementById('cr-pay-error');
+  const errText = document.getElementById('cr-pay-error-text');
+  const showError = raw.trim() !== '' && !valid;
+  if (errEl) errEl.classList.toggle('show', showError);
+  if (errText && showError) {
+    errText.textContent = lang === 'zh' ? `金额需在 ${rangeText} 之间`
+      : lang === 'ja' ? `金額は ${rangeText} の範囲で入力してください`
+      : `Amount must be between ${rangeText}`;
+  }
 }
 
 function fillAll() {
