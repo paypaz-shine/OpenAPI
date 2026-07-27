@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sumsub · Identity Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans SC', "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #303133;
+      background: #F5F7FA;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    @media (min-width: 520px) {
+      .page { border-left: 1px solid #EBEEF5; border-right: 1px solid #EBEEF5; }
+    }
+
+    /* ── Screen ── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; left: 50%; bottom: 80px;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(0,0,0,.72); color: #fff;
+      font-size: 13px; padding: 8px 18px;
+      border-radius: 20px; white-space: nowrap;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Sumsub handoff ── */
+    .sumsub-shell { background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+    .sumsub-head {
+      background: #101828;
+      color: #fff;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sumsub-brand { display: flex; align-items: center; gap: 10px; font-family: 'Inter', sans-serif; font-weight: 700; }
+    .sumsub-secure { font-size: 11px; color: rgba(255,255,255,.68); white-space: nowrap; }
+    .sumsub-body { padding: 18px 14px 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .sumsub-card {
+      border: 1px solid #EAECF0;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(16,24,40,.04);
+    }
+    .sumsub-title { font-size: 18px; font-weight: 700; color: #101828; margin-bottom: 4px; }
+    .sumsub-copy { font-size: 12px; color: #667085; line-height: 1.65; }
+    .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .doc-option { border: 1.5px solid #EAECF0; border-radius: 12px; padding: 12px; display: flex; gap: 9px; align-items: center; }
+    .doc-option.active { border-color: #175CD3; background: #EFF8FF; }
+    .doc-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #F2F4F7; color: #475467;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .doc-name { font-size: 12px; font-weight: 700; color: #101828; }
+    .liveness-box {
+      border-radius: 14px;
+      background: linear-gradient(135deg, #101828, #344054);
+      min-height: 118px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.82);
+      position: relative;
+      overflow: hidden;
+    }
+    .liveness-face {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.74);
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .25s, background .25s;
+    }
+    .liveness-box.full { min-height: 220px; }
+    .liveness-face.big { width: 110px; height: 110px; }
+    .liveness-face.locked { border-color: #19D3C5; border-width: 3px; }
+    .liveness-face.done   { border-color: #12B76A; background: rgba(18,183,106,.18); }
+
+    .sumsub-back {
+      width: 24px; height: 24px; border: none; background: none; padding: 0;
+      color: rgba(255,255,255,.85); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+
+    .capture-frame {
+      border-radius: 16px;
+      min-height: 190px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .capture-frame.viewfinder { border: 1.5px dashed #B2DDFF; background: #F9FAFB; color: #175CD3; }
+    .capture-frame.captured   { background: linear-gradient(135deg, #101828, #344054); color: rgba(255,255,255,.85); }
+    .capture-shutter {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #fff; border: 3px solid #175CD3; color: #175CD3;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; margin-top: 2px;
+    }
+    .capture-shutter:active { transform: scale(.94); }
+
+    .ss-spin-wrap {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: #EFF8FF; display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .ss-spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: #175CD3; animation: spin 1s linear infinite; }
+
+    /* ── shadcn/ui design tokens (scoped to this Sumsub shell) ── */
+    .sumsub-shell {
+      --ss-radius-sm: 6px;
+      --ss-radius-md: 8px;
+      --ss-radius-lg: 10px;
+      --ss-radius-xl: 14px;
+      --ss-background: #fff;
+      --ss-foreground: #101828;
+      --ss-border: #EAECF0;
+      --ss-input: #D0D5DD;
+      --ss-muted: #F9FAFB;
+      --ss-muted-foreground: #667085;
+      --ss-primary: #101828;
+      --ss-primary-foreground: #fff;
+      --ss-accent: #EFF8FF;
+      --ss-accent-foreground: #175CD3;
+      --ss-success: #067647;
+      --ss-ring: #175CD3;
+    }
+
+    .ss-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      background: var(--ss-muted);
+      border: 1px solid var(--ss-border);
+      border-radius: var(--ss-radius-lg);
+      padding: 3px;
+    }
+    .ss-tab {
+      border-radius: var(--ss-radius-md);
+      padding: 7px 3px;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--ss-muted-foreground);
+      transition: background .15s, color .15s, box-shadow .15s;
+    }
+    .ss-tab.active { background: var(--ss-background); color: var(--ss-foreground); box-shadow: 0 1px 2px rgba(16,24,40,.08); }
+    .ss-tab.done { color: var(--ss-success); }
+
+    .ss-btn {
+      width: 100%;
+      height: 46px;
+      border-radius: var(--ss-radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Noto Sans SC', sans-serif;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background .15s, border-color .15s, opacity .15s;
+      border: 1px solid transparent;
+    }
+    .ss-btn-primary { background: var(--ss-primary); color: var(--ss-primary-foreground); }
+    .ss-btn-primary:hover { background: #1D2939; }
+    .ss-btn-primary:active { background: #0C1420; }
+    .ss-btn-outline { background: var(--ss-background); color: var(--ss-foreground); border-color: var(--ss-border); }
+    .ss-btn-outline:hover { background: var(--ss-muted); }
+    .ss-btn-row { display: flex; gap: 8px; }
+    .ss-btn-row .ss-btn { flex: 1; }
+
+    .ss-label { font-size: 12px; font-weight: 600; color: var(--ss-foreground); }
+    .ss-select, .ss-input {
+      height: 40px;
+      width: 100%;
+      border-radius: var(--ss-radius-md);
+      border: 1px solid var(--ss-input);
+      background: var(--ss-background);
+      padding: 0 12px;
+      font-size: 13px;
+      color: var(--ss-foreground);
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .ss-select:focus, .ss-input:focus {
+      outline: none;
+      border-color: var(--ss-ring);
+      box-shadow: 0 0 0 3px rgba(23,92,211,.15);
+    }
+
+    .ss-info-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--ss-border); }
+    .ss-info-row:last-child { border-bottom: none; }
+    .ss-info-label { font-size: 12px; color: var(--ss-muted-foreground); }
+    .ss-info-value { font-size: 13px; font-weight: 600; color: var(--ss-foreground); text-align: right; font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+
+    .ss-alert {
+      display: flex; gap: 8px; align-items: flex-start;
+      border: 1px solid var(--ss-border);
+      background: var(--ss-muted);
+      border-radius: var(--ss-radius-lg);
+      padding: 10px 12px;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: var(--ss-muted-foreground);
+    }
+    .ss-alert i { flex-shrink: 0; margin-top: 1px; color: var(--ss-accent-foreground); }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════
+     STEP 1 · 基本信息确认（由商户在创建 KYC Applicant 时通过 API 预填）
+══════════════════════════════════════════ -->
+<div id="s-ss-basic" class="screen active">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <button class="sumsub-back" onclick="abortToReturn()"><i data-lucide="chevron-left" size="18"></i></button>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab active"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="sumsub-title" style="font-size:16px" id="t-ss-basic-title">Confirm your information</div>
+        <div class="sumsub-copy" id="t-ss-basic-desc">These details were provided by the merchant and can't be edited here. If anything looks wrong, contact the merchant before continuing.</div>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-name">Full legal name</span>
+          <span class="ss-info-value" id="ss-basic-name-val">Taro Tanaka</span>
+        </div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-dob">Date of birth</span>
+          <span class="ss-info-value" id="ss-basic-dob-val">Apr 12, 1990</span>
+        </div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-nationality">Nationality</span>
+          <span class="ss-info-value" id="ss-basic-nat-val">Japan</span>
+        </div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-email">Email</span>
+          <span class="ss-info-value" id="ss-basic-email-val">taro.tanaka@example.com</span>
+        </div>
+      </div>
+
+      <div class="ss-alert">
+        <i data-lucide="shield-check" size="14"></i>
+        <span id="t-ss-basic-hint">Shared securely by Paypaz's merchant integration — Sumsub only uses it to verify your identity.</span>
+      </div>
+
+      <button class="ss-btn ss-btn-primary" onclick="goTo('sumsub')">
+        <span id="t-ss-basic-confirm-btn">Confirm & continue</span>
+        <i data-lucide="arrow-right" size="16"></i>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /s-ss-basic -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2 · 证件类型选择
+══════════════════════════════════════════ -->
+<div id="s-sumsub" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <button class="sumsub-back" onclick="goTo('ss-basic')"><i data-lucide="chevron-left" size="18"></i></button>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div class="sumsub-card">
+        <label class="ss-label" id="t-ss-country-label" style="display:block;margin-bottom:6px">Country/region that issued your ID</label>
+        <select class="ss-select" id="ss-country-select">
+          <option value="JP" selected>🇯🇵 Japan</option>
+          <option value="US">🇺🇸 United States</option>
+          <option value="ID">🇮🇩 Indonesia</option>
+          <option value="SG">🇸🇬 Singapore</option>
+          <option value="CN">🇨🇳 China</option>
+        </select>
+      </div>
+
+      <div class="sumsub-card">
+        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:10px" id="t-ss-doc-title">Select document type</div>
+        <div class="doc-grid">
+          <div class="doc-option active" id="ss-doctype-passport" onclick="selectDocType('passport')">
+            <div class="doc-icon"><i data-lucide="book-open-check" size="17"></i></div>
+            <div>
+              <div class="doc-name" id="t-ss-doc-passport">Passport</div>
+              <div class="sumsub-copy" style="font-size:10px" id="t-ss-doc-passport-sub">Recommended</div>
+            </div>
+          </div>
+          <div class="doc-option" id="ss-doctype-idcard" onclick="selectDocType('idcard')">
+            <div class="doc-icon"><i data-lucide="contact" size="17"></i></div>
+            <div class="doc-name" id="t-ss-doc-idcard">ID card</div>
+          </div>
+          <div class="doc-option" id="ss-doctype-license" onclick="selectDocType('license')">
+            <div class="doc-icon"><i data-lucide="id-card" size="17"></i></div>
+            <div class="doc-name" id="t-ss-doc-license">Driver's license</div>
+          </div>
+          <div class="doc-option" id="ss-doctype-permit" onclick="selectDocType('permit')">
+            <div class="doc-icon"><i data-lucide="file-badge-2" size="17"></i></div>
+            <div class="doc-name" id="t-ss-doc-permit">Residence permit</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="ss-btn ss-btn-primary" onclick="goTo('ss-front')">
+        <span id="t-ss-doctype-btn">Continue</span>
+        <i data-lucide="arrow-right" size="16"></i>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /s-sumsub -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2c · 拍摄证件正面
+══════════════════════════════════════════ -->
+<div id="s-ss-front" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <button class="sumsub-back" onclick="goTo('sumsub')"><i data-lucide="chevron-left" size="18"></i></button>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div class="sumsub-card">
+        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:8px" id="t-ss-front-title">Front of ID</div>
+
+        <div id="ss-front-viewfinder">
+          <div class="capture-frame viewfinder">
+            <i data-lucide="scan-line" size="30"></i>
+            <div class="sumsub-copy" id="t-ss-front-hint">Take a photo of the front of your document. Make sure all four corners are visible and there's no glare or blur.</div>
+          </div>
+          <div style="display:flex;justify-content:center;padding-top:14px">
+            <button class="capture-shutter" onclick="captureDoc('front')"><i data-lucide="camera" size="22"></i></button>
+          </div>
+        </div>
+
+        <div id="ss-front-checking" style="display:none;flex-direction:column;align-items:center;gap:10px;padding:12px 0">
+          <div class="ss-spin-wrap"><div class="ss-spin-ring"></div></div>
+          <div class="sumsub-copy" id="t-ss-checking">Checking photo quality...</div>
+        </div>
+
+        <div id="ss-front-review" style="display:none">
+          <div class="capture-frame captured">
+            <i data-lucide="file-check-2" size="30"></i>
+            <div class="sumsub-copy t-ss-doc-review-hint" style="color:rgba(255,255,255,.85)">Make sure all the information on the document is visible and easy to read.</div>
+          </div>
+          <div class="ss-btn-row" style="padding-top:14px">
+            <button class="ss-btn ss-btn-outline" onclick="retakeDoc('front')"><span class="t-ss-btn-retake">Retake photo</span></button>
+            <button class="ss-btn ss-btn-primary" onclick="confirmDoc('front')"><span class="t-ss-btn-readable">Document is readable</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /s-ss-front -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2d · 拍摄证件反面（仅双面证件）
+══════════════════════════════════════════ -->
+<div id="s-ss-back" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <button class="sumsub-back" onclick="goTo('ss-front')"><i data-lucide="chevron-left" size="18"></i></button>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div class="sumsub-card">
+        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:8px" id="t-ss-back-title">Back of ID</div>
+
+        <div id="ss-back-viewfinder">
+          <div class="capture-frame viewfinder">
+            <i data-lucide="scan-line" size="30"></i>
+            <div class="sumsub-copy" id="t-ss-back-hint">Now take a photo of the back of your document.</div>
+          </div>
+          <div style="display:flex;justify-content:center;padding-top:14px">
+            <button class="capture-shutter" onclick="captureDoc('back')"><i data-lucide="camera" size="22"></i></button>
+          </div>
+        </div>
+
+        <div id="ss-back-checking" style="display:none;flex-direction:column;align-items:center;gap:10px;padding:12px 0">
+          <div class="ss-spin-wrap"><div class="ss-spin-ring"></div></div>
+          <div class="sumsub-copy" id="t-ss-checking-2">Checking photo quality...</div>
+        </div>
+
+        <div id="ss-back-review" style="display:none">
+          <div class="capture-frame captured">
+            <i data-lucide="file-check-2" size="30"></i>
+            <div class="sumsub-copy t-ss-doc-review-hint" style="color:rgba(255,255,255,.85)">Make sure all the information on the document is visible and easy to read.</div>
+          </div>
+          <div class="ss-btn-row" style="padding-top:14px">
+            <button class="ss-btn ss-btn-outline" onclick="retakeDoc('back')"><span class="t-ss-btn-retake">Retake photo</span></button>
+            <button class="ss-btn ss-btn-primary" onclick="confirmDoc('back')"><span class="t-ss-btn-readable">Document is readable</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /s-ss-back -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2e · 上传中
+══════════════════════════════════════════ -->
+<div id="s-ss-uploading" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <div style="width:24px"></div>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body" style="align-items:center;justify-content:center;gap:16px">
+      <div class="ss-spin-wrap" style="width:72px;height:72px"><div class="ss-spin-ring"></div></div>
+      <div style="text-align:center">
+        <div class="sumsub-title" style="font-size:15px" id="t-ss-uploading-heading">Uploading your document</div>
+        <div class="sumsub-copy" id="t-ss-uploading-desc">This will only take a moment.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /s-ss-uploading -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2f · 活体检测
+══════════════════════════════════════════ -->
+<div id="s-ss-liveness" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <div style="width:24px"></div>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab active"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div class="liveness-box full">
+        <div class="liveness-face big" id="ss-live-face">
+          <i data-lucide="scan-face" size="40" id="ss-live-icon-scan"></i>
+          <div class="ss-spin-ring" id="ss-live-spinner" style="display:none;border-top-color:#19D3C5"></div>
+          <i data-lucide="check" size="40" id="ss-live-icon-done" style="display:none"></i>
+        </div>
+      </div>
+      <div class="sumsub-copy" style="text-align:center;font-weight:600;color:#101828;font-size:13px" id="ss-live-caption">Position your face to fit the frame</div>
+    </div>
+  </div>
+
+</div><!-- /s-ss-liveness -->
+
+
+<!-- ══════════════════════════════════════════
+     STEP 2g · 审核中（异步）
+══════════════════════════════════════════ -->
+<div id="s-ss-pending" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head">
+      <div style="width:24px"></div>
+      <div class="sumsub-brand">
+        <div>
+          <div>Sumsub</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
+        </div>
+      </div>
+      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab active"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
+        <div class="ss-spin-wrap" style="width:64px;height:64px"><div class="ss-spin-ring"></div></div>
+        <div>
+          <div class="sumsub-title" style="font-size:16px" id="t-ss-pending-heading">We're checking everything now</div>
+          <div class="sumsub-copy" id="t-ss-pending-desc">This usually takes a few minutes. You can close this and we'll let you know once it's done.</div>
+        </div>
+      </div>
+
+      <button class="ss-btn ss-btn-primary" onclick="completeSumsub()">
+        <i data-lucide="check-circle" size="16"></i>
+        <span id="t-ss-complete-btn">Close</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /s-ss-pending -->
+
+</div><!-- /.page -->
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    'ss-subtitle':      'Identity verification',
+    'ss-secure-label':  'Secure session',
+    'ss-step1':         '1. Basic info',
+    'ss-step2':         '2. Document',
+    'ss-step3':         '3. Liveness',
+    'ss-step4':         '4. Review',
+    'ss-basic-title':   'Confirm your information',
+    'ss-basic-desc':    'These details were provided by the merchant and can\'t be edited here. If anything looks wrong, contact the merchant before continuing.',
+    'ss-basic-label-name': 'Full legal name',
+    'ss-basic-label-dob': 'Date of birth',
+    'ss-basic-label-nationality': 'Nationality',
+    'ss-basic-label-email': 'Email',
+    'ss-basic-hint':    'Shared securely by Paypaz\'s merchant integration — Sumsub only uses it to verify your identity.',
+    'ss-basic-confirm-btn': 'Confirm & continue',
+    'ss-country-label': 'Country/region that issued your ID',
+    'ss-doc-title':     'Select document type',
+    'ss-doc-passport':  'Passport',
+    'ss-doc-passport-sub': 'Recommended',
+    'ss-doc-idcard':    'ID card',
+    'ss-doc-license':   'Driver\'s license',
+    'ss-doc-permit':    'Residence permit',
+    'ss-doctype-btn':   'Continue',
+    'ss-front-title':   'Front of ID',
+    'ss-front-hint':    'Take a photo of the front of your document. Make sure all four corners are visible and there\'s no glare or blur.',
+    'ss-checking':      'Checking photo quality...',
+    'ss-back-title':    'Back of ID',
+    'ss-back-hint':     'Now take a photo of the back of your document.',
+    'ss-checking-2':    'Checking photo quality...',
+    'ss-doc-review-hint': 'Make sure all the information on the document is visible and easy to read.',
+    'ss-btn-retake':    'Retake photo',
+    'ss-btn-readable':  'Document is readable',
+    'ss-uploading-heading': 'Uploading your document',
+    'ss-uploading-desc': 'This will only take a moment.',
+    'ss-live-position': 'Position your face to fit the frame',
+    'ss-live-look':     'Look straight into the camera',
+    'ss-live-processing': 'Processing your scan...',
+    'ss-live-complete': 'Face scan complete',
+    'ss-pending-heading': 'We\'re checking everything now',
+    'ss-pending-desc':  'This usually takes a few minutes. You can close this and we\'ll let you know once it\'s done.',
+    'ss-complete-btn':  'Close',
+  },
+  ja: {
+    'ss-subtitle':      '本人確認',
+    'ss-secure-label':  'セキュアセッション',
+    'ss-step1':         '1. 基本情報',
+    'ss-step2':         '2. 証明書類',
+    'ss-step3':         '3. 顔認証',
+    'ss-step4':         '4. 審査',
+    'ss-basic-title':   '情報をご確認ください',
+    'ss-basic-desc':    'これらの情報は販売者が提供したもので、こちらでは編集できません。内容に誤りがある場合は、続行する前に販売者にお問い合わせください。',
+    'ss-basic-label-name': '氏名（本名）',
+    'ss-basic-label-dob': '生年月日',
+    'ss-basic-label-nationality': '国籍',
+    'ss-basic-label-email': 'メールアドレス',
+    'ss-basic-hint':    'Paypazの販売者連携により安全に共有されています。Sumsubは本人確認のみに使用します。',
+    'ss-basic-confirm-btn': '確認して次へ',
+    'ss-country-label': '証明書類の発行国・地域',
+    'ss-doc-title':     '証明書類の種類を選択',
+    'ss-doc-passport':  'パスポート',
+    'ss-doc-passport-sub': 'おすすめ',
+    'ss-doc-idcard':    '身分証明書',
+    'ss-doc-license':   '運転免許証',
+    'ss-doc-permit':    '在留カード',
+    'ss-doctype-btn':   '次へ',
+    'ss-front-title':   '証明書類の表面',
+    'ss-front-hint':    '証明書類の表面を撮影してください。四隅がすべて写るようにし、反射やブレがないようにしてください。',
+    'ss-checking':      '画質を確認しています...',
+    'ss-back-title':    '証明書類の裏面',
+    'ss-back-hint':     '続いて証明書類の裏面を撮影してください。',
+    'ss-checking-2':    '画質を確認しています...',
+    'ss-doc-review-hint': '証明書類の情報がすべて見えて、読み取れることを確認してください。',
+    'ss-btn-retake':    '再撮影する',
+    'ss-btn-readable':  '問題なく読み取れます',
+    'ss-uploading-heading': '証明書類をアップロード中',
+    'ss-uploading-desc': 'もう少しお待ちください。',
+    'ss-live-position': '顔を枠に合わせてください',
+    'ss-live-look':     'カメラを正面から見てください',
+    'ss-live-processing': 'スキャンを処理しています...',
+    'ss-live-complete': '顔認証が完了しました',
+    'ss-pending-heading': 'ただいま確認しています',
+    'ss-pending-desc':  '通常数分で完了します。このまま閉じていただいても、完了後にお知らせします。',
+    'ss-complete-btn':  '閉じる',
+  },
+  zh: {
+    'ss-subtitle':      '身份验证',
+    'ss-secure-label':  '安全会话',
+    'ss-step1':         '1. 基本信息',
+    'ss-step2':         '2. 证件',
+    'ss-step3':         '3. 活体检测',
+    'ss-step4':         '4. 审核',
+    'ss-basic-title':   '请核对您的基本信息',
+    'ss-basic-desc':    '以下信息由商户提供，此处不可编辑。如信息有误，请在继续前联系商户核实。',
+    'ss-basic-label-name': '法定姓名',
+    'ss-basic-label-dob': '出生日期',
+    'ss-basic-label-nationality': '国籍',
+    'ss-basic-label-email': '邮箱',
+    'ss-basic-hint':    '由 Paypaz 商户接入安全传递，Sumsub 仅用于身份核验。',
+    'ss-basic-confirm-btn': '确认并继续',
+    'ss-country-label': '证件签发国家/地区',
+    'ss-doc-title':     '选择证件类型',
+    'ss-doc-passport':  '护照',
+    'ss-doc-passport-sub': '推荐',
+    'ss-doc-idcard':    '身份证',
+    'ss-doc-license':   '驾驶证',
+    'ss-doc-permit':    '居留许可',
+    'ss-doctype-btn':   '继续',
+    'ss-front-title':   '证件正面',
+    'ss-front-hint':    '请拍摄证件正面照片，确保四角完整可见，无反光或模糊。',
+    'ss-checking':      '正在检查照片质量...',
+    'ss-back-title':    '证件反面',
+    'ss-back-hint':     '请继续拍摄证件反面照片。',
+    'ss-checking-2':    '正在检查照片质量...',
+    'ss-doc-review-hint': '请确认证件上所有信息清晰可读。',
+    'ss-btn-retake':    '重新拍摄',
+    'ss-btn-readable':  '证件清晰可读',
+    'ss-uploading-heading': '正在上传您的证件',
+    'ss-uploading-desc': '请稍候。',
+    'ss-live-position': '请将面部对准取景框',
+    'ss-live-look':     '请正视摄像头',
+    'ss-live-processing': '正在处理扫描结果...',
+    'ss-live-complete': '面部扫描完成',
+    'ss-pending-heading': '正在为您审核',
+    'ss-pending-desc':  '通常需要几分钟，您可以关闭此页面，审核完成后会通知您。',
+    'ss-complete-btn':  '关闭',
+  },
+};
+let lang = 'zh';
+
+// ── Return target (which ramp page redirected here) ──────────────────
+const RAMP_STATE_KEY = 'paypaz_ramp_state';
+const returnParams = new URLSearchParams(location.search);
+const returnFile = returnParams.get('return') === 'off-ramp' ? 'off-ramp' : 'on-ramp';
+(function initLangFromRampState() {
+  const raw = sessionStorage.getItem(RAMP_STATE_KEY);
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    if (state.lang && I18N[state.lang]) lang = state.lang;
+  } catch (e) { /* ignore malformed state */ }
+})();
+
+function renderIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function applyLang() {
+  const t = I18N[lang];
+  Object.keys(t).forEach(k => {
+    const el = document.getElementById('t-' + k);
+    if (el) el.textContent = t[k];
+  });
+  ['ss-subtitle', 'ss-secure-label', 'ss-step1', 'ss-step2', 'ss-step3', 'ss-step4', 'ss-btn-readable', 'ss-btn-retake', 'ss-doc-review-hint'].forEach(k => {
+    document.querySelectorAll('.t-' + k).forEach(el => el.textContent = t[k]);
+  });
+  renderSsBasicInfo();
+}
+
+// ── Screen Navigation ────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  if (id === 'ss-front') resetCaptureScreen('front');
+  if (id === 'ss-back')  resetCaptureScreen('back');
+  if (id === 'ss-uploading') startUploadingDemo();
+  if (id === 'ss-liveness')  startLivenessDemo();
+  window.scrollTo(0, 0);
+}
+
+// ── Abandon KYC (back button on the first screen) — return without completing ──
+function abortToReturn() {
+  location.href = returnFile + '.html';
+}
+
+// ── Toast ────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || '';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Applicant basic info — pre-filled by the merchant via API (applicantData),
+// read-only here; only the DOB/nationality display text is localized. ──
+const SS_APPLICANT = {
+  firstName: 'Taro', lastName: 'Tanaka',
+  dob: { en: 'Apr 12, 1990', ja: '1990年4月12日', zh: '1990年4月12日' },
+  nationality: { en: 'Japan', ja: '日本', zh: '日本' },
+  email: 'taro.tanaka@example.com',
+};
+function renderSsBasicInfo() {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('ss-basic-name-val', SS_APPLICANT.firstName + ' ' + SS_APPLICANT.lastName);
+  set('ss-basic-dob-val', SS_APPLICANT.dob[lang] || SS_APPLICANT.dob.en);
+  set('ss-basic-nat-val', SS_APPLICANT.nationality[lang] || SS_APPLICANT.nationality.en);
+  set('ss-basic-email-val', SS_APPLICANT.email);
+}
+
+function completeSumsub() {
+  showToast(lang === 'zh' ? 'Sumsub 验证完成，正在返回...' : lang === 'ja' ? 'Sumsub 本人確認が完了しました。戻ります...' : 'Sumsub verification complete — returning...');
+  setTimeout(() => { location.href = returnFile + '.html?kyc=done'; }, 900);
+}
+
+// ── Document type (drives whether a back-of-document capture is needed) ──
+let ssDocType = 'passport';
+const SS_TWO_SIDED = ['idcard', 'license', 'permit'];
+function selectDocType(type) {
+  ssDocType = type;
+  ['passport', 'idcard', 'license', 'permit'].forEach(t => {
+    const el = document.getElementById('ss-doctype-' + t);
+    if (el) el.classList.toggle('active', t === type);
+  });
+}
+
+// ── Document capture + readability gate (shared by front & back) ──
+function resetCaptureScreen(side) {
+  const viewfinder = document.getElementById('ss-' + side + '-viewfinder');
+  const checking = document.getElementById('ss-' + side + '-checking');
+  const review = document.getElementById('ss-' + side + '-review');
+  if (viewfinder) viewfinder.style.display = 'block';
+  if (checking) checking.style.display = 'none';
+  if (review) review.style.display = 'none';
+}
+function captureDoc(side) {
+  document.getElementById('ss-' + side + '-viewfinder').style.display = 'none';
+  document.getElementById('ss-' + side + '-checking').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('ss-' + side + '-checking').style.display = 'none';
+    document.getElementById('ss-' + side + '-review').style.display = 'block';
+  }, 650);
+}
+function retakeDoc(side) {
+  document.getElementById('ss-' + side + '-review').style.display = 'none';
+  document.getElementById('ss-' + side + '-viewfinder').style.display = 'block';
+}
+function confirmDoc(side) {
+  if (side === 'front') {
+    goTo(SS_TWO_SIDED.includes(ssDocType) ? 'ss-back' : 'ss-uploading');
+  } else {
+    goTo('ss-uploading');
+  }
+}
+
+// ── Uploading transition ──
+function startUploadingDemo() {
+  setTimeout(() => goTo('ss-liveness'), 900);
+}
+
+// ── Liveness check (position → look straight → processing → complete) ──
+function startLivenessDemo() {
+  const face      = document.getElementById('ss-live-face');
+  const iconScan  = document.getElementById('ss-live-icon-scan');
+  const spinner   = document.getElementById('ss-live-spinner');
+  const iconDone  = document.getElementById('ss-live-icon-done');
+  const caption   = document.getElementById('ss-live-caption');
+  const setCaption = key => { caption.textContent = (I18N[lang] && I18N[lang][key]) || I18N.en[key]; };
+
+  face.classList.remove('locked', 'done');
+  iconScan.style.display = 'flex'; spinner.style.display = 'none'; iconDone.style.display = 'none';
+  setCaption('ss-live-position');
+
+  setTimeout(() => {
+    face.classList.add('locked');
+    setCaption('ss-live-look');
+  }, 1300);
+
+  setTimeout(() => {
+    iconScan.style.display = 'none'; spinner.style.display = 'block';
+    setCaption('ss-live-processing');
+  }, 2400);
+
+  setTimeout(() => {
+    spinner.style.display = 'none'; iconDone.style.display = 'flex';
+    face.classList.remove('locked'); face.classList.add('done');
+    setCaption('ss-live-complete');
+  }, 3400);
+
+  setTimeout(() => goTo('ss-pending'), 4300);
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+applyLang();
+renderIcons();
+</script>
+</body>
+</html>

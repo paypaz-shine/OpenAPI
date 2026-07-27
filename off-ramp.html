@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Paypaz Checkout · Sell</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans SC', "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      color: #303133;
+      background: #F5F7FA;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    @media (min-width: 520px) {
+      .page { border-left: 1px solid #EBEEF5; border-right: 1px solid #EBEEF5; }
+    }
+
+    /* ── Screen ── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ── Header ── */
+    .ck-header {
+      background: #fff;
+      padding: 12px 16px;
+      border-bottom: 1px solid #EBEEF5;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .back-btn {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      cursor: pointer;
+      color: #606266;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .back-btn:hover { background: #F5F7FA; }
+    .header-center { flex: 1; min-width: 0; text-align: center; }
+    .header-spacer { width: 32px; flex-shrink: 0; }
+    .ck-title { font-size: 15px; font-weight: 600; color: #303133; line-height: 1.3; }
+    .ck-order-id { font-size: 11px; color: #909399; font-family: 'Inter', sans-serif; margin-top: 1px; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lang-btn {
+      font-size: 12px; color: #409EFF;
+      background: none; border: 1px solid #C6E2FF;
+      border-radius: 4px; padding: 2px 8px; line-height: 1.5;
+      cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .lang-btn:hover { background: #ecf5ff; }
+    .timer-chip {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #E6A23C;
+      background: #fdf6ec;
+      border: 1px solid #f5dab1;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .timer-chip.urgent { color: #F56C6C; background: #fef0f0; border-color: #fbc4c4; }
+
+    /* ── Content ── */
+    .ck-content { padding: 16px 16px 24px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Card ── */
+    .ck-card, .result-card, .history-list {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .card-section { padding: 14px 16px; }
+    .card-divider { height: 1px; background: #EBEEF5; }
+
+    /* ── Quote Amounts ── */
+    .quote-amount {
+      font-family: 'Inter', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: #303133;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    /* ── Warning ── */
+    .ck-warning { display: flex; gap: 8px; background: #F5F7FA; border-radius: 6px; padding: 10px 12px; }
+    .ck-warning-text { font-size: 12px; color: #909399; line-height: 1.7; }
+
+    /* ── Processing Screen ── */
+    .centered-screen {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 48px 24px 40px;
+      text-align: center;
+      gap: 16px;
+    }
+    .spin-wrap {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: #ecf5ff;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .spin-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #409EFF;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status Screens ── */
+    .status-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .status-icon-success { background: #f0f9eb; }
+    .status-icon-failed  { background: #fef0f0; }
+    .status-icon-pending { background: #fdf6ec; }
+    .status-icon-processing { background: #ecf5ff; }
+    .status-title { font-size: 18px; font-weight: 600; color: #303133; }
+    .status-desc  { font-size: 13px; color: #909399; line-height: 1.8; max-width: 260px; }
+    .status-text-group { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .mini-order-id { font-family: 'Inter', sans-serif; font-size: 12px; color: #C0C4CC; }
+    .proc-step-row { display: flex; align-items: center; gap: 8px; }
+    .result-card { width: 100%; }
+    .result-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; border-bottom: 1px solid #EBEEF5; }
+    .result-row:last-child { border-bottom: none; }
+    .result-key { font-size: 12px; color: #909399; }
+    .result-val { font-size: 13px; color: #303133; font-weight: 500; font-family: 'Inter', sans-serif; }
+
+    /* ── Order History ── */
+    .history-body { padding: 16px 16px 24px; }
+    .history-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      border-bottom: 1px solid #EBEEF5;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: #F5F7FA; }
+    .history-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .history-icon-buy  { background: #f0f9eb; color: #67C23A; }
+    .history-icon-sell { background: #ecf5ff; color: #409EFF; }
+    .history-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .history-type { font-size: 13px; font-weight: 600; color: #303133; }
+    .history-time { font-size: 11px; color: #909399; font-family: 'Inter', sans-serif; }
+    .history-amount-col { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .history-amount { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: #303133; white-space: nowrap; }
+    .history-empty { padding: 60px 24px; text-align: center; color: #C0C4CC; font-size: 13px; }
+    .status-badge {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 30px;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+    .status-badge-success    { background: #f0f9eb; color: #67C23A; }
+    .status-badge-processing { background: #ecf5ff; color: #409EFF; }
+    .status-badge-failed     { background: #fef0f0; color: #F56C6C; }
+    .status-badge-expired    { background: #fdf6ec; color: #E6A23C; }
+    .status-badge-pending    { background: #fdf6ec; color: #E6A23C; }
+
+    /* ── CTA Buttons ── */
+    .btn-cta {
+      width: 100%;
+      height: 48px;
+      background: #409EFF;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .01em;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-cta:hover { background: #66b1ff; }
+    .btn-cta:active { background: #3a8ee6; }
+    .btn-cta-ghost {
+      width: 100%;
+      height: 44px;
+      background: #fff;
+      color: #606266;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid #DCDFE6;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Noto Sans SC', sans-serif;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-cta-ghost:hover { border-color: #409EFF; color: #409EFF; }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn-cta, .btn-row .btn-cta-ghost { flex: 1; }
+    .btn-cta:disabled { background: #E8ECF0; color: #C0C4CC; cursor: not-allowed; }
+    .btn-cta:disabled:hover { background: #E8ECF0; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; left: 50%; bottom: 80px;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(0,0,0,.72); color: #fff;
+      font-size: 13px; padding: 8px 18px;
+      border-radius: 20px; white-space: nowrap;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Create Order Screen ── */
+    .cr-body { padding: 16px 16px 24px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    .dir-tabs { display: flex; background: #F0F2F5; border-radius: 12px; padding: 4px; gap: 4px; }
+    .dir-tab {
+      flex: 1; height: 40px;
+      font-size: 15px; font-weight: 600;
+      border: none; background: transparent;
+      border-radius: 8px;
+      cursor: pointer; color: #909399;
+      transition: all .2s;
+      font-family: 'Noto Sans SC', sans-serif;
+      letter-spacing: .01em;
+    }
+    .dir-tab.active {
+      background: #fff;
+      color: #303133;
+      box-shadow: 0 1px 4px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    .cr-balance-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 12px; color: #909399; }
+    .cr-balance-val { font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; }
+
+    .cr-blocks-wrap { position: relative; display: flex; flex-direction: column; gap: 2px; }
+    .cr-block {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1.5px solid #E8ECF0;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .cr-block:focus-within { border-color: #409EFF; box-shadow: 0 0 0 3px rgba(64,158,255,.10); }
+    .cr-block-label { font-size: 11px; color: #909399; margin-bottom: 6px; font-weight: 500; letter-spacing: .03em; text-transform: uppercase; }
+    .cr-block-row { display: flex; align-items: center; gap: 10px; }
+    .cr-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: #303133;
+      border: none; background: none; outline: none;
+      flex: 1; min-width: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-input::placeholder { color: #D0D5DD; }
+    .cr-amount-display {
+      font-family: 'Inter', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: #303133; flex: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-amount-display.zero { color: #D0D5DD; }
+    .cr-currency-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: #F5F7FA;
+      border: none;
+      border-radius: 24px;
+      padding: 7px 10px 7px 8px;
+      cursor: pointer; flex-shrink: 0;
+      font-size: 14px; font-weight: 600; color: #303133;
+      transition: background .15s;
+    }
+    .cr-currency-btn:hover { background: #EBEEF5; }
+    .cr-currency-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .cr-ci-usdt { background: transparent; }
+    .cr-ci-usdc { background: transparent; }
+    .cr-ci-jpy  { background: transparent; }
+    .cr-ci-usd  { background: transparent; }
+
+    .cr-block-hint { margin-top: 5px; font-size: 11px; color: #C0C4CC; display: flex; align-items: center; justify-content: space-between; }
+    .cr-all-btn { font-size: 11px; font-weight: 600; color: #409EFF; background: none; border: none; cursor: pointer; padding: 0; }
+    .cr-pay-error { display: none; align-items: center; gap: 4px; margin-top: 5px; font-size: 11px; color: #F56C6C; }
+    .cr-pay-error.show { display: flex; }
+
+    /* Dropdown overlay */
+    .cr-dropdown-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 50; display: none; align-items: flex-end;
+    }
+    .cr-dropdown-overlay.show { display: flex; }
+    .cr-dropdown-sheet {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 480px; margin: 0 auto;
+      padding: 20px 16px 36px;
+    }
+    .cr-dropdown-title {
+      font-size: 15px; font-weight: 600; color: #303133;
+      margin-bottom: 12px; padding-bottom: 12px;
+      border-bottom: 1px solid #EBEEF5;
+    }
+    .cr-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 8px; cursor: pointer; border-radius: 12px;
+      transition: background .15s;
+    }
+    .cr-option:hover { background: #F5F7FA; }
+    .cr-option.selected { background: #ecf5ff; }
+    .cr-option-name { font-size: 15px; font-weight: 500; color: #303133; flex: 1; }
+    .cr-option-check { color: #409EFF; }
+
+    /* ── KYC Gate Dialog ── */
+    .kyc-gate-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 70; display: none; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .kyc-gate-overlay.show { display: flex; }
+    .kyc-gate-dialog {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px 20px 20px;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    }
+    .kyc-gate-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #fdf6ec; color: #E6A23C;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .kyc-gate-title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
+    .kyc-gate-desc { font-size: 13px; color: #909399; line-height: 1.7; margin-bottom: 20px; }
+
+    /* ── Checkout intro line ── */
+    .checkout-context-desc { font-size: 11px; color: #909399; line-height: 1.55; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════
+     SCREEN 0 · 商户发起（选代币 + 输入数量）
+══════════════════════════════════════════ -->
+<div id="s-create" class="screen active">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title">On/Off Ramp</div>
+      <div class="ck-order-id" id="t-cr-subtitle">Buy & sell crypto instantly</div>
+    </div>
+    <div class="header-right">
+      <button class="back-btn" onclick="goTo('history')" title="Order History">
+        <i data-lucide="history" size="18"></i>
+      </button>
+      <button class="lang-btn" onclick="toggleLang()" id="cr-lang-btn">日本語</button>
+    </div>
+  </div>
+
+  <div class="cr-body">
+
+    <!-- Buy / Sell Tabs — Buy 直接跳转到 on-ramp.html -->
+    <div class="dir-tabs">
+      <button class="dir-tab" id="tab-buy" onclick="location.href='on-ramp.html'"><span id="t-tab-buy">Buy</span></button>
+      <button class="dir-tab active" id="tab-sell"><span id="t-tab-sell">Sell</span></button>
+    </div>
+
+    <!-- Token + Amount -->
+    <div class="cr-blocks-wrap">
+
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-qty-label">YOU SELL</div>
+        <div class="cr-block-row">
+          <input class="cr-input" id="cr-pay-input" type="number" min="0"
+                 placeholder="0" oninput="onPayInput()" autocomplete="off">
+          <button class="cr-currency-btn" onclick="openCryptoDropdown()">
+            <div class="cr-currency-icon cr-ci-usdt" id="cr-token-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+            <span id="cr-token-name">USDT</span>
+            <i data-lucide="chevron-down" size="13"></i>
+          </button>
+        </div>
+        <div class="cr-block-hint">
+          <span id="cr-pay-range">10 – 10,000 USDT</span>
+          <div class="cr-balance-row" id="cr-balance-row">
+            <span id="t-cr-balance">Balance</span>：<span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
+            <button class="cr-all-btn" id="cr-all-btn" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
+          </div>
+        </div>
+        <div class="cr-pay-error" id="cr-pay-error">
+          <span id="cr-pay-error-text"></span>
+        </div>
+      </div>
+
+    </div><!-- /cr-blocks-wrap -->
+
+    <button class="btn-cta" id="cr-next-btn" onclick="onInitiateContinue()" disabled>
+      <span id="t-cr-next">Continue</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+  </div>
+
+  <!-- Token Dropdown Sheet -->
+  <div class="cr-dropdown-overlay" id="cr-dropdown" onclick="closeDropdownOverlay('cr-dropdown', event)">
+    <div class="cr-dropdown-sheet">
+      <div class="cr-dropdown-title" id="cr-dropdown-title">Select Token</div>
+      <div id="cr-dropdown-list"></div>
+    </div>
+  </div>
+
+</div><!-- /s-create -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 0.5 · 确认详情
+══════════════════════════════════════════ -->
+<div id="s-checkout" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('create')" title="Back">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-checkout-title">Confirm Details</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()" id="checkout-lang-btn">日本語</button>
+    </div>
+  </div>
+
+  <div class="cr-body">
+
+    <!-- Pay (crypto, fixed from screen 0) / Receive (fiat, computed + selectable) -->
+    <div class="cr-blocks-wrap">
+
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-pay">YOU PAY</div>
+        <div class="cr-block-row">
+          <span class="cr-amount-display" id="cr-pay-display">0</span>
+          <div class="cr-currency-btn" style="cursor:default">
+            <div class="cr-currency-icon cr-ci-usdt" id="cr-pay-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+            <span id="cr-pay-name">USDT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-receive">YOU RECEIVE</div>
+        <div class="cr-block-row">
+          <span class="cr-amount-display" id="cr-receive-display">0</span>
+          <button class="cr-currency-btn" id="cr-receive-btn" onclick="openFiatDropdown()">
+            <div class="cr-currency-icon cr-ci-jpy" id="cr-receive-icon"><img src="images/日本.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+            <span id="cr-receive-name">JPY</span>
+            <i data-lucide="chevron-down" size="13"></i>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /cr-blocks-wrap -->
+
+    <button class="btn-cta" id="cr-checkout-next-btn" onclick="proceedToCheckout()">
+      <span id="t-cr-checkout-next">Continue</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+  </div>
+
+  <!-- Fiat Currency Dropdown Sheet -->
+  <div class="cr-dropdown-overlay" id="fiat-dropdown" onclick="closeDropdownOverlay('fiat-dropdown', event)">
+    <div class="cr-dropdown-sheet">
+      <div class="cr-dropdown-title" id="fiat-dropdown-title">Select Fiat</div>
+      <div id="fiat-dropdown-list"></div>
+    </div>
+  </div>
+
+</div><!-- /s-checkout -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 卖出订单详情
+══════════════════════════════════════════ -->
+<div id="s-sell-order" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('create')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-sell-order-title">Review Order</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="ck-content">
+
+    <div class="checkout-context-desc" id="t-sell-context-desc">Review your order and payout account below, then confirm to complete the sale.</div>
+
+    <div class="result-card">
+      <div class="result-row">
+        <span class="result-key" id="t-sell-order-id-label">Order ID</span>
+        <span class="result-val">PZ20260630-00124</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sell-order-expiry-label">Expires In</span>
+        <span class="result-val timer-chip" id="sell-order-timer" style="background:none;border:none;padding:0;font-size:13px">29:58</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sell-you-send">You Send</span>
+        <span class="result-val"><span class="quote-amount" id="sell-send-amount" style="font-size:13px;font-weight:600;line-height:1;color:#303133">100.00</span> <span id="sell-crypto-label">USDT</span></span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sell-you-receive">You Receive</span>
+        <span class="result-val"><span class="quote-amount" id="sell-receive-amount" style="font-size:13px;font-weight:700;line-height:1;color:#67C23A">¥14,400</span> <span id="sell-fiat-label">JPY</span></span>
+      </div>
+    </div>
+
+    <div class="ck-warning">
+      <div style="color:#E6A23C;flex-shrink:0;margin-top:1px"><i data-lucide="clock" size="15"></i></div>
+      <div class="ck-warning-text" id="t-sell-order-warning">Confirm within the order time limit or it will expire. Once confirmed, the crypto will be locked from your balance and fiat will be deposited within 1 business day.</div>
+    </div>
+
+    <!-- Receiving Bank Account（用户在商户绑定的银行卡信息，只读反显，不可修改） -->
+    <div class="ck-card">
+      <div class="card-section" style="padding-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:2px" id="t-sell-account-title">Receiving Bank Account</div>
+        <div style="font-size:12px;color:#909399" id="t-sell-account-hint">JPY will be deposited here after confirmation</div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="result-row">
+        <span class="result-key" id="t-sf-bank">Bank</span>
+        <span class="result-val" id="sf-bank">三菱UFJ銀行</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sf-branch">Branch</span>
+        <span class="result-val" id="sf-branch">大手町支店</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sf-account">Account Number</span>
+        <span class="result-val" id="sf-account">1234567</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-sf-holder">Account Holder Name</span>
+        <span class="result-val" id="sf-holder">YAMADA TARO</span>
+      </div>
+    </div>
+
+    <button class="btn-cta" id="sell-next-btn" onclick="goToProcessing()">
+      <span id="t-sell-continue">Confirm & Continue</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+  </div>
+</div><!-- /s-sell-order -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 处理中
+══════════════════════════════════════════ -->
+<div id="s-processing" class="screen">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title" id="t-proc-title">Processing</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="spin-wrap">
+      <div class="spin-ring"></div>
+      <i data-lucide="refresh-cw" size="28" style="color:#409EFF"></i>
+    </div>
+    <div class="status-text-group">
+      <div class="status-title" id="t-proc-heading">Settling Your Order</div>
+      <div class="status-desc" id="t-proc-desc">Your crypto has been locked from your balance. Once settlement completes, fiat will be sent to your bank account.</div>
+    </div>
+    <div class="mini-order-id" id="proc-order-id">PZ20260630-00124</div>
+    <div class="ck-card" style="width:100%;text-align:left">
+      <div class="card-section" style="display:flex;flex-direction:column;gap:8px">
+        <div class="proc-step-row">
+          <i data-lucide="check-circle" size="14" style="color:#67C23A;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-proc-s1">Crypto locked from balance</span>
+        </div>
+        <div class="proc-step-row">
+          <i data-lucide="loader-circle" size="14" style="color:#409EFF;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-proc-s2">Settling your order</span>
+        </div>
+        <div class="proc-step-row">
+          <i data-lucide="circle" size="14" style="color:#C0C4CC;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#C0C4CC" id="t-proc-s3">Fiat sent to your bank account</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('create')" id="t-proc-return">Place Another Order</button>
+    <div style="font-size:11px;color:#C0C4CC" id="t-proc-note">You'll receive a notification when your order completes</div>
+  </div>
+</div><!-- /s-processing -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 成功
+══════════════════════════════════════════ -->
+<div id="s-success" class="screen">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title" id="t-suc-title">Order Completed</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-success">
+      <i data-lucide="check-circle-2" size="36" style="color:#67C23A"></i>
+    </div>
+    <div class="status-text-group">
+      <div class="status-title" id="t-suc-heading">Order Completed</div>
+      <div class="status-desc" id="t-suc-desc">Fiat will be deposited to your bank account (usually within 1 business day).</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-row">
+        <span class="result-key" id="t-res-paid">You Sold</span>
+        <span class="result-val" id="res-paid-val">100.00 USDT</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-received">You Received</span>
+        <span class="result-val" id="res-received-val" style="color:#67C23A;font-weight:700">¥14,400 JPY</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-wallet">Payout Account</span>
+        <span class="result-val" id="res-wallet-val" style="font-size:12px">三菱UFJ銀行 · ****4567</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-network">Arrival</span>
+        <span class="result-val" id="res-network-val">Within 1 business day</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-method">Payment</span>
+        <span class="result-val" id="t-res-method-val">Balance deduction</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-order">Order ID</span>
+        <span class="result-val" id="res-order-id-val">PZ20260630-00124</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-res-time">Completed</span>
+        <span class="result-val" style="font-size:12px">2026-06-30 14:32:08</span>
+      </div>
+    </div>
+
+    <button class="btn-cta" onclick="goTo('create')" id="t-suc-return">Place Another Order</button>
+  </div>
+</div><!-- /s-success -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 失败
+══════════════════════════════════════════ -->
+<div id="s-failed" class="screen">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title" id="t-fail-title">Transaction Failed</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-failed">
+      <i data-lucide="x-circle" size="36" style="color:#F56C6C" id="fail-icon"></i>
+    </div>
+    <div class="status-text-group">
+      <div class="status-title" id="t-fail-heading">Transaction Failed</div>
+      <div class="status-desc" id="t-fail-desc">Your payment could not be processed. No funds were deducted. Please try again or contact support.</div>
+    </div>
+    <div class="mini-order-id" id="fail-order-id">PZ20260630-00124</div>
+    <div class="btn-row" style="width:100%">
+      <button class="btn-cta-ghost" onclick="noop()" id="t-fail-return">Return</button>
+      <button class="btn-cta" onclick="goTo('create')" id="t-fail-retry">Try Again</button>
+    </div>
+  </div>
+</div><!-- /s-failed -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 待追加验证
+══════════════════════════════════════════ -->
+<div id="s-pending" class="screen">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title" id="t-pend-title">Verification Required</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-pending">
+      <i data-lucide="mail" size="36" style="color:#E6A23C"></i>
+    </div>
+    <div class="status-text-group">
+      <div class="status-title" id="t-pend-heading">Additional Verification Needed</div>
+      <div class="status-desc" id="t-pend-desc">Your order is on hold. Please check your email for a verification request and complete the steps to resume processing.</div>
+    </div>
+    <div class="ck-card" style="width:100%;text-align:left">
+      <div class="card-section" style="display:flex;flex-direction:column;gap:8px">
+        <div class="proc-step-row">
+          <i data-lucide="check-circle" size="14" style="color:#67C23A;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-pend-s1">Payment received and held securely</span>
+        </div>
+        <div class="proc-step-row">
+          <i data-lucide="circle" size="14" style="color:#E6A23C;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#606266" id="t-pend-s2">Awaiting your identity verification</span>
+        </div>
+        <div class="proc-step-row">
+          <i data-lucide="circle" size="14" style="color:#C0C4CC;flex-shrink:0"></i>
+          <span style="font-size:13px;color:#C0C4CC" id="t-pend-s3">Crypto will be released after verification</span>
+        </div>
+      </div>
+    </div>
+    <div class="mini-order-id" id="pend-order-id">PZ20260630-00124</div>
+    <button class="btn-cta" onclick="noop()" id="t-pend-return">Return to Platform</button>
+  </div>
+</div><!-- /s-pending -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 历史订单列表
+══════════════════════════════════════════ -->
+<div id="s-history" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('create')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-history-title">Order History</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="history-body">
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+</div><!-- /s-history -->
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN · 历史订单详情
+══════════════════════════════════════════ -->
+<div id="s-history-detail" class="screen">
+
+  <div class="ck-header">
+    <button class="back-btn" onclick="goTo('history')">
+      <i data-lucide="chevron-left" size="20"></i>
+    </button>
+    <div class="header-center">
+      <div class="ck-title" id="t-history-detail-title">Order Details</div>
+      <div class="ck-order-id" id="hd-order-id">PZ20260630-00124</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="cr-body">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 0 4px">
+      <div class="status-icon" id="hd-status-icon" style="width:52px;height:52px">
+        <i data-lucide="check-circle-2" size="24"></i>
+      </div>
+      <span class="status-badge" id="hd-status-badge">Completed</span>
+    </div>
+
+    <div class="result-card" style="margin-bottom:12px">
+      <div class="result-row">
+        <span class="result-key" id="t-hd-direction">Direction</span>
+        <span class="result-val" id="hd-direction-val">Sell</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-hd-pay">You Sent</span>
+        <span class="result-val" id="hd-pay-val">100.00 USDT</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-hd-receive">You Received</span>
+        <span class="result-val" id="hd-receive-val">¥14,400 JPY</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-hd-method">Payment</span>
+        <span class="result-val" id="hd-method-val">Bank Transfer</span>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-row">
+        <span class="result-key" id="t-hd-order">Order ID</span>
+        <span class="result-val" id="hd-order-id-val">PZ20260630-00124</span>
+      </div>
+      <div class="result-row">
+        <span class="result-key" id="t-hd-created">Created</span>
+        <span class="result-val" style="font-size:12px" id="hd-created-val">2026-06-30 14:20:11</span>
+      </div>
+      <div class="result-row" id="hd-completed-row">
+        <span class="result-key" id="t-hd-completed">Completed</span>
+        <span class="result-val" style="font-size:12px" id="hd-completed-val">2026-06-30 14:32:08</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /s-history-detail -->
+
+
+</div><!-- /.page -->
+
+<!-- KYC Status Dialog (prototype only): shown every time "Continue" is clicked on the
+     initiate screen, standing in for the merchant-side KYC status check. Passed → goes
+     straight to checkout; Not Passed → opens the KYC-required confirm dialog below. -->
+<div class="kyc-gate-overlay" id="kyc-gate-overlay" onclick="closeKycGate(event)">
+  <div class="kyc-gate-dialog">
+    <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
+    <div class="kyc-gate-title" id="t-kyc-gate-title">KYC Status Check</div>
+    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview either path.</div>
+    <div class="btn-row">
+      <button class="btn-cta-ghost" onclick="kycFailed()"><span id="t-kyc-gate-cancel">Not Passed</span></button>
+      <button class="btn-cta" onclick="kycPassed()"><span id="t-kyc-gate-confirm">Passed</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- KYC Required Dialog: shown after "Not Passed". Confirming hands off to the standalone
+     kyc.html; declining just closes the dialog and leaves the user on the initiate screen. -->
+<div class="kyc-gate-overlay" id="kyc-required-overlay" onclick="closeKycRequired(event)">
+  <div class="kyc-gate-dialog">
+    <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
+    <div class="kyc-gate-title" id="t-kyc-required-title">Identity verification required</div>
+    <div class="kyc-gate-desc" id="t-kyc-required-desc">You'll need to complete identity verification before this order can proceed.</div>
+    <div class="btn-row">
+      <button class="btn-cta-ghost" onclick="closeKycRequired()"><span id="t-kyc-required-cancel">Not now</span></button>
+      <button class="btn-cta" onclick="confirmKycRequired()"><span id="t-kyc-required-confirm">Start verification</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    langBtn: '日本語',
+    'tab-buy':          'Buy',
+    'tab-sell':         'Sell',
+    'cr-balance':       'Balance',
+    'cr-pay':           'You Pay',
+    'cr-receive':       'You Receive',
+    'cr-next':          'Continue',
+    'cr-qty-sell':      'YOU SELL',
+    'cr-checkout-next': 'Continue',
+    'checkout-title':   'Confirm Details',
+    'cr-all':           'All',
+    'cr-subtitle':      'Buy & sell crypto instantly',
+    'kyc-gate-title':   'KYC Status Check',
+    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview either path.',
+    'kyc-gate-cancel':  'Not Passed',
+    'kyc-gate-confirm': 'Passed',
+    'kyc-required-title':   'Identity verification required',
+    'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
+    'kyc-required-cancel':  'Not now',
+    'kyc-required-confirm': 'Start verification',
+    'sell-order-title': 'Review Order',
+    'sell-order-id-label': 'Order ID',
+    'sell-order-expiry-label': 'Expires In',
+    'sell-context-desc':  'Review your order and payout account below, then confirm to complete the sale.',
+    'sell-you-send':    'You Send',
+    'sell-you-receive': 'You Receive',
+    'sell-account-title':'Receiving Bank Account',
+    'sell-account-hint':'Fiat will be deposited here after confirmation',
+    'sf-bank':          'Bank',
+    'sf-branch':        'Branch',
+    'sf-account':       'Account Number',
+    'sf-holder':        'Account Holder Name',
+    'sell-order-warning':'Confirm within the order time limit or it will expire. Once confirmed, the crypto will be locked from your balance and fiat will be deposited within 1 business day.',
+    'sell-continue':    'Confirm & Continue',
+    'proc-title':       'Processing',
+    'proc-heading':     'Settling Your Order',
+    'proc-desc':        'Your crypto has been locked from your balance. Once settlement completes, fiat will be sent to your bank account.',
+    'proc-return':      'Place Another Order',
+    'proc-note':        'You\'ll receive a notification when your order completes',
+    'proc-s1':          'Crypto locked from balance',
+    'proc-s2':          'Settling your order',
+    'proc-s3':          'Fiat sent to your bank account',
+    'suc-title':        'Order Completed',
+    'suc-heading':      'Order Completed',
+    'suc-desc':         'Fiat will be deposited to your bank account (usually within 1 business day).',
+    'res-paid':         'You Sold',
+    'res-received':     'You Received',
+    'res-wallet':       'Payout Account',
+    'res-network':      'Arrival',
+    'res-method':       'Payment',
+    'res-method-val':   'Balance deduction',
+    'res-order':        'Order ID',
+    'res-time':         'Completed',
+    'suc-return':       'Place Another Order',
+    'fail-title':       'Transaction Failed',
+    'fail-heading':     'Transaction Failed',
+    'fail-desc':        'Your payment could not be processed. No funds were deducted. Please try again or contact support.',
+    'fail-return':      'Return',
+    'fail-retry':       'Try Again',
+    'pend-title':       'Verification Required',
+    'pend-heading':     'Additional Verification Needed',
+    'pend-desc':        'Your order is on hold. Please check your email for a verification request and complete the steps to resume processing.',
+    'pend-s1':          'Payment received and held securely',
+    'pend-s2':          'Awaiting your identity verification',
+    'pend-s3':          'Crypto will be released after verification',
+    'pend-return':      'Return to Platform',
+    'history-title':        'Order History',
+    'history-empty':        'No orders yet',
+    'history-detail-title': 'Order Details',
+    'hd-direction':         'Direction',
+    'hd-pay':               'You Sent',
+    'hd-receive':           'You Received',
+    'hd-method':            'Payment',
+    'hd-order':             'Order ID',
+    'hd-created':           'Created',
+    'hd-completed':         'Completed',
+  },
+  ja: {
+    langBtn: '中文',
+    'tab-buy':          '購入',
+    'tab-sell':         '売却',
+    'cr-balance':       '残高',
+    'cr-pay':           'お支払い',
+    'cr-receive':       '受取',
+    'cr-next':          '次へ',
+    'cr-qty-sell':      '売却数量',
+    'cr-checkout-next': '次へ',
+    'checkout-title':   '詳細を確認',
+    'cr-all':           '全額',
+    'cr-subtitle':      '暗号資産をすぐに購入・売却',
+    'kyc-gate-title':   'KYCステータス確認',
+    'kyc-gate-desc':    'プロトタイプ用 — このユーザーの現在のKYCステータスを選択して、どちらの流れになるか確認できます。',
+    'kyc-gate-cancel':  '未完了',
+    'kyc-gate-confirm': '完了',
+    'kyc-required-title':   '本人確認が必要です',
+    'kyc-required-desc':    'このご注文を続けるには、先に本人確認を完了する必要があります。',
+    'kyc-required-cancel':  '後で行う',
+    'kyc-required-confirm': '本人確認を開始',
+    'sell-order-title': '注文内容の確認',
+    'sell-order-id-label': '注文番号',
+    'sell-order-expiry-label': '有効期限',
+    'sell-context-desc':  '以下の注文内容と受取口座をご確認のうえ、売却を確定してください。',
+    'sell-you-send':    '送金額',
+    'sell-you-receive': '受取金額',
+    'sell-account-title':'受取銀行口座',
+    'sell-account-hint':'確認後、指定口座に法定通貨を振り込みます',
+    'sf-bank':          '金融機関名',
+    'sf-branch':        '支店名',
+    'sf-account':       '口座番号',
+    'sf-holder':        '口座名義',
+    'sell-order-warning':'有効期限内にご確認ください。確認後、残高から暗号資産が確保され、法定通貨は通常1営業日以内に振り込まれます。',
+    'sell-continue':    '確認して次へ',
+    'proc-title':       '処理中',
+    'proc-heading':     '決済処理中です',
+    'proc-desc':        '残高から暗号資産を確保しました。決済完了後、ご指定の銀行口座に法定通貨を振り込みます。',
+    'proc-return':      'もう一度注文する',
+    'proc-note':        '注文が完了したら通知をお送りします',
+    'proc-s1':          '暗号資産を確保しました',
+    'proc-s2':          '決済処理中です',
+    'proc-s3':          'ご指定口座に振込予定です',
+    'suc-title':        '注文完了',
+    'suc-heading':      '注文が完了しました',
+    'suc-desc':         '法定通貨はご指定の銀行口座に振り込まれます（通常1営業日以内）。',
+    'res-paid':         '売却数量',
+    'res-received':     '受取金額',
+    'res-wallet':       '受取口座',
+    'res-network':      '着金予定',
+    'res-method':       'お支払い方法',
+    'res-method-val':   '残高から差し引き',
+    'res-order':        '注文番号',
+    'res-time':         '完了日時',
+    'suc-return':       'もう一度注文する',
+    'fail-title':       '取引失敗',
+    'fail-heading':     '取引に失敗しました',
+    'fail-desc':        'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。',
+    'fail-return':      '戻る',
+    'fail-retry':       '再試行',
+    'pend-title':       '追加確認が必要です',
+    'pend-heading':     '追加の本人確認が必要です',
+    'pend-desc':        '注文が保留中です。メールをご確認いただき、本人確認の手続きを完了してください。',
+    'pend-s1':          'お支払いを安全に受領・保留しています',
+    'pend-s2':          '本人確認の完了をお待ちしています',
+    'pend-s3':          '確認完了後に暗号資産を送金します',
+    'pend-return':      'プラットフォームに戻る',
+    'history-title':        '注文履歴',
+    'history-empty':        '注文履歴はありません',
+    'history-detail-title': '注文詳細',
+    'hd-direction':         '取引方向',
+    'hd-pay':               '送金額',
+    'hd-receive':           '受取',
+    'hd-method':            'お支払い方法',
+    'hd-order':             '注文番号',
+    'hd-created':           '作成日時',
+    'hd-completed':         '完了日時',
+  },
+  zh: {
+    langBtn: 'EN',
+    'tab-buy':          '买入',
+    'tab-sell':         '卖出',
+    'cr-balance':       '余额',
+    'cr-pay':           '支付',
+    'cr-receive':       '收到',
+    'cr-next':          '继续',
+    'cr-qty-sell':      '卖出数量',
+    'cr-checkout-next': '继续',
+    'checkout-title':   '确认详情',
+    'cr-all':           '全部',
+    'cr-subtitle':      '快速买卖加密货币',
+    'kyc-gate-title':   'KYC 状态判断',
+    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览两种后续流程。',
+    'kyc-gate-cancel':  'KYC 未通过',
+    'kyc-gate-confirm': 'KYC 通过',
+    'kyc-required-title':   '需要完成身份验证',
+    'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
+    'kyc-required-cancel':  '暂不处理',
+    'kyc-required-confirm': '前往完成验证',
+    'sell-order-title': '确认订单',
+    'sell-order-id-label': '订单号',
+    'sell-order-expiry-label': '有效期',
+    'sell-context-desc':  '请核对以下订单信息和收款账户，确认后完成卖出。',
+    'sell-you-send':    '卖出',
+    'sell-you-receive': '获得',
+    'sell-account-title':'收款银行账户',
+    'sell-account-hint':'确认后法币将转入此账户',
+    'sf-bank':          '银行',
+    'sf-branch':        '支行',
+    'sf-account':       '账号',
+    'sf-holder':        '户名',
+    'sell-order-warning':'请在订单有效期内确认，逾期将自动失效。确认后加密货币将从余额中冻结，法币将于 1 个工作日内到账。',
+    'sell-continue':    '确认并继续',
+    'proc-title':       '处理中',
+    'proc-heading':     '正在结算您的订单',
+    'proc-desc':        '已从您的余额中冻结相应加密资产，结算完成后法币将转入您的银行账户。',
+    'proc-return':      '发起新订单',
+    'proc-note':        '订单完成后您将收到通知',
+    'proc-s1':          '已冻结加密资产',
+    'proc-s2':          '渠道结算中',
+    'proc-s3':          '法币将转入您的银行账户',
+    'suc-title':        '订单已完成',
+    'suc-heading':      '订单已完成',
+    'suc-desc':         '法币已安排划转至您的银行账户（通常1个工作日内到账）。',
+    'res-paid':         '卖出',
+    'res-received':     '已获得',
+    'res-wallet':       '收款账户',
+    'res-network':      '到账时间',
+    'res-method':       '支付方式',
+    'res-method-val':   '账户余额扣除',
+    'res-order':        '订单号',
+    'res-time':         '完成时间',
+    'suc-return':       '发起新订单',
+    'fail-title':       '交易失败',
+    'fail-heading':     '交易失败',
+    'fail-desc':        '您的付款未能处理，未扣除任何资金，请重试或联系客服。',
+    'fail-return':      '返回',
+    'fail-retry':       '重试',
+    'pend-title':       '需要补充验证',
+    'pend-heading':     '需要补充身份验证',
+    'pend-desc':        '您的订单已暂停处理，请查收邮件完成验证步骤后恢复处理。',
+    'pend-s1':          '款项已安全接收并保留',
+    'pend-s2':          '等待您完成身份验证',
+    'pend-s3':          '验证完成后将释放加密货币',
+    'pend-return':      '返回平台',
+    'history-title':        '订单历史',
+    'history-empty':        '暂无订单',
+    'history-detail-title': '订单详情',
+    'hd-direction':         '交易方向',
+    'hd-pay':               '卖出',
+    'hd-receive':           '收到',
+    'hd-method':            '支付方式',
+    'hd-order':             '订单号',
+    'hd-created':           '创建时间',
+    'hd-completed':         '完成时间',
+  },
+};
+let lang = 'zh';
+
+function renderIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
+function applyLang() {
+  const t = I18N[lang];
+  Object.keys(t).forEach(k => {
+    const el = document.getElementById('t-' + k);
+    if (el) el.textContent = t[k];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.textContent = t.langBtn);
+  if (typeof refreshQtyLabel === 'function') refreshQtyLabel();
+  if (typeof updateNextBtn === 'function') updateNextBtn();
+}
+
+function toggleLang() {
+  lang = LANG_CYCLE[lang];
+  applyLang();
+}
+const LANG_CYCLE = { en: 'ja', ja: 'zh', zh: 'en' };
+
+// ── Screen Navigation ────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  if (id === 'checkout') refreshCheckoutUI();
+  window.scrollTo(0, 0);
+}
+
+// ── Sell: 收款账户为商户绑定的银行卡信息，只读反显，始终可继续 ─────────────
+function updateSellNextBtn() {
+  const btn = document.getElementById('sell-next-btn');
+  if (btn) btn.disabled = false;
+}
+
+// ── Processing / success (sell settlement model — no on-chain transfer step) ──
+function goToProcessing() {
+  goTo('processing');
+}
+
+// ── Failed / Expired terminal screen ─────────────────────────────────
+function setFailureMode(reason) {
+  const isExpired = reason === 'expired';
+  const wrap = document.querySelector('#s-failed .status-icon');
+  const icon = document.getElementById('fail-icon');
+  const heading = document.getElementById('t-fail-heading');
+  const desc = document.getElementById('t-fail-desc');
+  if (wrap) {
+    wrap.classList.toggle('status-icon-failed', !isExpired);
+    wrap.classList.toggle('status-icon-pending', isExpired);
+  }
+  if (icon) icon.style.color = isExpired ? '#E6A23C' : '#F56C6C';
+  if (heading) heading.textContent = isExpired
+    ? (lang === 'ja' ? '注文の有効期限が切れました' : lang === 'zh' ? '订单已超时' : 'Order Expired')
+    : (lang === 'ja' ? '取引に失敗しました' : lang === 'zh' ? '交易失败' : 'Transaction Failed');
+  if (desc) desc.textContent = isExpired
+    ? (lang === 'ja' ? 'お支払い完了前に注文の有効期限が切れました。引き落としは行われていません。いつでも新しい注文を開始できます。' : lang === 'zh' ? '订单在完成支付前已超时，未扣除任何资金，您可以随时重新发起。' : 'Your order expired before payment was completed. No funds were deducted — you can start a new order anytime.')
+    : (lang === 'ja' ? 'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。' : lang === 'zh' ? '您的付款未能处理，未扣除任何资金，请重试或联系客服。' : 'Your payment could not be processed. No funds were deducted. Please try again or contact support.');
+}
+
+function goToFailed(reason) {
+  setFailureMode(reason);
+  goTo('failed');
+}
+
+// ── Copy ────────────────────────────────────────────────────────────
+function copyText(txt) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(txt).then(() => showToast(lang === 'zh' ? '已复制' : 'Copied!'));
+  } else {
+    const el = document.createElement('textarea');
+    el.value = txt;
+    el.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast(lang === 'zh' ? '已复制' : 'Copied!');
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || 'Copied!';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Countdown ────────────────────────────────────────────────────────
+let remaining = 29 * 60 + 58;
+function pad2(n) { return String(n).padStart(2, '0'); }
+function tickTimer() {
+  if (remaining <= 0) return;
+  remaining--;
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  const str = `${pad2(m)}:${pad2(s)}`;
+  ['sell-order-timer'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = str;
+    el.classList.toggle('urgent', remaining < 300);
+  });
+}
+setInterval(tickTimer, 1000);
+
+// ── Noop (placeholder for CFD return_url) ───────────────────────────
+function noop() {
+  showToast(lang === 'zh' ? '演示模式，此按钮将跳转至 CFD 平台' : 'Demo mode — this would return to CFD platform');
+}
+
+const ORDER_ID = 'PZ20260630-00124';
+function syncOrderId() {
+  ['proc-order-id', 'res-order-id-val', 'fail-order-id', 'pend-order-id'].forEach(elId => {
+    const el = document.getElementById(elId);
+    if (el) el.textContent = ORDER_ID;
+  });
+}
+
+// ── KYC Status Dialog: gates the initiate screen's "Continue" button.
+// Prototype stand-in for the merchant-side KYC status check — Passed skips straight to
+// checkout, Not Passed hands off to the standalone kyc.html. ──
+function openKycGate() {
+  document.getElementById('kyc-gate-overlay').classList.add('show');
+  renderIcons();
+}
+function closeKycGate(e) {
+  if (e && e.target !== document.getElementById('kyc-gate-overlay')) return;
+  document.getElementById('kyc-gate-overlay').classList.remove('show');
+}
+function kycPassed() {
+  closeKycGate();
+  goTo('checkout');
+}
+function kycFailed() {
+  closeKycGate();
+  openKycRequired();
+}
+
+// ── KYC Required Dialog: confirm before handing off to kyc.html; declining leaves the
+// user on the initiate screen with nothing else happening. ──
+function openKycRequired() {
+  document.getElementById('kyc-required-overlay').classList.add('show');
+  renderIcons();
+}
+function closeKycRequired(e) {
+  if (e && e.target !== document.getElementById('kyc-required-overlay')) return;
+  document.getElementById('kyc-required-overlay').classList.remove('show');
+}
+function confirmKycRequired() {
+  closeKycRequired();
+  saveRampState();
+  showToast(lang === 'zh' ? '正在跳转至 KYC 验证...' : lang === 'ja' ? 'KYC認証へ移動しています...' : 'Redirecting to KYC verification...');
+  setTimeout(() => { location.href = 'kyc.html?return=off-ramp'; }, 450);
+}
+
+// ── Initiate → Continue: KYC gate happens right here, at merchant-initiate time ──
+function onInitiateContinue() {
+  openKycGate();
+}
+
+// ── Cross-file state hand-off (sessionStorage) for the kyc.html redirect ──
+const RAMP_STATE_KEY = 'paypaz_ramp_state';
+function saveRampState() {
+  sessionStorage.setItem(RAMP_STATE_KEY, JSON.stringify({
+    token: crCrypto,
+    qty: document.getElementById('cr-pay-input').value,
+    lang: lang,
+  }));
+}
+function restoreFromKycReturn() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('kyc') !== 'done') return;
+  const raw = sessionStorage.getItem(RAMP_STATE_KEY);
+  sessionStorage.removeItem(RAMP_STATE_KEY);
+  if (raw) {
+    try {
+      const state = JSON.parse(raw);
+      if (state.lang) { lang = state.lang; applyLang(); }
+      if (state.token && CRYPTO_CFG[state.token]) selectToken(state.token);
+      if (state.qty) { document.getElementById('cr-pay-input').value = state.qty; onPayInput(); }
+    } catch (e) { /* ignore malformed state */ }
+  }
+  history.replaceState(null, '', location.pathname);
+  goTo('checkout');
+}
+
+// ── Create Order State ───────────────────────────────────────────────
+const FIAT_CFG = {
+  JPY: { sym: '¥', cls: 'cr-ci-jpy', icon: 'images/日本.svg',      label: 'JPY', min: 2000,  max: 1560000, dp: 0 },
+  USD: { sym: '$', cls: 'cr-ci-usd', icon: 'images/美国国旗.svg',   label: 'USD', min: 15,    max: 10400,   dp: 2 },
+};
+const CRYPTO_CFG = {
+  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 10, max: 10000 },
+  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 10, max: 10000 },
+};
+const BASE_RATES = { JPY: 150, USD: 1.0 };
+const SELL_SPREAD = 0.96;
+
+let crFiat   = 'JPY';
+let crCrypto = 'USDT';
+
+function effectiveRate() {
+  return (BASE_RATES[crFiat] || 150) * SELL_SPREAD;
+}
+
+function fmtFiat(v) {
+  const cfg = FIAT_CFG[crFiat];
+  return cfg.sym + Number(v.toFixed(cfg.dp)).toLocaleString('en-US', { minimumFractionDigits: cfg.dp, maximumFractionDigits: cfg.dp });
+}
+
+function refreshQtyLabel() {
+  const labelEl = document.getElementById('t-cr-qty-label');
+  if (labelEl) labelEl.textContent = I18N[lang]['cr-qty-sell'];
+  const cc = CRYPTO_CFG[crCrypto];
+  const hint = document.getElementById('cr-pay-range');
+  if (hint) hint.textContent = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
+  const bal = document.getElementById('cr-balance-val');
+  if (bal) bal.textContent = (crCrypto === 'USDT' ? '2,500' : '1,200') + ' ' + crCrypto;
+}
+
+function setIconRow(iconId, sym, cls, nameId, name, icon) {
+  const el = document.getElementById(iconId);
+  if (!el) return;
+  if (icon) {
+    el.innerHTML = `<img src="${icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%">`;
+  } else {
+    el.textContent = sym;
+  }
+  el.className = 'cr-currency-icon ' + cls;
+  const nm = document.getElementById(nameId);
+  if (nm) nm.textContent = name;
+}
+
+function onPayInput() {
+  updateNextBtn();
+}
+
+function updateNextBtn() {
+  const raw = document.getElementById('cr-pay-input').value;
+  const val = parseFloat(raw) || 0;
+  const cc = CRYPTO_CFG[crCrypto];
+  const valid = val >= cc.min && val <= cc.max;
+  const rangeText = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
+
+  const btn = document.getElementById('cr-next-btn');
+  if (btn) btn.disabled = !valid;
+
+  const errEl = document.getElementById('cr-pay-error');
+  const errText = document.getElementById('cr-pay-error-text');
+  const showError = raw.trim() !== '' && !valid;
+  if (errEl) errEl.classList.toggle('show', showError);
+  if (errText && showError) {
+    errText.textContent = lang === 'zh' ? `金额需在 ${rangeText} 之间`
+      : lang === 'ja' ? `金額は ${rangeText} の範囲で入力してください`
+      : `Amount must be between ${rangeText}`;
+  }
+}
+
+function fillAll() {
+  document.getElementById('cr-pay-input').value = crCrypto === 'USDT' ? 2500 : 1200;
+  onPayInput();
+}
+
+function openCryptoDropdown() {
+  const titleEl = document.getElementById('cr-dropdown-title');
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': lang==='ja'?'トークンを選択':'Select Token';
+
+  const list = document.getElementById('cr-dropdown-list');
+  if (!list) return;
+  list.innerHTML = '';
+  Object.entries(CRYPTO_CFG).forEach(([k, c]) => {
+    const sel = k === crCrypto;
+    list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectToken('${k}')">
+      <span class="cr-currency-icon ${c.cls}"><img src="${c.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
+      <span class="cr-option-name">${c.label}</span>
+      ${sel?'<i data-lucide="check" class="cr-option-check"></i>':''}
+    </div>`;
+  });
+
+  document.getElementById('cr-dropdown').classList.add('show');
+  renderIcons();
+}
+
+function selectToken(key) {
+  crCrypto = key;
+  document.getElementById('cr-dropdown').classList.remove('show');
+  const cc = CRYPTO_CFG[key];
+  setIconRow('cr-token-icon', cc.sym, cc.cls, 'cr-token-name', cc.label, cc.icon);
+  refreshQtyLabel();
+  onPayInput();
+}
+
+function closeDropdownOverlay(overlayId, e) {
+  if (e && e.target !== document.getElementById(overlayId)) return;
+  document.getElementById(overlayId).classList.remove('show');
+}
+
+// ── Checkout screen (confirm amounts) ──────────────────────────────────
+function currentFiatVal() {
+  const qty = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  return qty * effectiveRate();
+}
+
+function refreshCheckoutUI() {
+  const fc = FIAT_CFG[crFiat];
+  const cc = CRYPTO_CFG[crCrypto];
+  const qty = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  const fiatVal = currentFiatVal();
+
+  setIconRow('cr-pay-icon',     cc.sym, cc.cls, 'cr-pay-name',     cc.label, cc.icon);
+  setIconRow('cr-receive-icon', fc.sym, fc.cls, 'cr-receive-name', fc.label, fc.icon);
+  document.getElementById('cr-pay-display').textContent = parseFloat(qty.toFixed(6)) + '';
+  document.getElementById('cr-receive-display').textContent = fmtFiat(fiatVal);
+
+  renderIcons();
+}
+
+function openFiatDropdown() {
+  const titleEl = document.getElementById('fiat-dropdown-title');
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择法币': lang==='ja'?'法定通貨を選択':'Select Fiat';
+
+  const list = document.getElementById('fiat-dropdown-list');
+  if (!list) return;
+  list.innerHTML = '';
+  Object.entries(FIAT_CFG).forEach(([k, f]) => {
+    const sel = k === crFiat;
+    list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectFiat('${k}')">
+      <span class="cr-currency-icon ${f.cls}"><img src="${f.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
+      <span class="cr-option-name">${f.label}</span>
+      ${sel?'<i data-lucide="check" class="cr-option-check"></i>':''}
+    </div>`;
+  });
+
+  document.getElementById('fiat-dropdown').classList.add('show');
+  renderIcons();
+}
+
+function selectFiat(key) {
+  crFiat = key;
+  document.getElementById('fiat-dropdown').classList.remove('show');
+  refreshCheckoutUI();
+}
+
+// ── Proceed to Order Review (KYC already handled at initiate time) ────
+function proceedToCheckout() {
+  const qty     = parseFloat(document.getElementById('cr-pay-input').value) || 0;
+  const fiatVal = currentFiatVal();
+
+  const sendAmtEl = document.getElementById('sell-send-amount');
+  if (sendAmtEl) sendAmtEl.textContent = qty.toFixed(2);
+  const recvAmtEl = document.getElementById('sell-receive-amount');
+  if (recvAmtEl) recvAmtEl.textContent = fmtFiat(Math.floor(fiatVal));
+  const cryptoLabel = document.getElementById('sell-crypto-label');
+  if (cryptoLabel) cryptoLabel.textContent = crCrypto;
+  const fiatLabel = document.getElementById('sell-fiat-label');
+  if (fiatLabel) fiatLabel.textContent = crFiat;
+
+  syncOrderId();
+  goTo('sell-order');
+}
+
+// ── Order History (mock data) ─────────────────────────────────────────
+const HISTORY_MOCK = [
+  { id: 'PZ20260716-00198', dir: 'sell', status: 'success',    payAmount: '50.00',   payCcy: 'USDT', receiveAmount: '¥7,200', receiveCcy: 'JPY', method: 'bank', created: '2026-07-16 15:03:20', completed: '2026-07-16 15:41:09' },
+  { id: 'PZ20260628-00087', dir: 'sell', status: 'pending',    payAmount: '80.00',   payCcy: 'USDT', receiveAmount: '¥11,520', receiveCcy: 'JPY', method: 'bank', created: '2026-06-28 10:45:32', completed: '' },
+];
+
+const HISTORY_STATUS_LABEL = {
+  success:    { en: 'Completed',            ja: '完了',       zh: '已完成' },
+  processing: { en: 'Processing',           ja: '処理中',     zh: '处理中' },
+  pending:    { en: 'Pending Verification', ja: '確認待ち',   zh: '待验证' },
+  failed:     { en: 'Failed',               ja: '失敗',       zh: '失败' },
+  expired:    { en: 'Expired',              ja: '期限切れ',   zh: '已超时' },
+};
+
+const HISTORY_DIR_LABEL = {
+  buy:  { en: 'Buy Crypto',  ja: '暗号資産購入', zh: '买入加密货币' },
+  sell: { en: 'Sell Crypto', ja: '暗号資産売却', zh: '卖出加密货币' },
+};
+
+const HISTORY_STATUS_ICON = {
+  success:    { icon: 'check-circle-2', color: '#67C23A', cls: 'status-icon-success' },
+  processing: { icon: 'refresh-cw',     color: '#409EFF', cls: 'status-icon-processing' },
+  pending:    { icon: 'mail',           color: '#E6A23C', cls: 'status-icon-pending' },
+  failed:     { icon: 'x-circle',       color: '#F56C6C', cls: 'status-icon-failed' },
+  expired:    { icon: 'x-circle',       color: '#E6A23C', cls: 'status-icon-pending' },
+};
+
+const PM_NAME = {
+  bank: { en: 'Bank Transfer', ja: '銀行振込', zh: '银行转账' },
+};
+
+function historyText(id, txt) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = txt || '';
+}
+
+function renderHistoryList() {
+  const listEl = document.getElementById('history-list');
+  if (!listEl) return;
+  if (!HISTORY_MOCK.length) {
+    const t = I18N[lang];
+    listEl.innerHTML = '<div class="history-empty">' + (t['history-empty'] || 'No orders yet') + '</div>';
+    return;
+  }
+  listEl.innerHTML = HISTORY_MOCK.map((r, i) => {
+    const dirLabel = HISTORY_DIR_LABEL[r.dir][lang] || HISTORY_DIR_LABEL[r.dir].en;
+    const statusLabel = HISTORY_STATUS_LABEL[r.status][lang] || HISTORY_STATUS_LABEL[r.status].en;
+    const iconName = r.dir === 'buy' ? 'arrow-down-left' : 'arrow-up-right';
+    return '<div class="history-item" onclick="openHistoryDetail(' + i + ')">'
+      + '<div class="history-icon history-icon-' + r.dir + '"><i data-lucide="' + iconName + '" size="16"></i></div>'
+      + '<div class="history-info">'
+      + '<span class="history-type">' + dirLabel + '</span>'
+      + '<span class="history-time">' + r.created + '</span>'
+      + '</div>'
+      + '<div class="history-amount-col">'
+      + '<span class="history-amount">' + r.payAmount + ' ' + r.payCcy + '</span>'
+      + '<span class="status-badge status-badge-' + r.status + '">' + statusLabel + '</span>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  renderIcons();
+}
+
+function openHistoryDetail(i) {
+  const r = HISTORY_MOCK[i];
+  if (!r) return;
+  const dirLabel = HISTORY_DIR_LABEL[r.dir][lang] || HISTORY_DIR_LABEL[r.dir].en;
+  const statusLabel = HISTORY_STATUS_LABEL[r.status][lang] || HISTORY_STATUS_LABEL[r.status].en;
+
+  historyText('hd-order-id', r.id);
+  historyText('hd-order-id-val', r.id);
+  historyText('hd-direction-val', dirLabel);
+  historyText('hd-pay-val', r.payAmount + ' ' + r.payCcy);
+  historyText('hd-receive-val', r.receiveAmount + ' ' + r.receiveCcy);
+  historyText('hd-created-val', r.created);
+  historyText('hd-completed-val', r.completed);
+  historyText('hd-method-val', (PM_NAME[r.method] || PM_NAME.bank)[lang] || PM_NAME.bank.en);
+
+  const badgeEl = document.getElementById('hd-status-badge');
+  if (badgeEl) {
+    badgeEl.textContent = statusLabel;
+    badgeEl.className = 'status-badge status-badge-' + r.status;
+  }
+
+  const statusIcon = HISTORY_STATUS_ICON[r.status];
+  const iconWrapEl = document.getElementById('hd-status-icon');
+  if (iconWrapEl && statusIcon) {
+    iconWrapEl.className = 'status-icon ' + statusIcon.cls;
+    iconWrapEl.innerHTML = '<i data-lucide="' + statusIcon.icon + '" size="24" style="color:' + statusIcon.color + '"></i>';
+  }
+
+  const completedRow = document.getElementById('hd-completed-row');
+  if (completedRow) completedRow.style.display = r.completed ? 'flex' : 'none';
+
+  renderIcons();
+  goTo('history-detail');
+}
+
+// ── Init ────────────────────────────────────────────────────────────
+applyLang();
+refreshQtyLabel();
+updateSellNextBtn();
+syncOrderId();
+renderHistoryList();
+renderIcons();
+restoreFromKycReturn();
+</script>
+</body>
+</html>
