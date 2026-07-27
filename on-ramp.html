@@ -476,6 +476,7 @@
     }
     .kyc-gate-title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
     .kyc-gate-desc { font-size: 13px; color: #909399; line-height: 1.7; margin-bottom: 20px; }
+    .kyc-gate-choices { display: flex; flex-direction: column; gap: 8px; }
 
     /* ── Wallet Pay Sheet (Apple Pay / Google Pay invocation simulation) ── */
     .wallet-sheet-overlay {
@@ -865,8 +866,8 @@
       <div class="ck-order-id">PZ20260630-00123</div>
     </div>
     <div class="header-right">
-      <button class="lang-btn" onclick="toggleLang()">中文</button>
       <div class="timer-chip" id="bank-timer">29:46</div>
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
     </div>
   </div>
 
@@ -910,6 +911,43 @@
         <div class="bc-field">
           <label class="bc-label" id="t-bc-name">Cardholder Name</label>
           <input class="bc-input" id="bc-name" type="text" placeholder="TARO TANAKA" style="text-transform:uppercase">
+        </div>
+      </div>
+    </div>
+
+    <div class="ck-card">
+      <div class="bank-card-head">
+        <div class="bank-card-head-icon"><i data-lucide="map-pin" size="15"></i></div>
+        <span class="bank-card-head-label" id="t-billing-head">Billing Address</span>
+      </div>
+      <div class="bc-fields">
+        <div class="bc-field">
+          <label class="bc-label" id="t-bc-country">Country / Region</label>
+          <select class="bc-input" id="bc-country">
+            <option value="JP" selected>🇯🇵 Japan</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="ID">🇮🇩 Indonesia</option>
+            <option value="SG">🇸🇬 Singapore</option>
+            <option value="CN">🇨🇳 China</option>
+          </select>
+        </div>
+        <div class="bc-field">
+          <label class="bc-label" id="t-bc-address">Address</label>
+          <input class="bc-input" id="bc-address" type="text" placeholder="1-1 Chiyoda">
+        </div>
+        <div class="bc-field-row">
+          <div class="bc-field">
+            <label class="bc-label" id="t-bc-city">City</label>
+            <input class="bc-input" id="bc-city" type="text" placeholder="Tokyo">
+          </div>
+          <div class="bc-field">
+            <label class="bc-label" id="t-bc-state">State / Province</label>
+            <input class="bc-input" id="bc-state" type="text" placeholder="Tokyo-to">
+          </div>
+        </div>
+        <div class="bc-field">
+          <label class="bc-label" id="t-bc-zip">ZIP / Postal Code</label>
+          <input class="bc-input" id="bc-zip" type="text" placeholder="100-0001">
         </div>
       </div>
     </div>
@@ -1274,9 +1312,10 @@
   <div class="kyc-gate-dialog">
     <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
     <div class="kyc-gate-title" id="t-kyc-gate-title">KYC Status Check</div>
-    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview either path.</div>
-    <div class="btn-row">
+    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview any of the three paths.</div>
+    <div class="kyc-gate-choices">
       <button class="btn-cta-ghost" onclick="kycFailed()"><span id="t-kyc-gate-cancel">Not Passed</span></button>
+      <button class="btn-cta-ghost" onclick="kycPending()"><span id="t-kyc-gate-pending">Under Review</span></button>
       <button class="btn-cta" onclick="kycPassed()"><span id="t-kyc-gate-confirm">Passed</span></button>
     </div>
   </div>
@@ -1302,7 +1341,7 @@
 // ── i18n ──────────────────────────────────────────────────────────────
 const I18N = {
   en: {
-    langBtn: '日本語',
+    langBtn: '中文',
     'tab-buy':          'Buy',
     'tab-sell':         'Sell',
     'cr-pay':           'You Pay',
@@ -1329,8 +1368,9 @@ const I18N = {
     'step2':            'Payment',
     'step3':            'Done',
     'kyc-gate-title':   'KYC Status Check',
-    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview either path.',
+    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview any of the three paths.',
     'kyc-gate-cancel':  'Not Passed',
+    'kyc-gate-pending': 'Under Review',
     'kyc-gate-confirm': 'Passed',
     'kyc-required-title':   'Identity verification required',
     'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
@@ -1350,6 +1390,12 @@ const I18N = {
     'bc-expiry':        'Expiry',
     'bc-cvv':           'CVV',
     'bc-name':          'Cardholder Name',
+    'billing-head':     'Billing Address',
+    'bc-country':       'Country / Region',
+    'bc-address':       'Address',
+    'bc-city':          'City',
+    'bc-state':         'State / Province',
+    'bc-zip':           'ZIP / Postal Code',
     'bank-warning':     'Complete payment before the order expires, or it will be automatically cancelled.',
     'transferred':      'Pay Now',
     'proc-title':       'Processing',
@@ -1394,99 +1440,6 @@ const I18N = {
     'hd-created':           'Created',
     'hd-completed':         'Completed',
   },
-  ja: {
-    langBtn: '中文',
-    'tab-buy':          '購入',
-    'tab-sell':         '売却',
-    'cr-pay':           'お支払い',
-    'cr-receive':       '受取',
-    'cr-pm-title':      'お支払い方法',
-    'cr-pm-bank':       'カード',
-    'cr-next':          '次へ',
-    'cr-qty-buy':       '購入数量',
-    'cr-checkout-next': '次へ',
-    'checkout-title':   '詳細を確認',
-    'cr-subtitle':      '暗号資産をすぐに購入・売却',
-    'order-title':      '注文内容の確認',
-    'order-context-desc': '以下の注文内容をご確認のうえ、お支払いを完了してください。',
-    'order-id-label':   '注文番号',
-    'order-expiry-label': '有効期限',
-    'order-rate-label': 'レート',
-    'indicative':       'レートは参考値です',
-    'you-pay':          'お支払い金額',
-    'you-receive':      '購入',
-    'wallet-label':     '受け取りアドレス',
-    'order-pm-label':   'お支払い方法',
-    'continue':         '次へ',
-    'step1':            '確認',
-    'step2':            'お支払い',
-    'step3':            '完了',
-    'kyc-gate-title':   'KYCステータス確認',
-    'kyc-gate-desc':    'プロトタイプ用 — このユーザーの現在のKYCステータスを選択して、どちらの流れになるか確認できます。',
-    'kyc-gate-cancel':  '未完了',
-    'kyc-gate-confirm': '完了',
-    'kyc-required-title':   '本人確認が必要です',
-    'kyc-required-desc':    'このご注文を続けるには、先に本人確認を完了する必要があります。',
-    'kyc-required-cancel':  '後で行う',
-    'kyc-required-confirm': '本人確認を開始',
-    'wallet-cancel':        'キャンセル',
-    'wallet-apay-hint':     'サイドボタンをダブルクリックしてFace IDで認証',
-    'wallet-pay-btn':       '支払う',
-    'wallet-default-card':  '既定のカード',
-    'wallet-default-card2': '既定のカード',
-    'wallet-done':          '完了',
-    'wallet-done2':         '完了',
-    'bank-title':       'カード支払い',
-    'bank-card-head':   'カード情報',
-    'transfer-exact':   'お支払い金額',
-    'bc-number':        'カード番号',
-    'bc-expiry':        '有効期限',
-    'bc-cvv':           'セキュリティコード',
-    'bc-name':          'カード名義人',
-    'bank-warning':     '有効期限内にお支払いを完了してください。期限を過ぎると注文は自動的にキャンセルされます。',
-    'transferred':      '支払う',
-    'proc-title':       '処理中',
-    'proc-heading':     'お支払いを確認中です',
-    'proc-desc':        'カードでのお支払いを確認しています。通常、数秒で完了します。',
-    'proc-return':      'もう一度注文する',
-    'proc-note':        '注文が完了したら通知をお送りします',
-    'suc-title':        '注文完了',
-    'suc-heading':      '注文が完了しました',
-    'suc-desc':         '暗号資産をウォレットに送金しました。',
-    'res-paid':         'お支払い金額',
-    'res-received':     '受取金額',
-    'res-wallet':       'ウォレット',
-    'res-network':      'ネットワーク',
-    'res-method':       'お支払い方法',
-    'res-method-val':   'カード',
-    'res-order':        '注文番号',
-    'res-time':         '完了日時',
-    'suc-return':       'もう一度注文する',
-    'fail-title':       '取引失敗',
-    'fail-heading':     '取引に失敗しました',
-    'fail-desc':        'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。',
-    'fail-return':      '戻る',
-    'fail-retry':       '再試行',
-    'pend-title':       '追加確認が必要です',
-    'pend-heading':     '追加の本人確認が必要です',
-    'pend-desc':        '注文が保留中です。メールをご確認いただき、本人確認の手続きを完了してください。',
-    'pend-s1':          'お支払いを安全に受領・保留しています',
-    'pend-s2':          '本人確認の完了をお待ちしています',
-    'pend-s3':          '確認完了後に暗号資産を送金します',
-    'pend-return':      'プラットフォームに戻る',
-    'history-title':        '注文履歴',
-    'history-empty':        '注文履歴はありません',
-    'history-detail-title': '注文詳細',
-    'hd-direction':         '取引方向',
-    'hd-pay':               'お支払い',
-    'hd-receive':           '購入',
-    'hd-wallet':            'ウォレット',
-    'hd-network':           'ネットワーク',
-    'hd-method':            'お支払い方法',
-    'hd-order':             '注文番号',
-    'hd-created':           '作成日時',
-    'hd-completed':         '完了日時',
-  },
   zh: {
     langBtn: 'EN',
     'tab-buy':          '买入',
@@ -1515,8 +1468,9 @@ const I18N = {
     'step2':            '支付',
     'step3':            '完成',
     'kyc-gate-title':   'KYC 状态判断',
-    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览两种后续流程。',
+    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览三种后续流程。',
     'kyc-gate-cancel':  'KYC 未通过',
+    'kyc-gate-pending': 'KYC 审核中',
     'kyc-gate-confirm': 'KYC 通过',
     'kyc-required-title':   '需要完成身份验证',
     'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
@@ -1536,6 +1490,12 @@ const I18N = {
     'bc-expiry':        '有效期',
     'bc-cvv':           '安全码',
     'bc-name':          '持卡人姓名',
+    'billing-head':     '账单地址',
+    'bc-country':       '国家/地区',
+    'bc-address':       '详细地址',
+    'bc-city':          '城市',
+    'bc-state':         '州/省',
+    'bc-zip':           '邮政编码',
     'bank-warning':     '请在订单到期前完成支付，逾期订单将自动取消。',
     'transferred':      '立即支付',
     'proc-title':       '处理中',
@@ -1605,7 +1565,7 @@ function toggleLang() {
   lang = LANG_CYCLE[lang];
   applyLang();
 }
-const LANG_CYCLE = { en: 'ja', ja: 'zh', zh: 'en' };
+const LANG_CYCLE = { en: 'zh', zh: 'en' };
 
 // ── Screen Navigation ────────────────────────────────────────────────
 function goTo(id) {
@@ -1617,9 +1577,9 @@ function goTo(id) {
 
 // ── Payment Method Selection ─────────────────────────────────────────
 const PM_NAME = {
-  bank: { en: 'Bank Card', ja: 'カード', zh: '银行卡' },
-  gpay: { en: 'Google Pay',    ja: 'Google Pay', zh: 'Google Pay' },
-  apay: { en: 'Apple Pay',     ja: 'Apple Pay', zh: 'Apple Pay' },
+  bank: { en: 'Bank Card', zh: '银行卡' },
+  gpay: { en: 'Google Pay',    zh: 'Google Pay' },
+  apay: { en: 'Apple Pay',     zh: 'Apple Pay' },
 };
 let selectedPM = 'bank';
 
@@ -1715,11 +1675,11 @@ function setFailureMode(reason) {
   }
   if (icon) icon.style.color = isExpired ? '#E6A23C' : '#F56C6C';
   if (heading) heading.textContent = isExpired
-    ? (lang === 'ja' ? '注文の有効期限が切れました' : lang === 'zh' ? '订单已超时' : 'Order Expired')
-    : (lang === 'ja' ? '取引に失敗しました' : lang === 'zh' ? '交易失败' : 'Transaction Failed');
+    ? (lang === 'zh' ? '订单已超时' : 'Order Expired')
+    : (lang === 'zh' ? '交易失败' : 'Transaction Failed');
   if (desc) desc.textContent = isExpired
-    ? (lang === 'ja' ? 'お支払い完了前に注文の有効期限が切れました。引き落としは行われていません。いつでも新しい注文を開始できます。' : lang === 'zh' ? '订单在完成支付前已超时，未扣除任何资金，您可以随时重新发起。' : 'Your order expired before payment was completed. No funds were deducted — you can start a new order anytime.')
-    : (lang === 'ja' ? 'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。' : lang === 'zh' ? '您的付款未能处理，未扣除任何资金，请重试或联系客服。' : 'Your payment could not be processed. No funds were deducted. Please try again or contact support.');
+    ? (lang === 'zh' ? '订单在完成支付前已超时，未扣除任何资金，您可以随时重新发起。' : 'Your order expired before payment was completed. No funds were deducted — you can start a new order anytime.')
+    : (lang === 'zh' ? '您的付款未能处理，未扣除任何资金，请重试或联系客服。' : 'Your payment could not be processed. No funds were deducted. Please try again or contact support.');
 }
 
 function goToFailed(reason) {
@@ -1795,6 +1755,11 @@ function kycFailed() {
   closeKycGate();
   openKycRequired();
 }
+function kycPending() {
+  closeKycGate();
+  saveRampState();
+  location.href = 'kyc.html?return=on-ramp&view=pending';
+}
 
 // ── KYC Required Dialog: confirm before handing off to kyc.html; declining leaves the
 // user on the initiate screen with nothing else happening. ──
@@ -1809,7 +1774,7 @@ function closeKycRequired(e) {
 function confirmKycRequired() {
   closeKycRequired();
   saveRampState();
-  showToast(lang === 'zh' ? '正在跳转至 KYC 验证...' : lang === 'ja' ? 'KYC認証へ移動しています...' : 'Redirecting to KYC verification...');
+  showToast(lang === 'zh' ? '正在跳转至 KYC 验证...' : 'Redirecting to KYC verification...');
   setTimeout(() => { location.href = 'kyc.html?return=on-ramp'; }, 450);
 }
 
@@ -1909,14 +1874,13 @@ function updateNextBtn() {
   if (errEl) errEl.classList.toggle('show', showError);
   if (errText && showError) {
     errText.textContent = lang === 'zh' ? `金额需在 ${rangeText} 之间`
-      : lang === 'ja' ? `金額は ${rangeText} の範囲で入力してください`
       : `Amount must be between ${rangeText}`;
   }
 }
 
 function openCryptoDropdown() {
   const titleEl = document.getElementById('cr-dropdown-title');
-  if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': lang==='ja'?'トークンを選択':'Select Token';
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': 'Select Token';
 
   const list = document.getElementById('cr-dropdown-list');
   if (!list) return;
@@ -1970,7 +1934,7 @@ function refreshCheckoutUI() {
 
 function openFiatDropdown() {
   const titleEl = document.getElementById('fiat-dropdown-title');
-  if (titleEl) titleEl.textContent = lang==='zh'?'选择法币': lang==='ja'?'法定通貨を選択':'Select Fiat';
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择法币': 'Select Fiat';
 
   const list = document.getElementById('fiat-dropdown-list');
   if (!list) return;
@@ -2048,16 +2012,16 @@ const HISTORY_MOCK = [
 ];
 
 const HISTORY_STATUS_LABEL = {
-  success:    { en: 'Completed',            ja: '完了',       zh: '已完成' },
-  processing: { en: 'Processing',           ja: '処理中',     zh: '处理中' },
-  pending:    { en: 'Pending Verification', ja: '確認待ち',   zh: '待验证' },
-  failed:     { en: 'Failed',               ja: '失敗',       zh: '失败' },
-  expired:    { en: 'Expired',              ja: '期限切れ',   zh: '已超时' },
+  success:    { en: 'Completed',            zh: '已完成' },
+  processing: { en: 'Processing',           zh: '处理中' },
+  pending:    { en: 'Pending Verification', zh: '待验证' },
+  failed:     { en: 'Failed',               zh: '失败' },
+  expired:    { en: 'Expired',              zh: '已超时' },
 };
 
 const HISTORY_DIR_LABEL = {
-  buy:  { en: 'Buy Crypto',  ja: '暗号資産購入', zh: '买入加密货币' },
-  sell: { en: 'Sell Crypto', ja: '暗号資産売却', zh: '卖出加密货币' },
+  buy:  { en: 'Buy Crypto',  zh: '买入加密货币' },
+  sell: { en: 'Sell Crypto', zh: '卖出加密货币' },
 };
 
 const HISTORY_STATUS_ICON = {

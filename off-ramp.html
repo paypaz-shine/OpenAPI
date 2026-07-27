@@ -901,7 +901,7 @@
 // ── i18n ──────────────────────────────────────────────────────────────
 const I18N = {
   en: {
-    langBtn: '日本語',
+    langBtn: '中文',
     'tab-buy':          'Buy',
     'tab-sell':         'Sell',
     'cr-balance':       'Balance',
@@ -977,84 +977,6 @@ const I18N = {
     'hd-order':             'Order ID',
     'hd-created':           'Created',
     'hd-completed':         'Completed',
-  },
-  ja: {
-    langBtn: '中文',
-    'tab-buy':          '購入',
-    'tab-sell':         '売却',
-    'cr-balance':       '残高',
-    'cr-pay':           'お支払い',
-    'cr-receive':       '受取',
-    'cr-next':          '次へ',
-    'cr-qty-sell':      '売却数量',
-    'cr-checkout-next': '次へ',
-    'checkout-title':   '詳細を確認',
-    'cr-all':           '全額',
-    'cr-subtitle':      '暗号資産をすぐに購入・売却',
-    'kyc-gate-title':   'KYCステータス確認',
-    'kyc-gate-desc':    'プロトタイプ用 — このユーザーの現在のKYCステータスを選択して、どちらの流れになるか確認できます。',
-    'kyc-gate-cancel':  '未完了',
-    'kyc-gate-confirm': '完了',
-    'kyc-required-title':   '本人確認が必要です',
-    'kyc-required-desc':    'このご注文を続けるには、先に本人確認を完了する必要があります。',
-    'kyc-required-cancel':  '後で行う',
-    'kyc-required-confirm': '本人確認を開始',
-    'sell-order-title': '注文内容の確認',
-    'sell-order-id-label': '注文番号',
-    'sell-order-expiry-label': '有効期限',
-    'sell-context-desc':  '以下の注文内容と受取口座をご確認のうえ、売却を確定してください。',
-    'sell-you-send':    '送金額',
-    'sell-you-receive': '受取金額',
-    'sell-account-title':'受取銀行口座',
-    'sell-account-hint':'確認後、指定口座に法定通貨を振り込みます',
-    'sf-bank':          '金融機関名',
-    'sf-branch':        '支店名',
-    'sf-account':       '口座番号',
-    'sf-holder':        '口座名義',
-    'sell-order-warning':'有効期限内にご確認ください。確認後、残高から暗号資産が確保され、法定通貨は通常1営業日以内に振り込まれます。',
-    'sell-continue':    '確認して次へ',
-    'proc-title':       '処理中',
-    'proc-heading':     '決済処理中です',
-    'proc-desc':        '残高から暗号資産を確保しました。決済完了後、ご指定の銀行口座に法定通貨を振り込みます。',
-    'proc-return':      'もう一度注文する',
-    'proc-note':        '注文が完了したら通知をお送りします',
-    'proc-s1':          '暗号資産を確保しました',
-    'proc-s2':          '決済処理中です',
-    'proc-s3':          'ご指定口座に振込予定です',
-    'suc-title':        '注文完了',
-    'suc-heading':      '注文が完了しました',
-    'suc-desc':         '法定通貨はご指定の銀行口座に振り込まれます（通常1営業日以内）。',
-    'res-paid':         '売却数量',
-    'res-received':     '受取金額',
-    'res-wallet':       '受取口座',
-    'res-network':      '着金予定',
-    'res-method':       'お支払い方法',
-    'res-method-val':   '残高から差し引き',
-    'res-order':        '注文番号',
-    'res-time':         '完了日時',
-    'suc-return':       'もう一度注文する',
-    'fail-title':       '取引失敗',
-    'fail-heading':     '取引に失敗しました',
-    'fail-desc':        'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。',
-    'fail-return':      '戻る',
-    'fail-retry':       '再試行',
-    'pend-title':       '追加確認が必要です',
-    'pend-heading':     '追加の本人確認が必要です',
-    'pend-desc':        '注文が保留中です。メールをご確認いただき、本人確認の手続きを完了してください。',
-    'pend-s1':          'お支払いを安全に受領・保留しています',
-    'pend-s2':          '本人確認の完了をお待ちしています',
-    'pend-s3':          '確認完了後に暗号資産を送金します',
-    'pend-return':      'プラットフォームに戻る',
-    'history-title':        '注文履歴',
-    'history-empty':        '注文履歴はありません',
-    'history-detail-title': '注文詳細',
-    'hd-direction':         '取引方向',
-    'hd-pay':               '送金額',
-    'hd-receive':           '受取',
-    'hd-method':            'お支払い方法',
-    'hd-order':             '注文番号',
-    'hd-created':           '作成日時',
-    'hd-completed':         '完了日時',
   },
   zh: {
     langBtn: 'EN',
@@ -1158,7 +1080,7 @@ function toggleLang() {
   lang = LANG_CYCLE[lang];
   applyLang();
 }
-const LANG_CYCLE = { en: 'ja', ja: 'zh', zh: 'en' };
+const LANG_CYCLE = { en: 'zh', zh: 'en' };
 
 // ── Screen Navigation ────────────────────────────────────────────────
 function goTo(id) {
@@ -1192,11 +1114,11 @@ function setFailureMode(reason) {
   }
   if (icon) icon.style.color = isExpired ? '#E6A23C' : '#F56C6C';
   if (heading) heading.textContent = isExpired
-    ? (lang === 'ja' ? '注文の有効期限が切れました' : lang === 'zh' ? '订单已超时' : 'Order Expired')
-    : (lang === 'ja' ? '取引に失敗しました' : lang === 'zh' ? '交易失败' : 'Transaction Failed');
+    ? (lang === 'zh' ? '订单已超时' : 'Order Expired')
+    : (lang === 'zh' ? '交易失败' : 'Transaction Failed');
   if (desc) desc.textContent = isExpired
-    ? (lang === 'ja' ? 'お支払い完了前に注文の有効期限が切れました。引き落としは行われていません。いつでも新しい注文を開始できます。' : lang === 'zh' ? '订单在完成支付前已超时，未扣除任何资金，您可以随时重新发起。' : 'Your order expired before payment was completed. No funds were deducted — you can start a new order anytime.')
-    : (lang === 'ja' ? 'お支払いを処理できませんでした。引き落としは行われていません。再度お試しいただくか、サポートにお問い合わせください。' : lang === 'zh' ? '您的付款未能处理，未扣除任何资金，请重试或联系客服。' : 'Your payment could not be processed. No funds were deducted. Please try again or contact support.');
+    ? (lang === 'zh' ? '订单在完成支付前已超时，未扣除任何资金，您可以随时重新发起。' : 'Your order expired before payment was completed. No funds were deducted — you can start a new order anytime.')
+    : (lang === 'zh' ? '您的付款未能处理，未扣除任何资金，请重试或联系客服。' : 'Your payment could not be processed. No funds were deducted. Please try again or contact support.');
 }
 
 function goToFailed(reason) {
@@ -1292,7 +1214,7 @@ function closeKycRequired(e) {
 function confirmKycRequired() {
   closeKycRequired();
   saveRampState();
-  showToast(lang === 'zh' ? '正在跳转至 KYC 验证...' : lang === 'ja' ? 'KYC認証へ移動しています...' : 'Redirecting to KYC verification...');
+  showToast(lang === 'zh' ? '正在跳转至 KYC 验证...' : 'Redirecting to KYC verification...');
   setTimeout(() => { location.href = 'kyc.html?return=off-ramp'; }, 450);
 }
 
@@ -1394,7 +1316,6 @@ function updateNextBtn() {
   if (errEl) errEl.classList.toggle('show', showError);
   if (errText && showError) {
     errText.textContent = lang === 'zh' ? `金额需在 ${rangeText} 之间`
-      : lang === 'ja' ? `金額は ${rangeText} の範囲で入力してください`
       : `Amount must be between ${rangeText}`;
   }
 }
@@ -1406,7 +1327,7 @@ function fillAll() {
 
 function openCryptoDropdown() {
   const titleEl = document.getElementById('cr-dropdown-title');
-  if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': lang==='ja'?'トークンを選択':'Select Token';
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': 'Select Token';
 
   const list = document.getElementById('cr-dropdown-list');
   if (!list) return;
@@ -1460,7 +1381,7 @@ function refreshCheckoutUI() {
 
 function openFiatDropdown() {
   const titleEl = document.getElementById('fiat-dropdown-title');
-  if (titleEl) titleEl.textContent = lang==='zh'?'选择法币': lang==='ja'?'法定通貨を選択':'Select Fiat';
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择法币': 'Select Fiat';
 
   const list = document.getElementById('fiat-dropdown-list');
   if (!list) return;
@@ -1509,16 +1430,16 @@ const HISTORY_MOCK = [
 ];
 
 const HISTORY_STATUS_LABEL = {
-  success:    { en: 'Completed',            ja: '完了',       zh: '已完成' },
-  processing: { en: 'Processing',           ja: '処理中',     zh: '处理中' },
-  pending:    { en: 'Pending Verification', ja: '確認待ち',   zh: '待验证' },
-  failed:     { en: 'Failed',               ja: '失敗',       zh: '失败' },
-  expired:    { en: 'Expired',              ja: '期限切れ',   zh: '已超时' },
+  success:    { en: 'Completed',            zh: '已完成' },
+  processing: { en: 'Processing',           zh: '处理中' },
+  pending:    { en: 'Pending Verification', zh: '待验证' },
+  failed:     { en: 'Failed',               zh: '失败' },
+  expired:    { en: 'Expired',              zh: '已超时' },
 };
 
 const HISTORY_DIR_LABEL = {
-  buy:  { en: 'Buy Crypto',  ja: '暗号資産購入', zh: '买入加密货币' },
-  sell: { en: 'Sell Crypto', ja: '暗号資産売却', zh: '卖出加密货币' },
+  buy:  { en: 'Buy Crypto',  zh: '买入加密货币' },
+  sell: { en: 'Sell Crypto', zh: '卖出加密货币' },
 };
 
 const HISTORY_STATUS_ICON = {
@@ -1530,7 +1451,7 @@ const HISTORY_STATUS_ICON = {
 };
 
 const PM_NAME = {
-  bank: { en: 'Bank Transfer', ja: '銀行振込', zh: '银行转账' },
+  bank: { en: 'Bank Transfer', zh: '银行转账' },
 };
 
 function historyText(id, txt) {

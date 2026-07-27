@@ -63,6 +63,7 @@
     }
     .sumsub-brand { display: flex; align-items: center; gap: 10px; font-family: 'Inter', sans-serif; font-weight: 700; }
     .sumsub-secure { font-size: 11px; color: rgba(255,255,255,.68); white-space: nowrap; }
+    .sumsub-head-plain { justify-content: center; }
     .sumsub-body { padding: 18px 14px 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
     .sumsub-card {
       border: 1px solid #EAECF0;
@@ -149,6 +150,7 @@
       --ss-accent: #EFF8FF;
       --ss-accent-foreground: #175CD3;
       --ss-success: #067647;
+      --ss-danger: #B42318;
       --ss-ring: #175CD3;
     }
 
@@ -172,6 +174,11 @@
     }
     .ss-tab.active { background: var(--ss-background); color: var(--ss-foreground); box-shadow: 0 1px 2px rgba(16,24,40,.08); }
     .ss-tab.done { color: var(--ss-success); }
+    .ss-tab.failed { color: var(--ss-danger); }
+
+    .ss-result-icon { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .ss-result-icon.success { background: #ECFDF3; color: var(--ss-success); }
+    .ss-result-icon.failed  { background: #FEF3F2; color: var(--ss-danger); }
 
     .ss-btn {
       width: 100%;
@@ -563,15 +570,10 @@
 <div id="s-ss-pending" class="screen">
 
   <div class="sumsub-shell">
-    <div class="sumsub-head">
-      <div style="width:24px"></div>
+    <div class="sumsub-head sumsub-head-plain">
       <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
+        <div class="t-ss-header-title">Sumsub Identity Verification</div>
       </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
     </div>
 
     <div class="sumsub-body">
@@ -598,6 +600,85 @@
   </div>
 
 </div><!-- /s-ss-pending -->
+
+<!-- ══════════════════════════════════════════
+     STEP 2h · 身份验证成功
+══════════════════════════════════════════ -->
+<div id="s-ss-success" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head sumsub-head-plain">
+      <div class="sumsub-brand">
+        <div class="t-ss-header-title">Sumsub Identity Verification</div>
+      </div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab done"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
+        <div class="ss-result-icon success"><i data-lucide="check-circle-2" size="32"></i></div>
+        <div>
+          <div class="sumsub-title" style="font-size:16px" id="t-ss-success-heading">Identity verified</div>
+          <div class="sumsub-copy" id="t-ss-success-desc">You're all set — you can continue with your order.</div>
+        </div>
+      </div>
+
+      <button class="ss-btn ss-btn-primary" onclick="completeSumsub()">
+        <i data-lucide="arrow-right" size="16"></i>
+        <span id="t-ss-success-btn">Continue</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /s-ss-success -->
+
+<!-- ══════════════════════════════════════════
+     STEP 2i · 身份验证失败
+══════════════════════════════════════════ -->
+<div id="s-ss-failed" class="screen">
+
+  <div class="sumsub-shell">
+    <div class="sumsub-head sumsub-head-plain">
+      <div class="sumsub-brand">
+        <div class="t-ss-header-title">Sumsub Identity Verification</div>
+      </div>
+    </div>
+
+    <div class="sumsub-body">
+      <div class="ss-tabs">
+        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
+        <div class="ss-tab failed"><span class="t-ss-step4">4. Review</span></div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
+        <div class="ss-result-icon failed"><i data-lucide="x-circle" size="32"></i></div>
+        <div>
+          <div class="sumsub-title" style="font-size:16px" id="t-ss-failed-heading">We couldn't verify your identity</div>
+          <div class="sumsub-copy" id="t-ss-failed-desc">Please check your documents and try again, or contact the merchant for help.</div>
+        </div>
+      </div>
+
+      <div class="ss-btn-row">
+        <button class="ss-btn ss-btn-outline" onclick="abortToReturn()">
+          <span id="t-ss-failed-close-btn">Close</span>
+        </button>
+        <button class="ss-btn ss-btn-primary" onclick="goTo('ss-basic')">
+          <i data-lucide="rotate-ccw" size="16"></i>
+          <span id="t-ss-failed-retry-btn">Try again</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /s-ss-failed -->
 
 </div><!-- /.page -->
 
@@ -647,48 +728,14 @@ const I18N = {
     'ss-pending-heading': 'We\'re checking everything now',
     'ss-pending-desc':  'This usually takes a few minutes. You can close this and we\'ll let you know once it\'s done.',
     'ss-complete-btn':  'Close',
-  },
-  ja: {
-    'ss-subtitle':      '本人確認',
-    'ss-secure-label':  'セキュアセッション',
-    'ss-step1':         '1. 基本情報',
-    'ss-step2':         '2. 証明書類',
-    'ss-step3':         '3. 顔認証',
-    'ss-step4':         '4. 審査',
-    'ss-basic-title':   '情報をご確認ください',
-    'ss-basic-desc':    'これらの情報は販売者が提供したもので、こちらでは編集できません。内容に誤りがある場合は、続行する前に販売者にお問い合わせください。',
-    'ss-basic-label-name': '氏名（本名）',
-    'ss-basic-label-dob': '生年月日',
-    'ss-basic-label-nationality': '国籍',
-    'ss-basic-label-email': 'メールアドレス',
-    'ss-basic-hint':    'Paypazの販売者連携により安全に共有されています。Sumsubは本人確認のみに使用します。',
-    'ss-basic-confirm-btn': '確認して次へ',
-    'ss-country-label': '証明書類の発行国・地域',
-    'ss-doc-title':     '証明書類の種類を選択',
-    'ss-doc-passport':  'パスポート',
-    'ss-doc-passport-sub': 'おすすめ',
-    'ss-doc-idcard':    '身分証明書',
-    'ss-doc-license':   '運転免許証',
-    'ss-doc-permit':    '在留カード',
-    'ss-doctype-btn':   '次へ',
-    'ss-front-title':   '証明書類の表面',
-    'ss-front-hint':    '証明書類の表面を撮影してください。四隅がすべて写るようにし、反射やブレがないようにしてください。',
-    'ss-checking':      '画質を確認しています...',
-    'ss-back-title':    '証明書類の裏面',
-    'ss-back-hint':     '続いて証明書類の裏面を撮影してください。',
-    'ss-checking-2':    '画質を確認しています...',
-    'ss-doc-review-hint': '証明書類の情報がすべて見えて、読み取れることを確認してください。',
-    'ss-btn-retake':    '再撮影する',
-    'ss-btn-readable':  '問題なく読み取れます',
-    'ss-uploading-heading': '証明書類をアップロード中',
-    'ss-uploading-desc': 'もう少しお待ちください。',
-    'ss-live-position': '顔を枠に合わせてください',
-    'ss-live-look':     'カメラを正面から見てください',
-    'ss-live-processing': 'スキャンを処理しています...',
-    'ss-live-complete': '顔認証が完了しました',
-    'ss-pending-heading': 'ただいま確認しています',
-    'ss-pending-desc':  '通常数分で完了します。このまま閉じていただいても、完了後にお知らせします。',
-    'ss-complete-btn':  '閉じる',
+    'ss-header-title':  'Sumsub Identity Verification',
+    'ss-success-heading': 'Identity verified',
+    'ss-success-desc': 'You\'re all set — you can continue with your order.',
+    'ss-success-btn':  'Continue',
+    'ss-failed-heading': 'We couldn\'t verify your identity',
+    'ss-failed-desc':  'Please check your documents and try again, or contact the merchant for help.',
+    'ss-failed-close-btn': 'Close',
+    'ss-failed-retry-btn': 'Try again',
   },
   zh: {
     'ss-subtitle':      '身份验证',
@@ -731,6 +778,14 @@ const I18N = {
     'ss-pending-heading': '正在为您审核',
     'ss-pending-desc':  '通常需要几分钟，您可以关闭此页面，审核完成后会通知您。',
     'ss-complete-btn':  '关闭',
+    'ss-header-title':  'Sumsub 身份认证',
+    'ss-success-heading': '身份验证成功',
+    'ss-success-desc': '一切就绪，您可以继续处理订单。',
+    'ss-success-btn':  '继续',
+    'ss-failed-heading': '身份验证未通过',
+    'ss-failed-desc':  '请检查您的证件后重试，或联系商户获取帮助。',
+    'ss-failed-close-btn': '关闭',
+    'ss-failed-retry-btn': '重新验证',
   },
 };
 let lang = 'zh';
@@ -739,6 +794,12 @@ let lang = 'zh';
 const RAMP_STATE_KEY = 'paypaz_ramp_state';
 const returnParams = new URLSearchParams(location.search);
 const returnFile = returnParams.get('return') === 'off-ramp' ? 'off-ramp' : 'on-ramp';
+// Entered directly at a specific status screen (e.g. the merchant's "KYC Under Review"
+// status pick) — skips the capture flow entirely. `pending` also changes the Close button's
+// behavior below, since it shouldn't claim completion when nothing was actually submitted.
+const DIRECT_VIEW_SCREENS = { pending: 'ss-pending', success: 'ss-success', failed: 'ss-failed' };
+const directView = returnParams.get('view');
+const showPendingDirectly = directView === 'pending';
 (function initLangFromRampState() {
   const raw = sessionStorage.getItem(RAMP_STATE_KEY);
   if (!raw) return;
@@ -760,7 +821,7 @@ function applyLang() {
     const el = document.getElementById('t-' + k);
     if (el) el.textContent = t[k];
   });
-  ['ss-subtitle', 'ss-secure-label', 'ss-step1', 'ss-step2', 'ss-step3', 'ss-step4', 'ss-btn-readable', 'ss-btn-retake', 'ss-doc-review-hint'].forEach(k => {
+  ['ss-subtitle', 'ss-secure-label', 'ss-header-title', 'ss-step1', 'ss-step2', 'ss-step3', 'ss-step4', 'ss-btn-readable', 'ss-btn-retake', 'ss-doc-review-hint'].forEach(k => {
     document.querySelectorAll('.t-' + k).forEach(el => el.textContent = t[k]);
   });
   renderSsBasicInfo();
@@ -794,8 +855,8 @@ function showToast(msg) {
 // read-only here; only the DOB/nationality display text is localized. ──
 const SS_APPLICANT = {
   firstName: 'Taro', lastName: 'Tanaka',
-  dob: { en: 'Apr 12, 1990', ja: '1990年4月12日', zh: '1990年4月12日' },
-  nationality: { en: 'Japan', ja: '日本', zh: '日本' },
+  dob: { en: 'Apr 12, 1990', zh: '1990年4月12日' },
+  nationality: { en: 'Japan', zh: '日本' },
   email: 'taro.tanaka@example.com',
 };
 function renderSsBasicInfo() {
@@ -807,7 +868,12 @@ function renderSsBasicInfo() {
 }
 
 function completeSumsub() {
-  showToast(lang === 'zh' ? 'Sumsub 验证完成，正在返回...' : lang === 'ja' ? 'Sumsub 本人確認が完了しました。戻ります...' : 'Sumsub verification complete — returning...');
+  if (showPendingDirectly) {
+    showToast(lang === 'zh' ? '正在返回...' : 'Returning...');
+    setTimeout(() => { location.href = returnFile + '.html'; }, 450);
+    return;
+  }
+  showToast(lang === 'zh' ? 'Sumsub 验证完成，正在返回...' : 'Sumsub verification complete — returning...');
   setTimeout(() => { location.href = returnFile + '.html?kyc=done'; }, 900);
 }
 
@@ -891,6 +957,7 @@ function startLivenessDemo() {
 // ── Init ────────────────────────────────────────────────────────────
 applyLang();
 renderIcons();
+if (DIRECT_VIEW_SCREENS[directView]) goTo(DIRECT_VIEW_SCREENS[directView]);
 </script>
 </body>
 </html>
