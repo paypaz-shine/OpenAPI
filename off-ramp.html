@@ -310,6 +310,7 @@
     .cr-ci-usdc { background: transparent; }
     .cr-ci-jpy  { background: transparent; }
     .cr-ci-usd  { background: transparent; }
+    .cr-ci-krw  { background: transparent; }
 
     .cr-block-hint { margin-top: 5px; font-size: 11px; color: #C0C4CC; display: flex; align-items: center; justify-content: space-between; }
     .cr-all-btn { font-size: 11px; font-weight: 600; color: #409EFF; background: none; border: none; cursor: pointer; padding: 0; }
@@ -366,6 +367,7 @@
     }
     .kyc-gate-title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
     .kyc-gate-desc { font-size: 13px; color: #909399; line-height: 1.7; margin-bottom: 20px; }
+    .kyc-gate-choices { display: flex; flex-direction: column; gap: 8px; }
 
     /* ── Checkout intro line ── */
     .checkout-context-desc { font-size: 11px; color: #909399; line-height: 1.55; }
@@ -376,9 +378,9 @@
 <div class="page">
 
 <!-- ══════════════════════════════════════════
-     SCREEN 0 · 商户发起（选代币 + 输入数量）
+     SCREEN 0 · 确认详情（选代币 + 输入数量）
 ══════════════════════════════════════════ -->
-<div id="s-create" class="screen active">
+<div id="s-checkout" class="screen active">
 
   <div class="ck-header">
     <div class="header-spacer"></div>
@@ -390,7 +392,7 @@
       <button class="back-btn" onclick="goTo('history')" title="Order History">
         <i data-lucide="history" size="18"></i>
       </button>
-      <button class="lang-btn" onclick="toggleLang()" id="cr-lang-btn">日本語</button>
+      <button class="lang-btn" onclick="toggleLang()" id="checkout-lang-btn">日本語</button>
     </div>
   </div>
 
@@ -402,7 +404,7 @@
       <button class="dir-tab active" id="tab-sell"><span id="t-tab-sell">Sell</span></button>
     </div>
 
-    <!-- Token + Amount -->
+    <!-- Sell (crypto, editable) / Receive (fiat, computed + selectable) -->
     <div class="cr-blocks-wrap">
 
       <div class="cr-block">
@@ -417,7 +419,7 @@
           </button>
         </div>
         <div class="cr-block-hint">
-          <span id="cr-pay-range">10 – 10,000 USDT</span>
+          <span id="cr-pay-range">50 – 10,000 USDT</span>
           <div class="cr-balance-row" id="cr-balance-row">
             <span id="t-cr-balance">Balance</span>：<span class="cr-balance-val" id="cr-balance-val">0 USDT</span>
             <button class="cr-all-btn" id="cr-all-btn" onclick="fillAll()"><span id="t-cr-all">全部</span></button>
@@ -428,10 +430,22 @@
         </div>
       </div>
 
+      <div class="cr-block">
+        <div class="cr-block-label" id="t-cr-receive">YOU RECEIVE</div>
+        <div class="cr-block-row">
+          <span class="cr-amount-display" id="cr-receive-display">0</span>
+          <button class="cr-currency-btn" id="cr-receive-btn" onclick="openFiatDropdown()">
+            <div class="cr-currency-icon cr-ci-krw" id="cr-receive-icon"><img src="images/韩国.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+            <span id="cr-receive-name">KRW</span>
+            <i data-lucide="chevron-down" size="13"></i>
+          </button>
+        </div>
+      </div>
+
     </div><!-- /cr-blocks-wrap -->
 
-    <button class="btn-cta" id="cr-next-btn" onclick="onInitiateContinue()" disabled>
-      <span id="t-cr-next">Continue</span>
+    <button class="btn-cta" id="cr-checkout-next-btn" onclick="onCheckoutContinue()" disabled>
+      <span id="t-cr-checkout-next">Continue</span>
       <i data-lucide="arrow-right" size="16"></i>
     </button>
 
@@ -443,63 +457,6 @@
       <div class="cr-dropdown-title" id="cr-dropdown-title">Select Token</div>
       <div id="cr-dropdown-list"></div>
     </div>
-  </div>
-
-</div><!-- /s-create -->
-
-
-<!-- ══════════════════════════════════════════
-     SCREEN 0.5 · 确认详情
-══════════════════════════════════════════ -->
-<div id="s-checkout" class="screen">
-
-  <div class="ck-header">
-    <button class="back-btn" onclick="goTo('create')" title="Back">
-      <i data-lucide="chevron-left" size="20"></i>
-    </button>
-    <div class="header-center">
-      <div class="ck-title" id="t-checkout-title">Confirm Details</div>
-    </div>
-    <div class="header-right">
-      <button class="lang-btn" onclick="toggleLang()" id="checkout-lang-btn">日本語</button>
-    </div>
-  </div>
-
-  <div class="cr-body">
-
-    <!-- Pay (crypto, fixed from screen 0) / Receive (fiat, computed + selectable) -->
-    <div class="cr-blocks-wrap">
-
-      <div class="cr-block">
-        <div class="cr-block-label" id="t-cr-pay">YOU PAY</div>
-        <div class="cr-block-row">
-          <span class="cr-amount-display" id="cr-pay-display">0</span>
-          <div class="cr-currency-btn" style="cursor:default">
-            <div class="cr-currency-icon cr-ci-usdt" id="cr-pay-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
-            <span id="cr-pay-name">USDT</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="cr-block">
-        <div class="cr-block-label" id="t-cr-receive">YOU RECEIVE</div>
-        <div class="cr-block-row">
-          <span class="cr-amount-display" id="cr-receive-display">0</span>
-          <button class="cr-currency-btn" id="cr-receive-btn" onclick="openFiatDropdown()">
-            <div class="cr-currency-icon cr-ci-jpy" id="cr-receive-icon"><img src="images/日本.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
-            <span id="cr-receive-name">JPY</span>
-            <i data-lucide="chevron-down" size="13"></i>
-          </button>
-        </div>
-      </div>
-
-    </div><!-- /cr-blocks-wrap -->
-
-    <button class="btn-cta" id="cr-checkout-next-btn" onclick="proceedToCheckout()">
-      <span id="t-cr-checkout-next">Continue</span>
-      <i data-lucide="arrow-right" size="16"></i>
-    </button>
-
   </div>
 
   <!-- Fiat Currency Dropdown Sheet -->
@@ -519,7 +476,7 @@
 <div id="s-sell-order" class="screen">
 
   <div class="ck-header">
-    <button class="back-btn" onclick="goTo('create')">
+    <button class="back-btn" onclick="goTo('checkout')">
       <i data-lucide="chevron-left" size="20"></i>
     </button>
     <div class="header-center">
@@ -633,7 +590,7 @@
         </div>
       </div>
     </div>
-    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('create')" id="t-proc-return">Place Another Order</button>
+    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('checkout')" id="t-proc-return">Place Another Order</button>
     <div style="font-size:11px;color:#C0C4CC" id="t-proc-note">You'll receive a notification when your order completes</div>
   </div>
 </div><!-- /s-processing -->
@@ -694,7 +651,7 @@
       </div>
     </div>
 
-    <button class="btn-cta" onclick="goTo('create')" id="t-suc-return">Place Another Order</button>
+    <button class="btn-cta" onclick="goTo('checkout')" id="t-suc-return">Place Another Order</button>
   </div>
 </div><!-- /s-success -->
 
@@ -725,7 +682,7 @@
     <div class="mini-order-id" id="fail-order-id">PZ20260630-00124</div>
     <div class="btn-row" style="width:100%">
       <button class="btn-cta-ghost" onclick="noop()" id="t-fail-return">Return</button>
-      <button class="btn-cta" onclick="goTo('create')" id="t-fail-retry">Try Again</button>
+      <button class="btn-cta" onclick="goTo('checkout')" id="t-fail-retry">Try Again</button>
     </div>
   </div>
 </div><!-- /s-failed -->
@@ -782,7 +739,7 @@
 <div id="s-history" class="screen">
 
   <div class="ck-header">
-    <button class="back-btn" onclick="goTo('create')">
+    <button class="back-btn" onclick="goTo('checkout')">
       <i data-lucide="chevron-left" size="20"></i>
     </button>
     <div class="header-center">
@@ -866,16 +823,18 @@
 
 </div><!-- /.page -->
 
-<!-- KYC Status Dialog (prototype only): shown every time "Continue" is clicked on the
-     initiate screen, standing in for the merchant-side KYC status check. Passed → goes
-     straight to checkout; Not Passed → opens the KYC-required confirm dialog below. -->
+<!-- KYC Status Dialog (prototype only): shown when "Continue" is clicked on the
+     checkout screen, standing in for the merchant-side KYC status check. Passed → proceeds
+     straight to order review; Under Review → hands off to kyc.html's pending view;
+     Not Passed → opens the KYC-required confirm dialog below. -->
 <div class="kyc-gate-overlay" id="kyc-gate-overlay" onclick="closeKycGate(event)">
   <div class="kyc-gate-dialog">
     <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
     <div class="kyc-gate-title" id="t-kyc-gate-title">KYC Status Check</div>
-    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview either path.</div>
-    <div class="btn-row">
+    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview any of the three paths.</div>
+    <div class="kyc-gate-choices">
       <button class="btn-cta-ghost" onclick="kycFailed()"><span id="t-kyc-gate-cancel">Not Passed</span></button>
+      <button class="btn-cta-ghost" onclick="kycPending()"><span id="t-kyc-gate-pending">Under Review</span></button>
       <button class="btn-cta" onclick="kycPassed()"><span id="t-kyc-gate-confirm">Passed</span></button>
     </div>
   </div>
@@ -905,17 +864,15 @@ const I18N = {
     'tab-buy':          'Buy',
     'tab-sell':         'Sell',
     'cr-balance':       'Balance',
-    'cr-pay':           'You Pay',
     'cr-receive':       'You Receive',
-    'cr-next':          'Continue',
     'cr-qty-sell':      'YOU SELL',
     'cr-checkout-next': 'Continue',
-    'checkout-title':   'Confirm Details',
     'cr-all':           'All',
     'cr-subtitle':      'Buy & sell crypto instantly',
     'kyc-gate-title':   'KYC Status Check',
-    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview either path.',
+    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview any of the three paths.',
     'kyc-gate-cancel':  'Not Passed',
+    'kyc-gate-pending': 'Under Review',
     'kyc-gate-confirm': 'Passed',
     'kyc-required-title':   'Identity verification required',
     'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
@@ -983,17 +940,15 @@ const I18N = {
     'tab-buy':          '买入',
     'tab-sell':         '卖出',
     'cr-balance':       '余额',
-    'cr-pay':           '支付',
     'cr-receive':       '收到',
-    'cr-next':          '继续',
     'cr-qty-sell':      '卖出数量',
     'cr-checkout-next': '继续',
-    'checkout-title':   '确认详情',
     'cr-all':           '全部',
     'cr-subtitle':      '快速买卖加密货币',
     'kyc-gate-title':   'KYC 状态判断',
-    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览两种后续流程。',
+    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览三种后续流程。',
     'kyc-gate-cancel':  'KYC 未通过',
+    'kyc-gate-pending': 'KYC 审核中',
     'kyc-gate-confirm': 'KYC 通过',
     'kyc-required-title':   '需要完成身份验证',
     'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
@@ -1086,7 +1041,7 @@ const LANG_CYCLE = { en: 'zh', zh: 'en' };
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-' + id).classList.add('active');
-  if (id === 'checkout') refreshCheckoutUI();
+  if (id === 'checkout' && typeof updateNextBtn === 'function') updateNextBtn();
   window.scrollTo(0, 0);
 }
 
@@ -1181,9 +1136,10 @@ function syncOrderId() {
   });
 }
 
-// ── KYC Status Dialog: gates the initiate screen's "Continue" button.
-// Prototype stand-in for the merchant-side KYC status check — Passed skips straight to
-// checkout, Not Passed hands off to the standalone kyc.html. ──
+// ── KYC Status Dialog: gates the checkout screen's "Continue" button.
+// Prototype stand-in for the merchant-side KYC status check — Passed proceeds straight to
+// order review, Not Passed hands off to the standalone kyc.html. ──
+let kycVerified = false;
 function openKycGate() {
   document.getElementById('kyc-gate-overlay').classList.add('show');
   renderIcons();
@@ -1194,11 +1150,17 @@ function closeKycGate(e) {
 }
 function kycPassed() {
   closeKycGate();
-  goTo('checkout');
+  kycVerified = true;
+  proceedToCheckout();
 }
 function kycFailed() {
   closeKycGate();
   openKycRequired();
+}
+function kycPending() {
+  closeKycGate();
+  saveRampState();
+  location.href = 'kyc.html?return=off-ramp&view=pending';
 }
 
 // ── KYC Required Dialog: confirm before handing off to kyc.html; declining leaves the
@@ -1218,9 +1180,13 @@ function confirmKycRequired() {
   setTimeout(() => { location.href = 'kyc.html?return=off-ramp'; }, 450);
 }
 
-// ── Initiate → Continue: KYC gate happens right here, at merchant-initiate time ──
-function onInitiateContinue() {
-  openKycGate();
+// ── Checkout → Continue: KYC gate happens right here, when the user confirms the order ──
+function onCheckoutContinue() {
+  if (kycVerified) {
+    proceedToCheckout();
+  } else {
+    openKycGate();
+  }
 }
 
 // ── Cross-file state hand-off (sessionStorage) for the kyc.html redirect ──
@@ -1246,22 +1212,24 @@ function restoreFromKycReturn() {
     } catch (e) { /* ignore malformed state */ }
   }
   history.replaceState(null, '', location.pathname);
-  goTo('checkout');
+  kycVerified = true;
+  proceedToCheckout();
 }
 
 // ── Create Order State ───────────────────────────────────────────────
 const FIAT_CFG = {
+  KRW: { sym: '₩', cls: 'cr-ci-krw', icon: 'images/韩国.svg',      label: 'KRW', min: 20000, max: 14000000, dp: 0 },
   JPY: { sym: '¥', cls: 'cr-ci-jpy', icon: 'images/日本.svg',      label: 'JPY', min: 2000,  max: 1560000, dp: 0 },
   USD: { sym: '$', cls: 'cr-ci-usd', icon: 'images/美国国旗.svg',   label: 'USD', min: 15,    max: 10400,   dp: 2 },
 };
 const CRYPTO_CFG = {
-  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 10, max: 10000 },
-  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 10, max: 10000 },
+  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 50, max: 10000 },
+  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 50, max: 10000 },
 };
-const BASE_RATES = { JPY: 150, USD: 1.0 };
+const BASE_RATES = { KRW: 1350, JPY: 150, USD: 1.0 };
 const SELL_SPREAD = 0.96;
 
-let crFiat   = 'JPY';
+let crFiat   = 'KRW';
 let crCrypto = 'USDT';
 
 function effectiveRate() {
@@ -1307,7 +1275,7 @@ function updateNextBtn() {
   const valid = val >= cc.min && val <= cc.max;
   const rangeText = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
 
-  const btn = document.getElementById('cr-next-btn');
+  const btn = document.getElementById('cr-checkout-next-btn');
   if (btn) btn.disabled = !valid;
 
   const errEl = document.getElementById('cr-pay-error');
@@ -1318,6 +1286,12 @@ function updateNextBtn() {
     errText.textContent = lang === 'zh' ? `金额需在 ${rangeText} 之间`
       : `Amount must be between ${rangeText}`;
   }
+
+  updateReceiveDisplay();
+}
+
+function updateReceiveDisplay() {
+  document.getElementById('cr-receive-display').textContent = fmtFiat(currentFiatVal());
 }
 
 function fillAll() {
@@ -1359,24 +1333,10 @@ function closeDropdownOverlay(overlayId, e) {
   document.getElementById(overlayId).classList.remove('show');
 }
 
-// ── Checkout screen (confirm amounts) ──────────────────────────────────
+// ── Fiat side (computed from crypto qty, currency selectable) ─────────
 function currentFiatVal() {
   const qty = parseFloat(document.getElementById('cr-pay-input').value) || 0;
   return qty * effectiveRate();
-}
-
-function refreshCheckoutUI() {
-  const fc = FIAT_CFG[crFiat];
-  const cc = CRYPTO_CFG[crCrypto];
-  const qty = parseFloat(document.getElementById('cr-pay-input').value) || 0;
-  const fiatVal = currentFiatVal();
-
-  setIconRow('cr-pay-icon',     cc.sym, cc.cls, 'cr-pay-name',     cc.label, cc.icon);
-  setIconRow('cr-receive-icon', fc.sym, fc.cls, 'cr-receive-name', fc.label, fc.icon);
-  document.getElementById('cr-pay-display').textContent = parseFloat(qty.toFixed(6)) + '';
-  document.getElementById('cr-receive-display').textContent = fmtFiat(fiatVal);
-
-  renderIcons();
 }
 
 function openFiatDropdown() {
@@ -1402,7 +1362,10 @@ function openFiatDropdown() {
 function selectFiat(key) {
   crFiat = key;
   document.getElementById('fiat-dropdown').classList.remove('show');
-  refreshCheckoutUI();
+  const fc = FIAT_CFG[key];
+  setIconRow('cr-receive-icon', fc.sym, fc.cls, 'cr-receive-name', fc.label, fc.icon);
+  updateReceiveDisplay();
+  renderIcons();
 }
 
 // ── Proceed to Order Review (KYC already handled at initiate time) ────
