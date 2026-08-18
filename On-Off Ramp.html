@@ -2002,14 +2002,6 @@
         <span class="result-key" id="t-hd-receive">You Received</span>
         <span class="result-val" id="hd-receive-val">100.00 USDT</span>
       </div>
-      <div class="result-row" id="hd-wallet-row">
-        <span class="result-key" id="t-hd-wallet">Wallet</span>
-        <span class="result-val" id="hd-wallet-val" style="font-size:12px">TX3ogswu...VAmk</span>
-      </div>
-      <div class="result-row" id="hd-network-row">
-        <span class="result-key" id="t-hd-network">Network</span>
-        <span class="result-val" id="hd-network-val">Tron (TRC20)</span>
-      </div>
       <div class="result-row">
         <span class="result-key" id="t-hd-method">Payment</span>
         <span class="result-val" id="hd-method-val">Bank Transfer</span>
@@ -2359,8 +2351,6 @@ const I18N = {
     'hd-direction':         'Direction',
     'hd-pay':               'You Paid',
     'hd-receive':           'You Received',
-    'hd-wallet':            'Wallet',
-    'hd-network':           'Network',
     'hd-method':            'Payment',
     'hd-order':             'Order ID',
     'hd-created':           'Created',
@@ -2518,8 +2508,6 @@ const I18N = {
     'hd-direction':         '交易方向',
     'hd-pay':               '支付',
     'hd-receive':           '获得',
-    'hd-wallet':            '钱包地址',
-    'hd-network':           '网络',
     'hd-method':            '支付方式',
     'hd-order':             '订单号',
     'hd-created':           '创建时间',
@@ -3390,16 +3378,6 @@ function openHistoryDetail(i) {
 
   const completedRow = document.getElementById('hd-completed-row');
   if (completedRow) completedRow.style.display = r.completed ? 'flex' : 'none';
-
-  const isBuy = r.dir === 'buy';
-  const walletRow = document.getElementById('hd-wallet-row');
-  const networkRow = document.getElementById('hd-network-row');
-  if (walletRow) walletRow.style.display = isBuy ? 'flex' : 'none';
-  if (networkRow) networkRow.style.display = isBuy ? 'flex' : 'none';
-  if (isBuy) {
-    historyText('hd-wallet-val', r.wallet);
-    historyText('hd-network-val', r.network);
-  }
 
   renderIcons();
   goTo('history-detail');

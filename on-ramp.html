@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,13 +75,13 @@
     }
     .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .lang-btn {
-      font-size: 12px; color: #409EFF;
-      background: none; border: 1px solid #C6E2FF;
+      font-size: 12px; color: #435DDD;
+      background: none; border: 1px solid #C7CEF5;
       border-radius: 4px; padding: 2px 8px; line-height: 1.5;
       cursor: pointer; white-space: nowrap;
       transition: background .2s;
     }
-    .lang-btn:hover { background: #ecf5ff; }
+    .lang-btn:hover { background: #ECEFFC; }
     .network-tag {
       display: inline-block;
       font-size: 11px;
@@ -128,10 +129,10 @@
       transition: background .2s, color .2s;
     }
     .step-dot.done { background: #67C23A; color: #fff; }
-    .step-dot.active { background: #409EFF; color: #fff; }
+    .step-dot.active { background: #435DDD; color: #fff; }
     .step-dot.pending { background: #EBEEF5; color: #909399; }
     .step-name { font-size: 11px; color: #909399; white-space: nowrap; }
-    .step-name.active { color: #409EFF; font-weight: 600; }
+    .step-name.active { color: #435DDD; font-weight: 600; }
     .step-name.done { color: #67C23A; }
     .step-line { flex: 1; height: 1px; background: #EBEEF5; margin: 0 8px; min-width: 20px; }
     .step-line.done { background: #67C23A; }
@@ -142,7 +143,7 @@
     /* ── Card ── */
     .ck-card, .result-card, .history-list {
       background: #fff;
-      border-radius: 8px;
+      border-radius: 14px;
       box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
       overflow: hidden;
     }
@@ -189,7 +190,7 @@
       flex-shrink: 0;
     }
     .bank-card-head-label { font-size: 12px; font-weight: 600; color: #909399; letter-spacing: .02em; }
-    .btn-cta-elevated { box-shadow: 0 6px 16px rgba(64,158,255,.32); }
+    .btn-cta-elevated { box-shadow: 0 6px 16px rgba(67,93,221,.32); }
     .bc-fields { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
     .bc-field { display: flex; flex-direction: column; gap: 6px; }
     .bc-field-row { display: flex; gap: 12px; }
@@ -207,7 +208,7 @@
       background: #fff;
       transition: border-color .15s;
     }
-    .bc-input:focus { border-color: #409EFF; }
+    .bc-input:focus { border-color: #435DDD; }
     .bc-input::placeholder { color: #C0C4CC; }
 
     /* ── Warning ── */
@@ -227,7 +228,7 @@
     .spin-wrap {
       width: 72px; height: 72px;
       border-radius: 50%;
-      background: #ecf5ff;
+      background: #ECEFFC;
       display: flex; align-items: center; justify-content: center;
       position: relative;
     }
@@ -236,7 +237,7 @@
       inset: 0;
       border-radius: 50%;
       border: 3px solid transparent;
-      border-top-color: #409EFF;
+      border-top-color: #435DDD;
       animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -246,7 +247,7 @@
     .status-icon-success { background: #f0f9eb; }
     .status-icon-failed  { background: #fef0f0; }
     .status-icon-pending { background: #fdf6ec; }
-    .status-icon-processing { background: #ecf5ff; }
+    .status-icon-processing { background: #ECEFFC; }
     .status-title { font-size: 18px; font-weight: 600; color: #303133; }
     .status-desc  { font-size: 13px; color: #909399; line-height: 1.8; max-width: 260px; }
     .status-text-group { display: flex; flex-direction: column; gap: 4px; align-items: center; }
@@ -271,7 +272,7 @@
     .history-item:hover { background: #F5F7FA; }
     .history-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .history-icon-buy  { background: #f0f9eb; color: #67C23A; }
-    .history-icon-sell { background: #ecf5ff; color: #409EFF; }
+    .history-icon-sell { background: #ECEFFC; color: #435DDD; }
     .history-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
     .history-type { font-size: 13px; font-weight: 600; color: #303133; }
     .history-time { font-size: 11px; color: #909399; font-family: 'Inter', sans-serif; }
@@ -287,16 +288,17 @@
       white-space: nowrap;
     }
     .status-badge-success    { background: #f0f9eb; color: #67C23A; }
-    .status-badge-processing { background: #ecf5ff; color: #409EFF; }
+    .status-badge-processing { background: #ECEFFC; color: #435DDD; }
     .status-badge-failed     { background: #fef0f0; color: #F56C6C; }
     .status-badge-expired    { background: #fdf6ec; color: #E6A23C; }
     .status-badge-pending    { background: #fdf6ec; color: #E6A23C; }
+    .status-badge-chargeback { background: #fdf6ec; color: #E6A23C; }
 
     /* ── CTA Buttons ── */
     .btn-cta {
       width: 100%;
       height: 48px;
-      background: #409EFF;
+      background: #435DDD;
       color: #fff;
       font-size: 15px;
       font-weight: 600;
@@ -308,8 +310,8 @@
       transition: background .2s;
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-cta:hover { background: #66b1ff; }
-    .btn-cta:active { background: #3a8ee6; }
+    .btn-cta:hover { background: #697DE4; }
+    .btn-cta:active { background: #3C54C7; }
     .btn-cta-ghost {
       width: 100%;
       height: 44px;
@@ -323,9 +325,47 @@
       font-family: 'Noto Sans SC', sans-serif;
       transition: background .2s, border-color .2s;
     }
-    .btn-cta-ghost:hover { border-color: #409EFF; color: #409EFF; }
+    .btn-cta-ghost:hover { border-color: #435DDD; color: #435DDD; }
     .btn-row { display: flex; gap: 8px; }
     .btn-row .btn-cta, .btn-row .btn-cta-ghost { flex: 1; }
+
+    /* ── CFD Entry Screen (mock external CFD platform, hands off into the Paypaz checkout
+       below with a fixed deposit amount — mirrors the .wallet-sheet Apple/Google Pay mimicry
+       further down: an external product's own visual identity, intentionally not Paypaz's) ── */
+    .cfd-header {
+      background: #1C2333; color: #fff;
+      padding: 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cfd-brand { display: flex; align-items: center; gap: 8px; }
+    .cfd-brand-badge {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: #3B4B6B; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .cfd-brand-name { font-size: 15px; font-weight: 600; }
+    .cfd-demo-tag {
+      font-size: 11px; color: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.25); border-radius: 20px;
+      padding: 2px 8px; white-space: nowrap;
+    }
+    .cfd-header .lang-btn { color: rgba(255,255,255,.85); border-color: rgba(255,255,255,.35); }
+    .cfd-header .lang-btn:hover { background: rgba(255,255,255,.1); }
+    .cfd-account-card {
+      background: #fff; border-radius: 12px; padding: 16px;
+      display: flex; flex-direction: column; gap: 4px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.06);
+    }
+    .cfd-account-label { font-size: 12px; color: #909399; }
+    .cfd-account-balance { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: #303133; }
+    .cfd-deposit-btn { background: #1C2333; }
+    .cfd-deposit-btn:hover { background: #2b3550; }
+    .cfd-footnote { font-size: 11px; color: #909399; line-height: 1.6; text-align: center; }
+
+    /* ── Locked amount (set upstream by CFD platform hand-off) ── */
+    .cr-block.locked .cr-input { color: #909399; cursor: not-allowed; }
+    .cr-block.locked .cr-currency-btn { opacity: .55; cursor: not-allowed; pointer-events: none; }
+    .cr-block.locked .cr-currency-btn svg { display: none; }
 
     /* ── Toast ── */
     .toast {
@@ -368,7 +408,7 @@
       border: 1.5px solid #E8ECF0;
       transition: border-color .2s, box-shadow .2s;
     }
-    .cr-block:focus-within { border-color: #409EFF; box-shadow: 0 0 0 3px rgba(64,158,255,.10); }
+    .cr-block:focus-within { border-color: #435DDD; box-shadow: 0 0 0 3px rgba(67,93,221,.10); }
     .cr-block-label { font-size: 11px; color: #909399; margin-bottom: 6px; font-weight: 500; letter-spacing: .03em; text-transform: uppercase; }
     .cr-block-row { display: flex; align-items: center; gap: 10px; }
     .cr-input {
@@ -393,9 +433,9 @@
     }
     .cr-block-primary:focus-within {
       border-color: #F0F2F5;
-      box-shadow: 0 0 0 3px rgba(64,158,255,.12), 0 2px 8px rgba(16,24,40,.05);
+      box-shadow: 0 0 0 3px rgba(67,93,221,.12), 0 2px 8px rgba(16,24,40,.05);
     }
-    .cr-block-primary .cr-block-label { color: #409EFF; }
+    .cr-block-primary .cr-block-label { color: #435DDD; }
     .cr-block-primary .cr-input { font-size: 30px; letter-spacing: -0.02em; }
     .cr-block-secondary .cr-amount-display { font-size: 20px; font-weight: 600; color: #606266; }
     .cr-block-secondary .cr-block-label { color: #C0C4CC; }
@@ -433,13 +473,13 @@
       border: 1.5px solid #E8ECF0; cursor: pointer;
       transition: border-color .15s, background .15s;
     }
-    .cr-pm-item:hover { border-color: #B3D4FF; }
-    .cr-pm-item.selected { border-color: #409EFF; background: #ecf5ff; }
+    .cr-pm-item:hover { border-color: #B0BBF1; }
+    .cr-pm-item.selected { border-color: #435DDD; background: #ECEFFC; }
     .cr-pm-icon {
       width: 36px; height: 36px; border-radius: 8px;
       background: #F5F7FA;
       display: flex; align-items: center; justify-content: center;
-      color: #409EFF; flex-shrink: 0;
+      color: #435DDD; flex-shrink: 0;
     }
     .cr-pm-icon-bank { background: #EBF5FB; color: #2E86C1; }
     .cr-pm-icon-gpay { background: #F8F9FA; }
@@ -447,7 +487,7 @@
     .cr-pm-info { flex: 1; }
     .cr-pm-name { font-size: 14px; font-weight: 500; color: #303133; }
     .cr-pm-arrow { color: #C0C4CC; }
-    .cr-pm-check { color: #409EFF; }
+    .cr-pm-check { color: #435DDD; }
 
     .btn-cta:disabled { background: #E8ECF0; color: #C0C4CC; cursor: not-allowed; }
     .btn-cta:disabled:hover { background: #E8ECF0; }
@@ -474,9 +514,9 @@
       transition: background .15s;
     }
     .cr-option:hover { background: #F5F7FA; }
-    .cr-option.selected { background: #ecf5ff; }
+    .cr-option.selected { background: #ECEFFC; }
     .cr-option-name { font-size: 15px; font-weight: 500; color: #303133; flex: 1; }
-    .cr-option-check { color: #409EFF; }
+    .cr-option-check { color: #435DDD; }
 
     /* ── KYC Gate Dialog (shown on "Continue" when the user has no reusable KYC token) ── */
     .kyc-gate-overlay {
@@ -549,7 +589,7 @@
     .wpay-spin-ring {
       display: none;
       width: 22px; height: 22px; border-radius: 50%;
-      border: 2.5px solid transparent; border-top-color: #409EFF;
+      border: 2.5px solid transparent; border-top-color: #435DDD;
       animation: spin 1s linear infinite;
     }
 
@@ -621,15 +661,71 @@
 <div class="page">
 
 <!-- ══════════════════════════════════════════
+     SCREEN -1 · 第三方 CFD 平台入金入口（模拟外部平台，跳转前的上游页面）
+══════════════════════════════════════════ -->
+<div id="s-cfd-entry" class="screen active">
+
+  <div class="cfd-header">
+    <div class="cfd-brand">
+      <div class="cfd-brand-badge">FX</div>
+      <span class="cfd-brand-name">Demo CFD</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="cfd-demo-tag" id="t-cfd-demo-tag">External Platform (Demo)</span>
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="cr-body">
+
+    <div class="cfd-account-card">
+      <div class="cfd-account-label" id="t-cfd-account-label">Trading Account Balance</div>
+      <div class="cfd-account-balance">$4,230.50</div>
+    </div>
+
+    <div class="cr-block cr-block-primary">
+      <div class="cr-block-label" id="t-cfd-amount-label">DEPOSIT AMOUNT</div>
+      <div class="cr-block-row">
+        <input class="cr-input" id="cfd-amount-input" type="number" min="0" placeholder="0" value="1000" oninput="onCfdAmountInput()" autocomplete="off">
+        <div class="cr-currency-btn" style="cursor:default;pointer-events:none">
+          <span>USD</span>
+        </div>
+      </div>
+      <div class="cr-block-hint" id="cfd-amount-hint">50 – 10,000 USD</div>
+    </div>
+
+    <div class="cr-block">
+      <div class="cr-block-label" id="t-cfd-kyc-label">KYC STATUS (DEMO)</div>
+      <select class="bc-input" id="cfd-kyc-select" onchange="onCfdKycChange()" style="width:100%;height:36px">
+        <option value="not_passed" id="t-cfd-kyc-opt-not-passed" selected>Not Passed</option>
+        <option value="resubmit" id="t-cfd-kyc-opt-resubmit">Needs More Documents</option>
+        <option value="pending" id="t-cfd-kyc-opt-pending">Under Review</option>
+        <option value="passed" id="t-cfd-kyc-opt-passed">Passed</option>
+        <option value="token_share" id="t-cfd-kyc-opt-token-share">Sumsub Token Share (Auto KYC)</option>
+      </select>
+    </div>
+
+    <button class="btn-cta cfd-deposit-btn" id="cfd-deposit-btn" onclick="onCfdDeposit()">
+      <span id="t-cfd-deposit-btn">Deposit</span>
+      <i data-lucide="arrow-right" size="16"></i>
+    </button>
+
+    <div class="cfd-footnote" id="t-cfd-footnote">You'll be redirected to Paypaz to complete this deposit via crypto.</div>
+
+  </div>
+
+</div><!-- /s-cfd-entry -->
+
+
+<!-- ══════════════════════════════════════════
      SCREEN 0 · 确认详情（选代币 + 输入数量 + 支付方式）
 ══════════════════════════════════════════ -->
-<div id="s-checkout" class="screen active">
+<div id="s-checkout" class="screen">
 
   <div class="ck-header">
     <div class="header-spacer"></div>
     <div class="header-center">
-      <div class="ck-title">On/Off Ramp</div>
-      <div class="ck-order-id" id="t-cr-subtitle">Buy & sell crypto instantly</div>
+      <div class="ck-title">入金</div>
     </div>
     <div class="header-right">
       <button class="back-btn" onclick="goTo('history')" title="Order History">
@@ -640,12 +736,6 @@
   </div>
 
   <div class="cr-body">
-
-    <!-- Buy / Sell Tabs — Sell 直接跳转到 off-ramp.html -->
-    <div class="dir-tabs">
-      <button class="dir-tab active" id="tab-buy"><span id="t-tab-buy">Buy</span></button>
-      <button class="dir-tab" id="tab-sell" onclick="location.href='off-ramp.html'"><span id="t-tab-sell">Sell</span></button>
-    </div>
 
     <!-- Buy (crypto, editable) / Pay (fiat, computed, currency selectable) -->
     <div class="cr-blocks-wrap">
@@ -661,7 +751,7 @@
             <i data-lucide="chevron-down" size="13"></i>
           </button>
         </div>
-        <div class="cr-block-hint">
+        <div class="cr-block-hint" id="cr-pay-hint-row">
           <span id="cr-pay-range">50 – 10,000 USDT</span>
         </div>
         <div class="cr-pay-error" id="cr-pay-error">
@@ -678,9 +768,6 @@
             <span id="cr-pay-name">KRW</span>
             <i data-lucide="chevron-down" size="13"></i>
           </button>
-        </div>
-        <div class="cr-block-hint">
-          <span id="cr-rate-text">1 USDT ≈ ₩1,404</span>
         </div>
       </div>
 
@@ -807,15 +894,11 @@
     <div class="result-card">
       <div class="result-row">
         <span class="result-key" id="t-you-pay">You Pay</span>
-        <span class="result-val"><span class="quote-amount" style="font-size:13px;font-weight:600;line-height:1;color:#303133">¥15,600</span> JPY</span>
+        <span class="result-val"><span class="quote-amount" style="font-size:13px;font-weight:600;line-height:1;color:#303133">¥15,600</span> <span id="order-pay-currency-label">JPY</span></span>
       </div>
       <div class="result-row">
         <span class="result-key" id="t-you-receive">You Receive</span>
         <span class="result-val"><span class="quote-amount" style="font-size:13px;font-weight:700;line-height:1;color:#67C23A">100.00</span> <span id="order-receive-crypto-label">USDT</span></span>
-      </div>
-      <div class="result-row">
-        <span class="result-key" id="t-wallet-label">Receiving Address</span>
-        <span class="result-val" style="font-size:12px">TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk <span class="network-tag">TRC20</span></span>
       </div>
       <div class="result-row">
         <span class="result-key" id="t-order-pm-label">Payment Method</span>
@@ -963,31 +1046,14 @@
   <div class="centered-screen">
     <div class="spin-wrap">
       <div class="spin-ring"></div>
-      <i data-lucide="refresh-cw" size="28" style="color:#409EFF"></i>
+      <i data-lucide="refresh-cw" size="28" style="color:#435DDD"></i>
     </div>
     <div class="status-text-group">
       <div class="status-title" id="t-proc-heading">Confirming Your Payment</div>
-      <div class="status-desc" id="t-proc-desc">We're waiting for your bank transfer to arrive. This usually takes a few minutes to 1 business day.</div>
+      <div class="mini-order-id" id="proc-order-id">PZ20260630-00123</div>
     </div>
-    <div class="mini-order-id" id="proc-order-id">PZ20260630-00123</div>
-    <div class="ck-card" style="width:100%;text-align:left">
-      <div class="card-section" style="display:flex;flex-direction:column;gap:8px">
-        <div class="proc-step-row">
-          <i data-lucide="check-circle" size="14" style="color:#67C23A;flex-shrink:0"></i>
-          <span style="font-size:13px;color:#606266" id="t-proc-s1">Payment submitted</span>
-        </div>
-        <div class="proc-step-row">
-          <i data-lucide="loader-circle" size="14" style="color:#409EFF;flex-shrink:0"></i>
-          <span style="font-size:13px;color:#606266" id="t-proc-s2">Confirming your card payment</span>
-        </div>
-        <div class="proc-step-row">
-          <i data-lucide="circle" size="14" style="color:#C0C4CC;flex-shrink:0"></i>
-          <span style="font-size:13px;color:#C0C4CC" id="t-proc-s3">Crypto sent to your wallet</span>
-        </div>
-      </div>
-    </div>
-    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('checkout')" id="t-proc-return">Place Another Order</button>
     <div style="font-size:11px;color:#C0C4CC" id="t-proc-note">You'll receive a notification when your order completes</div>
+    <button class="btn-cta-ghost" style="width:auto;padding:0 24px" onclick="goTo('checkout')" id="t-proc-return">Place Another Order</button>
   </div>
 </div><!-- /s-processing -->
 
@@ -1193,14 +1259,6 @@
         <span class="sh-label" id="t-hd-pay">You Paid</span>
         <span class="sh-value" id="hd-pay-val">¥15,600 JPY</span>
       </div>
-      <div class="sh-row" id="hd-wallet-row">
-        <span class="sh-label" id="t-hd-wallet">Wallet</span>
-        <span class="sh-value" id="hd-wallet-val" style="font-size:12px">TX3ogswu...VAmk</span>
-      </div>
-      <div class="sh-row" id="hd-network-row">
-        <span class="sh-label" id="t-hd-network">Network</span>
-        <span class="sh-value" id="hd-network-val">Tron (TRC20)</span>
-      </div>
       <div class="sh-row">
         <span class="sh-label" id="t-hd-method">Payment</span>
         <span class="sh-value" id="hd-method-val">Bank Card</span>
@@ -1289,22 +1347,6 @@
 
 </div>
 
-<!-- KYC Status Dialog (prototype only): shown every time "Continue" is clicked on the
-     initiate screen, standing in for the merchant-side KYC status check. Passed → goes
-     straight to checkout; Not Passed → opens the KYC-required confirm dialog below. -->
-<div class="kyc-gate-overlay" id="kyc-gate-overlay" onclick="closeKycGate(event)">
-  <div class="kyc-gate-dialog">
-    <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
-    <div class="kyc-gate-title" id="t-kyc-gate-title">KYC Status Check</div>
-    <div class="kyc-gate-desc" id="t-kyc-gate-desc">Prototype only — pick this user's current KYC status to preview any of the three paths.</div>
-    <div class="kyc-gate-choices">
-      <button class="btn-cta-ghost" onclick="kycFailed()"><span id="t-kyc-gate-cancel">Not Passed</span></button>
-      <button class="btn-cta-ghost" onclick="kycPending()"><span id="t-kyc-gate-pending">Under Review</span></button>
-      <button class="btn-cta" onclick="kycPassed()"><span id="t-kyc-gate-confirm">Passed</span></button>
-    </div>
-  </div>
-</div>
-
 <!-- KYC Required Dialog: shown after "Not Passed". Confirming hands off to the standalone
      kyc.html; declining just closes the dialog and leaves the user on the initiate screen. -->
 <div class="kyc-gate-overlay" id="kyc-required-overlay" onclick="closeKycRequired(event)">
@@ -1326,6 +1368,11 @@
 const I18N = {
   en: {
     langBtn: '中文',
+    'cfd-demo-tag':     'External Platform (Demo)',
+    'cfd-account-label':'Trading Account Balance',
+    'cfd-amount-label': 'DEPOSIT AMOUNT',
+    'cfd-deposit-btn':  'Deposit',
+    'cfd-footnote':     'You\'ll be redirected to Paypaz to complete this deposit via crypto.',
     'tab-buy':          'Buy',
     'tab-sell':         'Sell',
     'cr-pay':           'You Pay',
@@ -1348,11 +1395,12 @@ const I18N = {
     'step1':            'Review',
     'step2':            'Payment',
     'step3':            'Done',
-    'kyc-gate-title':   'KYC Status Check',
-    'kyc-gate-desc':    'Prototype only — pick this user\'s current KYC status to preview any of the three paths.',
-    'kyc-gate-cancel':  'Not Passed',
-    'kyc-gate-pending': 'Under Review',
-    'kyc-gate-confirm': 'Passed',
+    'cfd-kyc-label':          'KYC STATUS (DEMO)',
+    'cfd-kyc-opt-not-passed': 'Not Passed',
+    'cfd-kyc-opt-resubmit':   'Needs More Documents',
+    'cfd-kyc-opt-pending':    'Under Review',
+    'cfd-kyc-opt-passed':     'Passed',
+    'cfd-kyc-opt-token-share':'Sumsub Token Share (Auto KYC)',
     'kyc-required-title':   'Identity verification required',
     'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
     'kyc-required-cancel':  'Not now',
@@ -1381,7 +1429,6 @@ const I18N = {
     'transferred':      'Pay Now',
     'proc-title':       'Processing',
     'proc-heading':     'Confirming Your Payment',
-    'proc-desc':        'We\'re confirming your card payment. This usually takes just a few seconds.',
     'proc-return':      'Place Another Order',
     'proc-note':        'You\'ll receive a notification when your order completes',
     'suc-title':        'Order Completed',
@@ -1414,8 +1461,6 @@ const I18N = {
     'hd-direction':         'Direction',
     'hd-pay':               'You Paid',
     'hd-receive':           'Bought',
-    'hd-wallet':            'Wallet',
-    'hd-network':           'Network',
     'hd-method':            'Payment',
     'hd-order':             'Order ID',
     'hd-created':           'Created',
@@ -1423,6 +1468,11 @@ const I18N = {
   },
   zh: {
     langBtn: 'EN',
+    'cfd-demo-tag':     '外部平台模拟',
+    'cfd-account-label':'交易账户余额',
+    'cfd-amount-label': '入金金额',
+    'cfd-deposit-btn':  '入金',
+    'cfd-footnote':     '将跳转至 Paypaz，通过加密货币完成本次入金。',
     'tab-buy':          '买入',
     'tab-sell':         '卖出',
     'cr-pay':           '支付',
@@ -1445,11 +1495,12 @@ const I18N = {
     'step1':            '确认',
     'step2':            '支付',
     'step3':            '完成',
-    'kyc-gate-title':   'KYC 状态判断',
-    'kyc-gate-desc':    '仅原型演示 — 选择该用户当前的 KYC 验证状态，以预览三种后续流程。',
-    'kyc-gate-cancel':  'KYC 未通过',
-    'kyc-gate-pending': 'KYC 审核中',
-    'kyc-gate-confirm': 'KYC 通过',
+    'cfd-kyc-label':          'KYC 状态（演示用）',
+    'cfd-kyc-opt-not-passed': 'KYC 未通过',
+    'cfd-kyc-opt-resubmit':   'KYC 待补充资料',
+    'cfd-kyc-opt-pending':    'KYC 审核中',
+    'cfd-kyc-opt-passed':     'KYC 通过',
+    'cfd-kyc-opt-token-share':'Sumsub Token Share（自动 KYC）',
     'kyc-required-title':   '需要完成身份验证',
     'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
     'kyc-required-cancel':  '暂不处理',
@@ -1478,7 +1529,6 @@ const I18N = {
     'transferred':      '立即支付',
     'proc-title':       '处理中',
     'proc-heading':     '正在确认您的付款',
-    'proc-desc':        '正在确认您的银行卡支付，通常只需几秒钟。',
     'proc-return':      '发起新订单',
     'proc-note':        '订单完成后您将收到通知',
     'suc-title':        '订单已完成',
@@ -1511,8 +1561,6 @@ const I18N = {
     'hd-direction':         '交易方向',
     'hd-pay':               '支付',
     'hd-receive':           '购买',
-    'hd-wallet':            '钱包地址',
-    'hd-network':           '网络',
     'hd-method':            '支付方式',
     'hd-order':             '订单号',
     'hd-created':           '创建时间',
@@ -1537,6 +1585,7 @@ function applyLang() {
   updateOrderPmDisplay();
   if (typeof refreshQtyLabel === 'function') refreshQtyLabel();
   if (typeof updateNextBtn === 'function') updateNextBtn();
+  if (typeof refreshKycRequiredCopy === 'function') refreshKycRequiredCopy();
 }
 
 function toggleLang() {
@@ -1714,36 +1763,62 @@ function syncOrderId() {
   });
 }
 
-// ── KYC Status Dialog: gates the checkout screen's "Continue" button.
-// Prototype stand-in for the merchant-side KYC status check — Passed proceeds straight to
-// order review, Not Passed hands off to the standalone kyc.html. ──
+// ── KYC Status: driven by the dropdown on the CFD entry screen (parameter config page),
+// standing in for the merchant-side KYC status check —
+//   passed / token_share → proceeds straight through, no dialog (token_share = Sumsub
+//     token-share auto-KYC: the system verifies the user server-side with no visible step)
+//   pending    → redirects to kyc.html's pending view
+//   not_passed / resubmit → shows the KYC-required dialog (different copy), then hands off
+//     to kyc.html's capture flow to (re)submit documents
 let kycVerified = false;
-function openKycGate() {
-  document.getElementById('kyc-gate-overlay').classList.add('show');
-  renderIcons();
+let simKycStatus = 'not_passed';
+function onCfdKycChange() {
+  simKycStatus = document.getElementById('cfd-kyc-select').value;
 }
-function closeKycGate(e) {
-  if (e && e.target !== document.getElementById('kyc-gate-overlay')) return;
-  document.getElementById('kyc-gate-overlay').classList.remove('show');
-}
-function kycPassed() {
-  closeKycGate();
-  kycVerified = true;
-  proceedToCheckout();
-}
-function kycFailed() {
-  closeKycGate();
-  openKycRequired();
-}
-function kycPending() {
-  closeKycGate();
-  saveRampState();
-  location.href = 'kyc.html?return=on-ramp&view=pending';
+function runKycGate() {
+  if (simKycStatus === 'passed' || simKycStatus === 'token_share') {
+    kycVerified = true;
+    return;
+  }
+  kycVerified = false;
+  if (simKycStatus === 'pending') {
+    saveRampState();
+    location.href = 'kyc.html?return=on-ramp&view=pending';
+  } else if (simKycStatus === 'resubmit') {
+    openKycRequired('resubmit');
+  } else {
+    openKycRequired('not_passed');
+  }
 }
 
 // ── KYC Required Dialog: confirm before handing off to kyc.html; declining leaves the
-// user on the initiate screen with nothing else happening. ──
-function openKycRequired() {
+// user on the initiate screen with nothing else happening. Copy depends on whether this is
+// an outright failure ("not_passed") or a request for more documents ("resubmit"). ──
+const KYC_REQUIRED_COPY = {
+  not_passed: {
+    en: { title: 'Identity verification required', desc: 'You\'ll need to complete identity verification before this order can proceed.' },
+    zh: { title: '需要完成身份验证', desc: '继续处理该订单前，您需要先完成身份验证。' },
+  },
+  resubmit: {
+    en: { title: 'Additional documents required', desc: 'Your KYC application is missing some information. Please go through the KYC flow again to supplement the required documents.' },
+    zh: { title: '需要补充 KYC 资料', desc: '您的 KYC 申请材料不完整，请重新进入 KYC 流程补充所需资料。' },
+  },
+  rejected: {
+    en: { title: 'Verification unsuccessful', desc: 'Your identity verification wasn\'t approved. You can restart verification at any time — there\'s no limit on retries.' },
+    zh: { title: '身份验证未通过', desc: '您的身份验证未获通过，您可以随时重新发起验证，不限次数。' },
+  },
+};
+let currentKycRequiredMode = 'not_passed';
+function refreshKycRequiredCopy() {
+  const copy = (KYC_REQUIRED_COPY[currentKycRequiredMode] || KYC_REQUIRED_COPY.not_passed)[lang];
+  const titleEl = document.getElementById('t-kyc-required-title');
+  const descEl = document.getElementById('t-kyc-required-desc');
+  if (titleEl) titleEl.textContent = copy.title;
+  if (descEl) descEl.textContent = copy.desc;
+}
+function openKycRequired(mode) {
+  currentKycRequiredMode = mode || 'not_passed';
+  refreshKycRequiredCopy();
   document.getElementById('kyc-required-overlay').classList.add('show');
   renderIcons();
 }
@@ -1763,7 +1838,7 @@ function onCheckoutContinue() {
   if (kycVerified) {
     proceedToCheckout();
   } else {
-    openKycGate();
+    runKycGate();
   }
 }
 
@@ -1779,6 +1854,10 @@ function saveRampState() {
 function restoreFromKycReturn() {
   const params = new URLSearchParams(location.search);
   if (params.get('kyc') !== 'done') return;
+  // `kyc=done` only means the Widget's close-requested event fired — that's an exit signal,
+  // not a result. `status` stands in for the separate /app/kyc-status query the ramp page
+  // fires right after close; it's what actually decides whether checkout can proceed.
+  const status = params.get('status');
   const raw = sessionStorage.getItem(RAMP_STATE_KEY);
   sessionStorage.removeItem(RAMP_STATE_KEY);
   if (raw) {
@@ -1790,8 +1869,21 @@ function restoreFromKycReturn() {
     } catch (e) { /* ignore malformed state */ }
   }
   history.replaceState(null, '', location.pathname);
-  kycVerified = true;
-  proceedToCheckout();
+
+  if (status === 'approved') {
+    kycVerified = true;
+    proceedToCheckout();
+  } else if (status === 'pending') {
+    kycVerified = false;
+    goTo('checkout');
+    showToast(lang === 'zh' ? '身份验证仍在审核中，请稍后重试' : 'Your verification is still under review — please try again later');
+  } else if (status === 'rejected') {
+    kycVerified = false;
+    goTo('checkout');
+    openKycRequired('rejected');
+  }
+  // any other/missing status: user backed out mid-flow with no result — stay on the default
+  // (CFD entry) screen, no dialog
 }
 
 // ── Create Order State ───────────────────────────────────────────────
@@ -1823,8 +1915,10 @@ function refreshQtyLabel() {
   const labelEl = document.getElementById('t-cr-qty-label');
   if (labelEl) labelEl.textContent = I18N[lang]['cr-qty-buy'];
   const cc = CRYPTO_CFG[crCrypto];
+  const hintRow = document.getElementById('cr-pay-hint-row');
+  if (hintRow) hintRow.style.display = lockedFromCfd ? 'none' : 'flex';
   const hint = document.getElementById('cr-pay-range');
-  if (hint) hint.textContent = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
+  if (hint && !lockedFromCfd) hint.textContent = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
 }
 
 function setIconRow(iconId, sym, cls, nameId, name, icon) {
@@ -1873,6 +1967,10 @@ function updateFiatDisplay() {
 }
 
 function openCryptoDropdown() {
+  if (lockedFromCfd) {
+    showToast(lang === 'zh' ? '金额已锁定，代币不可更改' : 'Amount locked — token cannot be changed');
+    return;
+  }
   const titleEl = document.getElementById('cr-dropdown-title');
   if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': 'Select Token';
 
@@ -1957,6 +2055,42 @@ function setCrPM(id) {
   });
 }
 
+// ── CFD Entry (mock hand-off from an external CFD platform) ───────────
+let lockedFromCfd = false;
+
+function refreshCfdAmountHint() {
+  const hint = document.getElementById('cfd-amount-hint');
+  if (hint) hint.textContent = `${CRYPTO_CFG.USDT.min} – ${CRYPTO_CFG.USDT.max.toLocaleString()} USD`;
+}
+
+function onCfdAmountInput() {
+  const val = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
+  const cc = CRYPTO_CFG.USDT;
+  const btn = document.getElementById('cfd-deposit-btn');
+  if (btn) btn.disabled = !(val >= cc.min && val <= cc.max);
+}
+
+function onCfdDeposit() {
+  const amount = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
+  const cc = CRYPTO_CFG.USDT;
+  if (!(amount >= cc.min && amount <= cc.max)) return;
+
+  crCrypto = 'USDT';
+  setIconRow('cr-token-icon', cc.sym, cc.cls, 'cr-token-name', cc.label, cc.icon);
+
+  lockedFromCfd = true;
+  const input = document.getElementById('cr-pay-input');
+  input.value = amount;
+  input.readOnly = true;
+  const primaryBlock = input.closest('.cr-block');
+  if (primaryBlock) primaryBlock.classList.add('locked');
+
+  refreshQtyLabel();
+  onPayInput();
+  goTo('checkout');
+  runKycGate();
+}
+
 // ── Proceed to Order Review (KYC already handled at initiate time) ────
 function proceedToCheckout() {
   const qty      = parseFloat(document.getElementById('cr-pay-input').value) || 0;
@@ -1965,6 +2099,8 @@ function proceedToCheckout() {
   const qAmounts = document.querySelectorAll('#s-order .quote-amount');
   if (qAmounts[0]) qAmounts[0].textContent = fmtFiat(fiatVal);
   if (qAmounts[1]) qAmounts[1].textContent = qty.toFixed(2);
+  const payCurrencyLabelEl = document.getElementById('order-pay-currency-label');
+  if (payCurrencyLabelEl) payCurrencyLabelEl.textContent = crFiat;
   const orderReceiveLabelEl = document.getElementById('order-receive-crypto-label');
   if (orderReceiveLabelEl) orderReceiveLabelEl.textContent = crCrypto;
 
@@ -1990,8 +2126,10 @@ function proceedToCheckout() {
 const HISTORY_MOCK = [
   { id: 'PZ20260718-00231', dir: 'buy',  status: 'success',    payAmount: '¥20,280', payCcy: 'JPY', receiveAmount: '130.00', receiveCcy: 'USDT', method: 'bank', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-07-18 09:12:03', completed: '2026-07-18 09:24:47' },
   { id: 'PZ20260630-00123', dir: 'buy',  status: 'processing', payAmount: '¥15,600', payCcy: 'JPY', receiveAmount: '100.00', receiveCcy: 'USDT', method: 'bank', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-06-30 14:20:11', completed: '' },
+  { id: 'PZ20260628-00089', dir: 'buy',  status: 'pending',    payAmount: '¥31,200', payCcy: 'JPY', receiveAmount: '200.00', receiveCcy: 'USDT', method: 'bank', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-06-28 11:05:27', completed: '' },
   { id: 'PZ20260625-00054', dir: 'buy',  status: 'failed',     payAmount: '¥29,952', payCcy: 'JPY', receiveAmount: '192.00', receiveCcy: 'USDT', method: 'gpay', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-06-25 18:02:11', completed: '' },
   { id: 'PZ20260620-00012', dir: 'buy',  status: 'expired',    payAmount: '¥4,992',  payCcy: 'JPY', receiveAmount: '32.00',  receiveCcy: 'USDT', method: 'bank', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-06-20 08:15:44', completed: '' },
+  { id: 'PZ20260610-00007', dir: 'buy',  status: 'chargeback', payAmount: '¥18,720', payCcy: 'JPY', receiveAmount: '120.00', receiveCcy: 'USDT', method: 'gpay', wallet: 'TX3ogswuX8pXWtHiLKNfhVUAdJuVJZQVAmk', network: 'Tron (TRC20)', created: '2026-06-10 10:44:02', completed: '2026-06-10 10:58:31' },
 ];
 
 const HISTORY_STATUS_LABEL = {
@@ -2000,6 +2138,7 @@ const HISTORY_STATUS_LABEL = {
   pending:    { en: 'Pending Verification', zh: '待验证' },
   failed:     { en: 'Failed',               zh: '失败' },
   expired:    { en: 'Expired',              zh: '已超时' },
+  chargeback: { en: 'Chargeback Flagged',   zh: '拒付' },
 };
 
 const HISTORY_DIR_LABEL = {
@@ -2009,10 +2148,11 @@ const HISTORY_DIR_LABEL = {
 
 const HISTORY_STATUS_ICON = {
   success:    { icon: 'check-circle-2', color: '#67C23A', cls: 'status-icon-success' },
-  processing: { icon: 'refresh-cw',     color: '#409EFF', cls: 'status-icon-processing' },
+  processing: { icon: 'refresh-cw',     color: '#435DDD', cls: 'status-icon-processing' },
   pending:    { icon: 'mail',           color: '#E6A23C', cls: 'status-icon-pending' },
   failed:     { icon: 'x-circle',       color: '#F56C6C', cls: 'status-icon-failed' },
   expired:    { icon: 'x-circle',       color: '#E6A23C', cls: 'status-icon-pending' },
+  chargeback: { icon: 'flag',           color: '#E6A23C', cls: 'status-icon-pending' },
 };
 
 function historyText(id, txt) {
@@ -2078,16 +2218,6 @@ function openHistoryDetail(i) {
   const completedRow = document.getElementById('hd-completed-row');
   if (completedRow) completedRow.style.display = r.completed ? 'flex' : 'none';
 
-  const isBuy = r.dir === 'buy';
-  const walletRow = document.getElementById('hd-wallet-row');
-  const networkRow = document.getElementById('hd-network-row');
-  if (walletRow) walletRow.style.display = isBuy ? 'flex' : 'none';
-  if (networkRow) networkRow.style.display = isBuy ? 'flex' : 'none';
-  if (isBuy) {
-    historyText('hd-wallet-val', r.wallet);
-    historyText('hd-network-val', r.network);
-  }
-
   renderIcons();
   goTo('history-detail');
 }
@@ -2095,6 +2225,8 @@ function openHistoryDetail(i) {
 // ── Init ────────────────────────────────────────────────────────────
 applyLang();
 refreshQtyLabel();
+refreshCfdAmountHint();
+onCfdAmountInput();
 syncOrderId();
 renderHistoryList();
 renderIcons();

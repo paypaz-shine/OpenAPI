@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sumsub · Identity Verification</title>
+  <title>Paypaz · Identity Verification</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
@@ -53,9 +53,10 @@
     /* ── Sumsub handoff ── */
     .sumsub-shell { background: #fff; min-height: 100vh; display: flex; flex-direction: column; }
     .sumsub-head {
-      background: #101828;
-      color: #fff;
+      background: #fff;
+      color: #303133;
       padding: 16px 18px;
+      border-bottom: 1px solid #EAECF0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -74,64 +75,26 @@
     }
     .sumsub-title { font-size: 18px; font-weight: 700; color: #101828; margin-bottom: 4px; }
     .sumsub-copy { font-size: 12px; color: #667085; line-height: 1.65; }
-    .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .doc-option { border: 1.5px solid #EAECF0; border-radius: 12px; padding: 12px; display: flex; gap: 9px; align-items: center; }
-    .doc-option.active { border-color: #175CD3; background: #EFF8FF; }
-    .doc-icon {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: #F2F4F7; color: #475467;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .doc-name { font-size: 12px; font-weight: 700; color: #101828; }
-    .liveness-box {
-      border-radius: 14px;
-      background: linear-gradient(135deg, #101828, #344054);
-      min-height: 118px;
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,.82);
-      position: relative;
-      overflow: hidden;
-    }
-    .liveness-face {
-      width: 72px; height: 72px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.74);
-      display: flex; align-items: center; justify-content: center;
-      transition: border-color .25s, background .25s;
-    }
-    .liveness-box.full { min-height: 220px; }
-    .liveness-face.big { width: 110px; height: 110px; }
-    .liveness-face.locked { border-color: #19D3C5; border-width: 3px; }
-    .liveness-face.done   { border-color: #12B76A; background: rgba(18,183,106,.18); }
-
     .sumsub-back {
       width: 24px; height: 24px; border: none; background: none; padding: 0;
-      color: rgba(255,255,255,.85); display: flex; align-items: center; justify-content: center;
+      color: #606266; display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0;
     }
 
     .capture-frame {
       border-radius: 16px;
-      min-height: 190px;
+      min-height: 130px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 10px;
       text-align: center;
     }
-    .capture-frame.viewfinder { border: 1.5px dashed #B2DDFF; background: #F9FAFB; color: #175CD3; }
-    .capture-frame.captured   { background: linear-gradient(135deg, #101828, #344054); color: rgba(255,255,255,.85); }
-    .capture-shutter {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: #fff; border: 3px solid #175CD3; color: #175CD3;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; margin-top: 2px;
-    }
-    .capture-shutter:active { transform: scale(.94); }
+    .capture-frame.viewfinder { border: 1.5px dashed #B0BBF1; background: #F9FAFB; color: #435DDD; }
 
     .ss-spin-wrap {
       width: 60px; height: 60px; border-radius: 50%;
-      background: #EFF8FF; display: flex; align-items: center; justify-content: center; position: relative;
+      background: #ECEFFC; display: flex; align-items: center; justify-content: center; position: relative;
     }
-    .ss-spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: #175CD3; animation: spin 1s linear infinite; }
+    .ss-spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: #435DDD; animation: spin 1s linear infinite; }
 
     /* ── shadcn/ui design tokens (scoped to this Sumsub shell) ── */
     .sumsub-shell {
@@ -145,18 +108,20 @@
       --ss-input: #D0D5DD;
       --ss-muted: #F9FAFB;
       --ss-muted-foreground: #667085;
-      --ss-primary: #101828;
+      --ss-primary: #435DDD;
+      --ss-primary-hover: #697DE4;
+      --ss-primary-active: #3C54C7;
       --ss-primary-foreground: #fff;
-      --ss-accent: #EFF8FF;
-      --ss-accent-foreground: #175CD3;
+      --ss-accent: #ECEFFC;
+      --ss-accent-foreground: #435DDD;
       --ss-success: #067647;
       --ss-danger: #B42318;
-      --ss-ring: #175CD3;
+      --ss-ring: #435DDD;
     }
 
     .ss-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 3px;
       background: var(--ss-muted);
       border: 1px solid var(--ss-border);
@@ -165,9 +130,9 @@
     }
     .ss-tab {
       border-radius: var(--ss-radius-md);
-      padding: 7px 3px;
+      padding: 7px 2px;
       text-align: center;
-      font-size: 10.5px;
+      font-size: 9.5px;
       font-weight: 600;
       color: var(--ss-muted-foreground);
       transition: background .15s, color .15s, box-shadow .15s;
@@ -175,6 +140,54 @@
     .ss-tab.active { background: var(--ss-background); color: var(--ss-foreground); box-shadow: 0 1px 2px rgba(16,24,40,.08); }
     .ss-tab.done { color: var(--ss-success); }
     .ss-tab.failed { color: var(--ss-danger); }
+
+    .ss-qa-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 4px;
+      cursor: pointer;
+      border-radius: var(--ss-radius-sm);
+    }
+    .ss-qa-option:hover { background: var(--ss-muted); }
+    .ss-qa-option input[type="checkbox"], .ss-qa-option input[type="radio"] {
+      width: 17px; height: 17px; accent-color: var(--ss-ring); cursor: pointer; flex-shrink: 0;
+    }
+    .ss-qa-option-text { font-size: 13px; color: var(--ss-foreground); line-height: 1.4; }
+    .ss-qa-other-label { font-size: 11px; color: var(--ss-muted-foreground); margin: 8px 0 6px; }
+    .ss-qa-other-input { min-height: 40px; resize: vertical; padding: 8px 12px; font-family: 'Noto Sans SC', sans-serif; }
+
+    /* ── Hosted verification webview mock (stands in for the sdk/url iframe) ── */
+    .ss-webview-frame {
+      border: 1px solid var(--ss-border);
+      border-radius: var(--ss-radius-xl);
+      background: var(--ss-muted);
+      padding: 16px 14px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .ss-webview-check-card { background: #fff; border: 1px solid var(--ss-border); border-radius: var(--ss-radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 16px; }
+    .ss-webview-check-item { display: flex; align-items: flex-start; gap: 12px; }
+    .ss-webview-check-icon {
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      background: var(--ss-muted); color: var(--ss-foreground);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ss-webview-check-title { font-size: 14px; font-weight: 700; color: var(--ss-foreground); }
+    .ss-webview-check-sub { font-size: 12px; color: var(--ss-muted-foreground); margin-top: 2px; }
+    .ss-webview-qr-card { background: #fff; border: 1px solid var(--ss-border); border-radius: var(--ss-radius-lg); padding: 14px; text-align: center; }
+    .ss-webview-qr-heading { font-size: 13px; font-weight: 700; color: var(--ss-foreground); text-align: left; }
+    .ss-webview-qr-caption { font-size: 12px; color: var(--ss-muted-foreground); text-align: left; margin-top: 4px; }
+    .ss-webview-qr-wrap { position: relative; width: 148px; height: 148px; margin: 14px auto 0; padding: 12px; }
+    .ss-webview-qr-svg { width: 100%; height: 100%; shape-rendering: crispEdges; }
+    .qr-corner { position: absolute; width: 20px; height: 20px; border: 3px solid #435DDD; }
+    .qr-corner-tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+    .qr-corner-tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+    .qr-corner-bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+    .qr-corner-br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
+    .ss-btn-outline.syncing { color: #435DDD; border-color: #435DDD; cursor: default; }
+    .ss-webview-sms-card { background: #fff; border: 1px solid var(--ss-border); border-radius: var(--ss-radius-lg); padding: 14px; }
+    .ss-webview-sms-row { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .ss-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .ss-webview-privacy { font-size: 11px; color: var(--ss-muted-foreground); text-align: center; line-height: 1.6; padding: 2px 4px 0; }
+    .ss-webview-privacy-link { color: #435DDD; font-weight: 600; }
 
     .ss-result-icon { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .ss-result-icon.success { background: #ECFDF3; color: var(--ss-success); }
@@ -193,8 +206,8 @@
       border: 1px solid transparent;
     }
     .ss-btn-primary { background: var(--ss-primary); color: var(--ss-primary-foreground); }
-    .ss-btn-primary:hover { background: #1D2939; }
-    .ss-btn-primary:active { background: #0C1420; }
+    .ss-btn-primary:hover { background: var(--ss-primary-hover); }
+    .ss-btn-primary:active { background: var(--ss-primary-active); }
     .ss-btn-outline { background: var(--ss-background); color: var(--ss-foreground); border-color: var(--ss-border); }
     .ss-btn-outline:hover { background: var(--ss-muted); }
     .ss-btn-row { display: flex; gap: 8px; }
@@ -250,20 +263,18 @@
     <div class="sumsub-head">
       <button class="sumsub-back" onclick="abortToReturn()"><i data-lucide="chevron-left" size="18"></i></button>
       <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+      <div style="width:24px"></div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab active"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div class="sumsub-card">
@@ -272,6 +283,7 @@
       </div>
 
       <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:8px" id="t-ss-basic-group-identity">Identity</div>
         <div class="ss-info-row">
           <span class="ss-info-label" id="t-ss-basic-label-name">Full legal name</span>
           <span class="ss-info-value" id="ss-basic-name-val">Taro Tanaka</span>
@@ -281,21 +293,56 @@
           <span class="ss-info-value" id="ss-basic-dob-val">Apr 12, 1990</span>
         </div>
         <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-pob">Place of birth</span>
+          <span class="ss-info-value" id="ss-basic-pob-val">Japan</span>
+        </div>
+        <div class="ss-info-row">
           <span class="ss-info-label" id="t-ss-basic-label-nationality">Nationality</span>
           <span class="ss-info-value" id="ss-basic-nat-val">Japan</span>
         </div>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:8px" id="t-ss-basic-group-address">Residential address</div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-country">Country / region</span>
+          <span class="ss-info-value" id="ss-basic-country-val">Japan</span>
+        </div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-address">Address</span>
+          <span class="ss-info-value" id="ss-basic-address-val">1-1 Chiyoda</span>
+        </div>
+        <div class="ss-info-row">
+          <span class="ss-info-label" id="t-ss-basic-label-citystate">City / state / ZIP</span>
+          <span class="ss-info-value" id="ss-basic-citystate-val">Tokyo · Tokyo-to · 100-0001</span>
+        </div>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:8px" id="t-ss-basic-group-contact">Contact &amp; documents</div>
         <div class="ss-info-row">
           <span class="ss-info-label" id="t-ss-basic-label-email">Email</span>
           <span class="ss-info-value" id="ss-basic-email-val">taro.tanaka@example.com</span>
         </div>
+        <div class="ss-info-row" id="ss-basic-phone-row">
+          <span class="ss-info-label" id="t-ss-basic-label-phone">Phone</span>
+          <span class="ss-info-value" id="ss-basic-phone-val">+81 90-1234-5678</span>
+        </div>
+        <div class="ss-info-row" id="ss-basic-idno-row">
+          <span class="ss-info-label" id="t-ss-basic-label-idno">ID document</span>
+          <span class="ss-info-value" id="ss-basic-idno-val">Passport · TK1234567</span>
+        </div>
+        <div class="ss-info-row" id="ss-basic-ssn-row" style="display:none">
+          <span class="ss-info-label" id="t-ss-basic-label-ssn">SSN</span>
+          <span class="ss-info-value" id="ss-basic-ssn-val">•••-••-6789</span>
+        </div>
+        <div class="ss-info-row" id="ss-basic-brmx-row" style="display:none">
+          <span class="ss-info-label" id="ss-basic-brmx-label">CPF</span>
+          <span class="ss-info-value" id="ss-basic-brmx-val">—</span>
+        </div>
       </div>
 
-      <div class="ss-alert">
-        <i data-lucide="shield-check" size="14"></i>
-        <span id="t-ss-basic-hint">Shared securely by Paypaz's merchant integration — Sumsub only uses it to verify your identity.</span>
-      </div>
-
-      <button class="ss-btn ss-btn-primary" onclick="goTo('sumsub')">
+      <button class="ss-btn ss-btn-primary" onclick="goTo('ss-qa')">
         <span id="t-ss-basic-confirm-btn">Confirm & continue</span>
         <i data-lucide="arrow-right" size="16"></i>
       </button>
@@ -306,282 +353,278 @@
 
 
 <!-- ══════════════════════════════════════════
-     STEP 2 · 证件类型选择
+     STEP 2 · 合规问卷（KYC Individual QA，非 EEA / v3 版本）
 ══════════════════════════════════════════ -->
-<div id="s-sumsub" class="screen">
+<div id="s-ss-qa" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head">
       <button class="sumsub-back" onclick="goTo('ss-basic')"><i data-lucide="chevron-left" size="18"></i></button>
       <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+      <div style="width:24px"></div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab active"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div class="sumsub-card">
-        <label class="ss-label" id="t-ss-country-label" style="display:block;margin-bottom:6px">Country/region that issued your ID</label>
-        <select class="ss-select" id="ss-country-select">
-          <option value="JP" selected>🇯🇵 Japan</option>
-          <option value="US">🇺🇸 United States</option>
-          <option value="ID">🇮🇩 Indonesia</option>
-          <option value="SG">🇸🇬 Singapore</option>
-          <option value="CN">🇨🇳 China</option>
-        </select>
+        <div class="sumsub-title" style="font-size:16px" id="t-ss-qa-title">Compliance questionnaire</div>
+        <div class="sumsub-copy" id="t-ss-qa-desc">A few quick questions required by regulation. Answer honestly — this only affects your KYC review, not your order.</div>
       </div>
 
       <div class="sumsub-card">
-        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:10px" id="t-ss-doc-title">Select document type</div>
-        <div class="doc-grid">
-          <div class="doc-option active" id="ss-doctype-passport" onclick="selectDocType('passport')">
-            <div class="doc-icon"><i data-lucide="book-open-check" size="17"></i></div>
-            <div>
-              <div class="doc-name" id="t-ss-doc-passport">Passport</div>
-              <div class="sumsub-copy" style="font-size:10px" id="t-ss-doc-passport-sub">Recommended</div>
-            </div>
-          </div>
-          <div class="doc-option" id="ss-doctype-idcard" onclick="selectDocType('idcard')">
-            <div class="doc-icon"><i data-lucide="contact" size="17"></i></div>
-            <div class="doc-name" id="t-ss-doc-idcard">ID card</div>
-          </div>
-          <div class="doc-option" id="ss-doctype-license" onclick="selectDocType('license')">
-            <div class="doc-icon"><i data-lucide="id-card" size="17"></i></div>
-            <div class="doc-name" id="t-ss-doc-license">Driver's license</div>
-          </div>
-          <div class="doc-option" id="ss-doctype-permit" onclick="selectDocType('permit')">
-            <div class="doc-icon"><i data-lucide="file-badge-2" size="17"></i></div>
-            <div class="doc-name" id="t-ss-doc-permit">Residence permit</div>
-          </div>
+        <div class="ss-label" style="margin-bottom:4px" id="t-ss-qa-q-trading">How will you use this trading account?</div>
+        <div>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_use_this_trading_account" value="short_term"><span class="ss-qa-option-text" id="t-ss-qa-trading-short_term">Short term savings/investing</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_use_this_trading_account" value="long_term"><span class="ss-qa-option-text" id="t-ss-qa-trading-long_term">Long term savings/investing</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_use_this_trading_account" value="active_trade"><span class="ss-qa-option-text" id="t-ss-qa-trading-active_trade">Actively trade</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_use_this_trading_account" value="remittance"><span class="ss-qa-option-text" id="t-ss-qa-trading-remittance">Remittance payments</span></label>
+        </div>
+        <div class="ss-qa-other-label t-ss-qa-other-label">Other:</div>
+        <textarea class="ss-input ss-qa-other-input" id="qa-use_this_trading_account-other" rows="2" placeholder="Other (optional)"></textarea>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:4px" id="t-ss-qa-q-income">What's your source of income?</div>
+        <div>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_income" value="salary"><span class="ss-qa-option-text" id="t-ss-qa-income-salary">Salary</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_income" value="investments"><span class="ss-qa-option-text" id="t-ss-qa-income-investments">Investments</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_income" value="inheritance"><span class="ss-qa-option-text" id="t-ss-qa-income-inheritance">Inheritance</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_income" value="profit"><span class="ss-qa-option-text" id="t-ss-qa-income-profit">Profit from other business</span></label>
+        </div>
+        <div class="ss-qa-other-label t-ss-qa-other-label">Other:</div>
+        <textarea class="ss-input ss-qa-other-input" id="qa-source_of_income-other" rows="2" placeholder="Other (optional)"></textarea>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:4px" id="t-ss-qa-q-wealth">What's your source of wealth?</div>
+        <div>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="business"><span class="ss-qa-option-text" id="t-ss-qa-wealth-business">Income from Own Business or Sale of Business</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="employment"><span class="ss-qa-option-text" id="t-ss-qa-wealth-employment">Income from Employment and/or Bonuses</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="inheritance"><span class="ss-qa-option-text" id="t-ss-qa-wealth-inheritance">Inheritance, Gift, Trust Proceeds</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="securities"><span class="ss-qa-option-text" id="t-ss-qa-wealth-securities">Investment Income</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="compensation"><span class="ss-qa-option-text" id="t-ss-qa-wealth-compensation">Compensation Payment/Legal Settlement</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="sale_property"><span class="ss-qa-option-text" id="t-ss-qa-wealth-sale_property">Sale of Real Property</span></label>
+          <label class="ss-qa-option"><input type="checkbox" name="qa_source_of_wealth" value="household_wealth"><span class="ss-qa-option-text" id="t-ss-qa-wealth-household_wealth">Household Wealth (e.g., spouse, minors, financial dependents)</span></label>
+        </div>
+        <div class="ss-qa-other-label t-ss-qa-other-label">Other:</div>
+        <textarea class="ss-input ss-qa-other-input" id="qa-source_of_wealth-other" rows="2" placeholder="Other (optional)"></textarea>
+      </div>
+
+      <div class="sumsub-card">
+        <div class="ss-label" style="margin-bottom:4px" id="t-ss-qa-q-employment">What is your employment status?</div>
+        <div>
+          <label class="ss-qa-option"><input type="radio" name="qa_employment" value="employed"><span class="ss-qa-option-text" id="t-ss-qa-emp-employed">Employed (Not Owner)</span></label>
+          <label class="ss-qa-option"><input type="radio" name="qa_employment" value="business_owner"><span class="ss-qa-option-text" id="t-ss-qa-emp-business_owner">Business Owner/Self-Employed</span></label>
+          <label class="ss-qa-option"><input type="radio" name="qa_employment" value="not_employed"><span class="ss-qa-option-text" id="t-ss-qa-emp-not_employed">Not Employed</span></label>
+          <label class="ss-qa-option"><input type="radio" name="qa_employment" value="student"><span class="ss-qa-option-text" id="t-ss-qa-emp-student">Student</span></label>
+          <label class="ss-qa-option"><input type="radio" name="qa_employment" value="retired"><span class="ss-qa-option-text" id="t-ss-qa-emp-retired">Retired</span></label>
         </div>
       </div>
 
-      <button class="ss-btn ss-btn-primary" onclick="goTo('ss-front')">
-        <span id="t-ss-doctype-btn">Continue</span>
+      <button class="ss-btn ss-btn-primary" onclick="onQaContinue()">
+        <span id="t-ss-qa-continue-btn">Continue</span>
         <i data-lucide="arrow-right" size="16"></i>
       </button>
     </div>
   </div>
 
-</div><!-- /s-sumsub -->
+</div><!-- /s-ss-qa -->
 
 
 <!-- ══════════════════════════════════════════
-     STEP 2c · 拍摄证件正面
+     STEP 3 · 证件 + 活体核验（合并为一个托管 webview，对齐 legend-onramp-demo 的
+     sdk/url 单一 iframe 方案：Paypaz 只包一层外壳 + 轮询 + 手动兜底按钮，
+     证件拍摄与人脸核验都在托管页面内部完成）
 ══════════════════════════════════════════ -->
-<div id="s-ss-front" class="screen">
+<div id="s-ss-verify" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head">
-      <button class="sumsub-back" onclick="goTo('sumsub')"><i data-lucide="chevron-left" size="18"></i></button>
+      <button class="sumsub-back" onclick="goTo('ss-qa')"><i data-lucide="chevron-left" size="18"></i></button>
       <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+      <div style="width:24px"></div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab active"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div class="sumsub-card">
-        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:8px" id="t-ss-front-title">Front of ID</div>
+        <div class="sumsub-title" style="font-size:16px" id="t-ss-verify-title">Complete verification</div>
+        <div class="sumsub-copy" id="t-ss-verify-desc">Complete the document and face check below. We'll continue automatically once it's done.</div>
+      </div>
 
-        <div id="ss-front-viewfinder">
-          <div class="capture-frame viewfinder">
-            <i data-lucide="scan-line" size="30"></i>
-            <div class="sumsub-copy" id="t-ss-front-hint">Take a photo of the front of your document. Make sure all four corners are visible and there's no glare or blur.</div>
+      <div class="ss-webview-frame">
+        <div class="ss-webview-check-card">
+          <div class="ss-webview-check-item">
+            <div class="ss-webview-check-icon"><i data-lucide="id-card" size="18"></i></div>
+            <div>
+              <div class="ss-webview-check-title" id="t-ss-verify-check1-title">Prepare a valid ID document</div>
+              <div class="ss-webview-check-sub" id="t-ss-verify-check1-sub">Make sure it hasn't expired or been damaged</div>
+            </div>
           </div>
-          <div style="display:flex;justify-content:center;padding-top:14px">
-            <button class="capture-shutter" onclick="captureDoc('front')"><i data-lucide="camera" size="22"></i></button>
+          <div class="ss-webview-check-item">
+            <div class="ss-webview-check-icon"><i data-lucide="smartphone" size="18"></i></div>
+            <div>
+              <div class="ss-webview-check-title" id="t-ss-verify-check2-title">Use a smartphone</div>
+              <div class="ss-webview-check-sub" id="t-ss-verify-check2-sub">You'll need a smartphone to continue</div>
+            </div>
           </div>
         </div>
 
-        <div id="ss-front-checking" style="display:none;flex-direction:column;align-items:center;gap:10px;padding:12px 0">
-          <div class="ss-spin-wrap"><div class="ss-spin-ring"></div></div>
-          <div class="sumsub-copy" id="t-ss-checking">Checking photo quality...</div>
+        <div class="ss-webview-qr-card">
+          <div class="ss-webview-qr-heading" id="t-ss-verify-qr-heading">Option 1: Scan QR code</div>
+          <div class="ss-webview-qr-caption" id="t-ss-verify-qr-caption">Scan the QR code to continue on another device.</div>
+          <div class="ss-webview-qr-wrap">
+            <span class="qr-corner qr-corner-tl"></span>
+            <span class="qr-corner qr-corner-tr"></span>
+            <span class="qr-corner qr-corner-bl"></span>
+            <span class="qr-corner qr-corner-br"></span>
+            <svg class="ss-webview-qr-svg" viewBox="0 0 21 21"><rect x="0" y="0" width="21" height="21" fill="#fff"/><g fill="#101828"><rect x="0" y="0" width="7" height="7"/><rect x="2" y="2" width="3" height="3"/><rect x="14" y="0" width="7" height="7"/><rect x="16" y="2" width="3" height="3"/><rect x="0" y="14" width="7" height="7"/><rect x="2" y="16" width="3" height="3"/><rect x="0" y="11" width="1" height="1"/><rect x="0" y="12" width="1" height="1"/><rect x="1" y="8" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="1" y="12" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="5" y="11" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="8" y="0" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="8" y="11" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="8" y="17" width="1" height="1"/><rect x="8" y="19" width="1" height="1"/><rect x="8" y="20" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="9" y="12" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="9" y="18" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="10" y="13" width="1" height="1"/><rect x="10" y="14" width="1" height="1"/><rect x="10" y="15" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="11" y="17" width="1" height="1"/><rect x="11" y="18" width="1" height="1"/><rect x="12" y="1" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="12" y="14" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="12" y="19" width="1" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="13" y="12" width="1" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="13" y="18" width="1" height="1"/><rect x="13" y="19" width="1" height="1"/><rect x="15" y="9" width="1" height="1"/><rect x="15" y="10" width="1" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="15" y="14" width="1" height="1"/><rect x="15" y="17" width="1" height="1"/><rect x="15" y="20" width="1" height="1"/><rect x="16" y="9" width="1" height="1"/><rect x="16" y="11" width="1" height="1"/><rect x="16" y="13" width="1" height="1"/><rect x="16" y="15" width="1" height="1"/><rect x="16" y="18" width="1" height="1"/><rect x="16" y="20" width="1" height="1"/><rect x="17" y="8" width="1" height="1"/><rect x="17" y="9" width="1" height="1"/><rect x="17" y="10" width="1" height="1"/><rect x="17" y="14" width="1" height="1"/><rect x="17" y="15" width="1" height="1"/><rect x="17" y="19" width="1" height="1"/><rect x="17" y="20" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="18" y="9" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="18" y="17" width="1" height="1"/><rect x="18" y="18" width="1" height="1"/><rect x="18" y="19" width="1" height="1"/><rect x="18" y="20" width="1" height="1"/><rect x="19" y="8" width="1" height="1"/><rect x="19" y="9" width="1" height="1"/><rect x="19" y="11" width="1" height="1"/><rect x="19" y="14" width="1" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="19" y="19" width="1" height="1"/><rect x="19" y="20" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/><rect x="20" y="12" width="1" height="1"/><rect x="20" y="13" width="1" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="20" y="18" width="1" height="1"/></g><g><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="15" y="1" width="5" height="5" fill="#fff"/><rect x="1" y="15" width="5" height="5" fill="#fff"/></g></svg>
+          </div>
         </div>
 
-        <div id="ss-front-review" style="display:none">
-          <div class="capture-frame captured">
-            <i data-lucide="file-check-2" size="30"></i>
-            <div class="sumsub-copy t-ss-doc-review-hint" style="color:rgba(255,255,255,.85)">Make sure all the information on the document is visible and easy to read.</div>
+        <div class="ss-webview-sms-card">
+          <div class="ss-webview-qr-heading" id="t-ss-verify-sms-heading">Option 2: Send link via SMS</div>
+          <div class="ss-webview-qr-caption" id="t-ss-verify-sms-caption">We'll send a secure link to your phone so you can continue on another device, at no extra cost.</div>
+          <div class="ss-webview-sms-row">
+            <select class="ss-select" id="ss-verify-sms-country">
+              <option value="JP" id="t-ss-verify-sms-country-jp" selected>🇯🇵 Japan (+81)</option>
+              <option value="SG" id="t-ss-verify-sms-country-sg">🇸🇬 Singapore (+65)</option>
+              <option value="CN" id="t-ss-verify-sms-country-cn">🇨🇳 China (+86)</option>
+              <option value="US" id="t-ss-verify-sms-country-us">🇺🇸 United States (+1)</option>
+            </select>
+            <input class="ss-input" type="tel" id="ss-verify-sms-input" oninput="onVerifySmsInput()">
           </div>
-          <div class="ss-btn-row" style="padding-top:14px">
-            <button class="ss-btn ss-btn-outline" onclick="retakeDoc('front')"><span class="t-ss-btn-retake">Retake photo</span></button>
-            <button class="ss-btn ss-btn-primary" onclick="confirmDoc('front')"><span class="t-ss-btn-readable">Document is readable</span></button>
-          </div>
+          <button class="ss-btn ss-btn-primary" style="margin-top:10px" id="ss-verify-sms-next-btn" onclick="sendVerifySms()" disabled>
+            <span id="t-ss-verify-sms-next-btn">Next</span>
+          </button>
+        </div>
+
+        <div class="ss-webview-privacy">
+          <span id="t-ss-verify-privacy-pre">Read </span><span class="ss-webview-privacy-link">Veriff</span><span id="t-ss-verify-privacy-post">'s privacy notice to learn more about how we handle your personal data.</span>
         </div>
       </div>
+
+      <button class="ss-btn ss-btn-outline" id="ss-verify-manual-btn" onclick="completeVerifyNow()">
+        <span id="t-ss-verify-manual-btn">I've completed verification</span>
+      </button>
     </div>
   </div>
 
-</div><!-- /s-ss-front -->
+</div><!-- /s-ss-verify -->
 
 
 <!-- ══════════════════════════════════════════
-     STEP 2d · 拍摄证件反面（仅双面证件）
+     STEP 4 · 地址证明（PoA 上传 + 结果查询，对应 kycindividualfilepoa /
+     kycindividualpoaresults 接口）
 ══════════════════════════════════════════ -->
-<div id="s-ss-back" class="screen">
+<div id="s-ss-poa" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head">
-      <button class="sumsub-back" onclick="goTo('ss-front')"><i data-lucide="chevron-left" size="18"></i></button>
+      <button class="sumsub-back" onclick="goTo('ss-verify')"><i data-lucide="chevron-left" size="18"></i></button>
       <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
+      <div style="width:24px"></div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab active"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab active"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div class="sumsub-card">
-        <div style="font-size:13px;font-weight:700;color:#101828;margin-bottom:8px" id="t-ss-back-title">Back of ID</div>
+        <div class="sumsub-title" style="font-size:16px" id="t-ss-poa-title">Proof of address</div>
+        <div class="sumsub-copy" id="t-ss-poa-desc">Upload a document that shows your residential address, required for compliance review.</div>
+      </div>
 
-        <div id="ss-back-viewfinder">
-          <div class="capture-frame viewfinder">
-            <i data-lucide="scan-line" size="30"></i>
-            <div class="sumsub-copy" id="t-ss-back-hint">Now take a photo of the back of your document.</div>
-          </div>
-          <div style="display:flex;justify-content:center;padding-top:14px">
-            <button class="capture-shutter" onclick="captureDoc('back')"><i data-lucide="camera" size="22"></i></button>
-          </div>
+      <div class="sumsub-card">
+        <label class="ss-label" id="t-ss-poa-category-label" style="display:block;margin-bottom:6px">Document type</label>
+        <select class="ss-select" id="ss-poa-category">
+          <option value="utility_bill" id="t-ss-poa-cat-utility_bill" selected>Utility bill</option>
+          <option value="bank_statement" id="t-ss-poa-cat-bank_statement">Bank statement</option>
+          <option value="credit_card_statement" id="t-ss-poa-cat-credit_card_statement">Credit card statement</option>
+          <option value="lease_or_rental_agreement" id="t-ss-poa-cat-lease_or_rental_agreement">Lease / rental agreement</option>
+          <option value="mortgage_statement" id="t-ss-poa-cat-mortgage_statement">Mortgage statement</option>
+          <option value="mobile_bill" id="t-ss-poa-cat-mobile_bill">Mobile bill</option>
+        </select>
+      </div>
+
+      <div class="sumsub-card">
+        <div id="ss-poa-dropzone" class="capture-frame viewfinder" style="cursor:pointer" onclick="selectPoaFile()">
+          <i data-lucide="file-up" size="28"></i>
+          <div class="sumsub-copy" id="t-ss-poa-dropzone-hint">Click to upload a file (image or PDF, up to 20MB)</div>
         </div>
-
-        <div id="ss-back-checking" style="display:none;flex-direction:column;align-items:center;gap:10px;padding:12px 0">
-          <div class="ss-spin-wrap"><div class="ss-spin-ring"></div></div>
-          <div class="sumsub-copy" id="t-ss-checking-2">Checking photo quality...</div>
-        </div>
-
-        <div id="ss-back-review" style="display:none">
-          <div class="capture-frame captured">
-            <i data-lucide="file-check-2" size="30"></i>
-            <div class="sumsub-copy t-ss-doc-review-hint" style="color:rgba(255,255,255,.85)">Make sure all the information on the document is visible and easy to read.</div>
+        <div id="ss-poa-uploaded" style="display:none">
+          <div class="ss-info-row">
+            <span class="ss-info-label" id="t-ss-poa-file-label">File</span>
+            <span class="ss-info-value" id="ss-poa-file-name">address_proof.pdf</span>
           </div>
-          <div class="ss-btn-row" style="padding-top:14px">
-            <button class="ss-btn ss-btn-outline" onclick="retakeDoc('back')"><span class="t-ss-btn-retake">Retake photo</span></button>
-            <button class="ss-btn ss-btn-primary" onclick="confirmDoc('back')"><span class="t-ss-btn-readable">Document is readable</span></button>
+          <div id="ss-poa-result-pending" style="display:none;align-items:center;gap:8px;padding:10px 0 2px">
+            <div class="ss-spin-wrap" style="width:22px;height:22px"><div class="ss-spin-ring" style="border-width:2px"></div></div>
+            <span class="sumsub-copy" id="t-ss-poa-result-pending">Verifying your proof of address...</span>
           </div>
+          <div id="ss-poa-result-done" style="display:none;align-items:center;gap:8px;padding:10px 0 2px;color:var(--ss-success)">
+            <i data-lucide="check-circle-2" size="18"></i>
+            <span style="font-size:13px;font-weight:600" id="t-ss-poa-result-done">Verified</span>
+          </div>
+          <button class="ss-btn ss-btn-outline" style="margin-top:10px" onclick="reuploadPoaFile()">
+            <span id="t-ss-poa-reupload-btn">Re-upload</span>
+          </button>
         </div>
       </div>
+
+      <button class="ss-btn ss-btn-primary" id="ss-poa-submit-btn" onclick="onPoaSubmit()" disabled>
+        <span id="t-ss-poa-submit-btn">Submit for review</span>
+        <i data-lucide="arrow-right" size="16"></i>
+      </button>
     </div>
   </div>
 
-</div><!-- /s-ss-back -->
+</div><!-- /s-ss-poa -->
 
 
 <!-- ══════════════════════════════════════════
-     STEP 2e · 上传中
-══════════════════════════════════════════ -->
-<div id="s-ss-uploading" class="screen">
-
-  <div class="sumsub-shell">
-    <div class="sumsub-head">
-      <div style="width:24px"></div>
-      <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
-      </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
-    </div>
-
-    <div class="sumsub-body" style="align-items:center;justify-content:center;gap:16px">
-      <div class="ss-spin-wrap" style="width:72px;height:72px"><div class="ss-spin-ring"></div></div>
-      <div style="text-align:center">
-        <div class="sumsub-title" style="font-size:15px" id="t-ss-uploading-heading">Uploading your document</div>
-        <div class="sumsub-copy" id="t-ss-uploading-desc">This will only take a moment.</div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /s-ss-uploading -->
-
-
-<!-- ══════════════════════════════════════════
-     STEP 2f · 活体检测
-══════════════════════════════════════════ -->
-<div id="s-ss-liveness" class="screen">
-
-  <div class="sumsub-shell">
-    <div class="sumsub-head">
-      <div style="width:24px"></div>
-      <div class="sumsub-brand">
-        <div>
-          <div>Sumsub</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.62);font-weight:500" class="t-ss-subtitle">Identity verification</div>
-        </div>
-      </div>
-      <div class="sumsub-secure"><span class="t-ss-secure-label">Secure session</span> · 8F3A29B1</div>
-    </div>
-
-    <div class="sumsub-body">
-      <div class="ss-tabs">
-        <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab active"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab"><span class="t-ss-step4">4. Review</span></div>
-      </div>
-
-      <div class="liveness-box full">
-        <div class="liveness-face big" id="ss-live-face">
-          <i data-lucide="scan-face" size="40" id="ss-live-icon-scan"></i>
-          <div class="ss-spin-ring" id="ss-live-spinner" style="display:none;border-top-color:#19D3C5"></div>
-          <i data-lucide="check" size="40" id="ss-live-icon-done" style="display:none"></i>
-        </div>
-      </div>
-      <div class="sumsub-copy" style="text-align:center;font-weight:600;color:#101828;font-size:13px" id="ss-live-caption">Position your face to fit the frame</div>
-    </div>
-  </div>
-
-</div><!-- /s-ss-liveness -->
-
-
-<!-- ══════════════════════════════════════════
-     STEP 2g · 审核中（异步）
+     STEP 5a · 审核中（异步）
 ══════════════════════════════════════════ -->
 <div id="s-ss-pending" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head sumsub-head-plain">
       <div class="sumsub-brand">
-        <div class="t-ss-header-title">Sumsub Identity Verification</div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab active"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab done"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab active"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
@@ -592,7 +635,7 @@
         </div>
       </div>
 
-      <button class="ss-btn ss-btn-primary" onclick="completeSumsub()">
+      <button class="ss-btn ss-btn-primary" onclick="completeSumsub('pending')">
         <i data-lucide="check-circle" size="16"></i>
         <span id="t-ss-complete-btn">Close</span>
       </button>
@@ -602,23 +645,24 @@
 </div><!-- /s-ss-pending -->
 
 <!-- ══════════════════════════════════════════
-     STEP 2h · 身份验证成功
+     STEP 5b · 身份验证成功
 ══════════════════════════════════════════ -->
 <div id="s-ss-success" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head sumsub-head-plain">
       <div class="sumsub-brand">
-        <div class="t-ss-header-title">Sumsub Identity Verification</div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab done"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab done"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab done"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
@@ -629,7 +673,7 @@
         </div>
       </div>
 
-      <button class="ss-btn ss-btn-primary" onclick="completeSumsub()">
+      <button class="ss-btn ss-btn-primary" onclick="completeSumsub('approved')">
         <i data-lucide="arrow-right" size="16"></i>
         <span id="t-ss-success-btn">Continue</span>
       </button>
@@ -639,23 +683,24 @@
 </div><!-- /s-ss-success -->
 
 <!-- ══════════════════════════════════════════
-     STEP 2i · 身份验证失败
+     STEP 5c · 身份验证失败
 ══════════════════════════════════════════ -->
 <div id="s-ss-failed" class="screen">
 
   <div class="sumsub-shell">
     <div class="sumsub-head sumsub-head-plain">
       <div class="sumsub-brand">
-        <div class="t-ss-header-title">Sumsub Identity Verification</div>
+        <div class="t-ss-header-title">Identity Verification</div>
       </div>
     </div>
 
     <div class="sumsub-body">
       <div class="ss-tabs">
         <div class="ss-tab done"><span class="t-ss-step1">1. Basic info</span></div>
-        <div class="ss-tab done"><span class="t-ss-step2">2. Document</span></div>
-        <div class="ss-tab done"><span class="t-ss-step3">3. Liveness</span></div>
-        <div class="ss-tab failed"><span class="t-ss-step4">4. Review</span></div>
+        <div class="ss-tab done"><span class="t-ss-step2">2. Survey</span></div>
+        <div class="ss-tab done"><span class="t-ss-step3">3. Identity verification</span></div>
+        <div class="ss-tab done"><span class="t-ss-step4">4. Proof of address</span></div>
+        <div class="ss-tab failed"><span class="t-ss-step5">5. Review</span></div>
       </div>
 
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:12px 6px">
@@ -667,7 +712,7 @@
       </div>
 
       <div class="ss-btn-row">
-        <button class="ss-btn ss-btn-outline" onclick="abortToReturn()">
+        <button class="ss-btn ss-btn-outline" onclick="completeSumsub('rejected')">
           <span id="t-ss-failed-close-btn">Close</span>
         </button>
         <button class="ss-btn ss-btn-primary" onclick="goTo('ss-basic')">
@@ -688,47 +733,98 @@
 // ── i18n ──────────────────────────────────────────────────────────────
 const I18N = {
   en: {
-    'ss-subtitle':      'Identity verification',
-    'ss-secure-label':  'Secure session',
     'ss-step1':         '1. Basic info',
-    'ss-step2':         '2. Document',
-    'ss-step3':         '3. Liveness',
-    'ss-step4':         '4. Review',
+    'ss-step2':         '2. Survey',
+    'ss-step3':         '3. Identity verification',
+    'ss-step4':         '4. Proof of address',
+    'ss-step5':         '5. Review',
+    'ss-qa-title':      'Compliance questionnaire',
+    'ss-qa-desc':       'A few quick questions required by regulation. Answer honestly — this only affects your KYC review, not your order.',
+    'ss-qa-q-trading':  'How will you use this trading account?',
+    'ss-qa-trading-short_term':    'Short term savings/investing',
+    'ss-qa-trading-long_term':     'Long term savings/investing',
+    'ss-qa-trading-active_trade':  'Actively trade',
+    'ss-qa-trading-remittance':    'Remittance payments',
+    'ss-qa-q-income':   'What\'s your source of income?',
+    'ss-qa-income-salary':      'Salary',
+    'ss-qa-income-investments': 'Investments',
+    'ss-qa-income-inheritance': 'Inheritance',
+    'ss-qa-income-profit':      'Profit from other business',
+    'ss-qa-q-wealth':   'What\'s your source of wealth?',
+    'ss-qa-wealth-business':          'Income from Own Business or Sale of Business',
+    'ss-qa-wealth-employment':       'Income from Employment and/or Bonuses',
+    'ss-qa-wealth-inheritance':      'Inheritance, Gift, Trust Proceeds',
+    'ss-qa-wealth-securities':       'Investment Income',
+    'ss-qa-wealth-compensation':     'Compensation Payment/Legal Settlement',
+    'ss-qa-wealth-sale_property':    'Sale of Real Property',
+    'ss-qa-wealth-household_wealth': 'Household Wealth (e.g., spouse, minors, financial dependents)',
+    'ss-qa-q-employment': 'What is your employment status?',
+    'ss-qa-emp-employed':       'Employed (Not Owner)',
+    'ss-qa-emp-business_owner': 'Business Owner/Self-Employed',
+    'ss-qa-emp-not_employed':   'Not Employed',
+    'ss-qa-emp-student':        'Student',
+    'ss-qa-emp-retired':        'Retired',
+    'ss-qa-other-label':  'Other:',
+    'ss-qa-other-placeholder': 'Other (optional)',
+    'ss-qa-continue-btn': 'Continue',
+    'ss-qa-incomplete':  'Please answer every question to continue',
+    'ss-qa-other-too-short': 'The "Other" note needs at least 15 characters',
     'ss-basic-title':   'Confirm your information',
     'ss-basic-desc':    'These details were provided by the merchant and can\'t be edited here. If anything looks wrong, contact the merchant before continuing.',
+    'ss-basic-group-identity': 'Identity',
     'ss-basic-label-name': 'Full legal name',
     'ss-basic-label-dob': 'Date of birth',
+    'ss-basic-label-pob': 'Place of birth',
     'ss-basic-label-nationality': 'Nationality',
+    'ss-basic-group-address': 'Residential address',
+    'ss-basic-label-country': 'Country / region',
+    'ss-basic-label-address': 'Address',
+    'ss-basic-label-citystate': 'City / state / ZIP',
+    'ss-basic-group-contact': 'Contact & documents',
     'ss-basic-label-email': 'Email',
-    'ss-basic-hint':    'Shared securely by Paypaz\'s merchant integration — Sumsub only uses it to verify your identity.',
+    'ss-basic-label-phone': 'Phone',
+    'ss-basic-label-idno': 'ID document',
+    'ss-basic-label-ssn': 'SSN',
     'ss-basic-confirm-btn': 'Confirm & continue',
-    'ss-country-label': 'Country/region that issued your ID',
-    'ss-doc-title':     'Select document type',
-    'ss-doc-passport':  'Passport',
-    'ss-doc-passport-sub': 'Recommended',
-    'ss-doc-idcard':    'ID card',
-    'ss-doc-license':   'Driver\'s license',
-    'ss-doc-permit':    'Residence permit',
-    'ss-doctype-btn':   'Continue',
-    'ss-front-title':   'Front of ID',
-    'ss-front-hint':    'Take a photo of the front of your document. Make sure all four corners are visible and there\'s no glare or blur.',
-    'ss-checking':      'Checking photo quality...',
-    'ss-back-title':    'Back of ID',
-    'ss-back-hint':     'Now take a photo of the back of your document.',
-    'ss-checking-2':    'Checking photo quality...',
-    'ss-doc-review-hint': 'Make sure all the information on the document is visible and easy to read.',
-    'ss-btn-retake':    'Retake photo',
-    'ss-btn-readable':  'Document is readable',
-    'ss-uploading-heading': 'Uploading your document',
-    'ss-uploading-desc': 'This will only take a moment.',
-    'ss-live-position': 'Position your face to fit the frame',
-    'ss-live-look':     'Look straight into the camera',
-    'ss-live-processing': 'Processing your scan...',
-    'ss-live-complete': 'Face scan complete',
+    'ss-verify-title':      'Complete verification',
+    'ss-verify-desc':       'Complete the document and face check below. We\'ll continue automatically once it\'s done.',
+    'ss-verify-check1-title': 'Prepare a valid ID document',
+    'ss-verify-check1-sub':   'Make sure it hasn\'t expired or been damaged',
+    'ss-verify-check2-title': 'Use a smartphone',
+    'ss-verify-check2-sub':   'You\'ll need a smartphone to continue',
+    'ss-verify-qr-heading':  'Option 1: Scan QR code',
+    'ss-verify-qr-caption':  'Scan the QR code to continue on another device.',
+    'ss-verify-manual-btn': 'I\'ve completed verification',
+    'ss-verify-syncing':    'Syncing...',
+    'ss-verify-sms-heading':    'Option 2: Send link via SMS',
+    'ss-verify-sms-caption':    'We\'ll send a secure link to your phone so you can continue on another device, at no extra cost.',
+    'ss-verify-sms-country-jp': '🇯🇵 Japan (+81)',
+    'ss-verify-sms-country-sg': '🇸🇬 Singapore (+65)',
+    'ss-verify-sms-country-cn': '🇨🇳 China (+86)',
+    'ss-verify-sms-country-us': '🇺🇸 United States (+1)',
+    'ss-verify-sms-input-placeholder': 'Your phone number',
+    'ss-verify-sms-next-btn':   'Next',
+    'ss-verify-privacy-pre':    'Read ',
+    'ss-verify-privacy-post':   '\'s privacy notice to learn more about how we handle your personal data.',
+    'ss-poa-title':         'Proof of address',
+    'ss-poa-desc':          'Upload a document that shows your residential address, required for compliance review.',
+    'ss-poa-category-label': 'Document type',
+    'ss-poa-cat-utility_bill':              'Utility bill',
+    'ss-poa-cat-bank_statement':            'Bank statement',
+    'ss-poa-cat-credit_card_statement':     'Credit card statement',
+    'ss-poa-cat-lease_or_rental_agreement': 'Lease / rental agreement',
+    'ss-poa-cat-mortgage_statement':        'Mortgage statement',
+    'ss-poa-cat-mobile_bill':               'Mobile bill',
+    'ss-poa-dropzone-hint': 'Click to upload a file (image or PDF, up to 20MB)',
+    'ss-poa-file-label':    'File',
+    'ss-poa-result-pending':'Verifying your proof of address...',
+    'ss-poa-result-done':   'Verified',
+    'ss-poa-reupload-btn':  'Re-upload',
+    'ss-poa-submit-btn':    'Submit for review',
     'ss-pending-heading': 'We\'re checking everything now',
     'ss-pending-desc':  'This usually takes a few minutes. You can close this and we\'ll let you know once it\'s done.',
     'ss-complete-btn':  'Close',
-    'ss-header-title':  'Sumsub Identity Verification',
+    'ss-header-title':  'Identity Verification',
     'ss-success-heading': 'Identity verified',
     'ss-success-desc': 'You\'re all set — you can continue with your order.',
     'ss-success-btn':  'Continue',
@@ -738,47 +834,98 @@ const I18N = {
     'ss-failed-retry-btn': 'Try again',
   },
   zh: {
-    'ss-subtitle':      '身份验证',
-    'ss-secure-label':  '安全会话',
     'ss-step1':         '1. 基本信息',
-    'ss-step2':         '2. 证件',
-    'ss-step3':         '3. 活体检测',
-    'ss-step4':         '4. 审核',
+    'ss-step2':         '2. 问卷',
+    'ss-step3':         '3. 身份验证',
+    'ss-step4':         '4. 地址证明',
+    'ss-step5':         '5. 审核',
+    'ss-qa-title':      '合规问卷',
+    'ss-qa-desc':       '按监管要求需要回答几个简单问题，请如实填写——这只影响 KYC 审核，不影响您的订单。',
+    'ss-qa-q-trading':  '您将如何使用这个交易账户？',
+    'ss-qa-trading-short_term':    '短期储蓄/投资',
+    'ss-qa-trading-long_term':     '长期储蓄/投资',
+    'ss-qa-trading-active_trade':  '积极交易',
+    'ss-qa-trading-remittance':    '汇款支付',
+    'ss-qa-q-income':   '您的收入来源是什么？',
+    'ss-qa-income-salary':      '工资',
+    'ss-qa-income-investments': '投资收益',
+    'ss-qa-income-inheritance': '继承所得',
+    'ss-qa-income-profit':      '其他业务利润',
+    'ss-qa-q-wealth':   '您的财富来源是什么？',
+    'ss-qa-wealth-business':          '自营业务收入或出售业务所得',
+    'ss-qa-wealth-employment':       '工作收入和/或奖金',
+    'ss-qa-wealth-inheritance':      '继承、赠予或信托收益',
+    'ss-qa-wealth-securities':       '投资收益',
+    'ss-qa-wealth-compensation':     '赔偿金/法律和解金',
+    'ss-qa-wealth-sale_property':    '出售不动产所得',
+    'ss-qa-wealth-household_wealth': '家庭财富（如配偶、未成年子女、受抚养人）',
+    'ss-qa-q-employment': '您目前的就业状况是？',
+    'ss-qa-emp-employed':       '受雇（非企业主）',
+    'ss-qa-emp-business_owner': '企业主/自雇',
+    'ss-qa-emp-not_employed':   '未就业',
+    'ss-qa-emp-student':        '学生',
+    'ss-qa-emp-retired':        '退休',
+    'ss-qa-other-label':  '其他：',
+    'ss-qa-other-placeholder': '其他（可选）',
+    'ss-qa-continue-btn': '继续',
+    'ss-qa-incomplete':  '请完成所有问卷题目后继续',
+    'ss-qa-other-too-short': '"其他"补充说明至少需要 15 个字符',
     'ss-basic-title':   '请核对您的基本信息',
     'ss-basic-desc':    '以下信息由商户提供，此处不可编辑。如信息有误，请在继续前联系商户核实。',
+    'ss-basic-group-identity': '身份信息',
     'ss-basic-label-name': '法定姓名',
     'ss-basic-label-dob': '出生日期',
+    'ss-basic-label-pob': '出生地',
     'ss-basic-label-nationality': '国籍',
+    'ss-basic-group-address': '居住地址',
+    'ss-basic-label-country': '居住国家/地区',
+    'ss-basic-label-address': '详细地址',
+    'ss-basic-label-citystate': '城市 / 州省 / 邮编',
+    'ss-basic-group-contact': '联系方式与证件',
     'ss-basic-label-email': '邮箱',
-    'ss-basic-hint':    '由 Paypaz 商户接入安全传递，Sumsub 仅用于身份核验。',
+    'ss-basic-label-phone': '手机号码',
+    'ss-basic-label-idno': '证件信息',
+    'ss-basic-label-ssn': 'SSN（美国社会安全号）',
     'ss-basic-confirm-btn': '确认并继续',
-    'ss-country-label': '证件签发国家/地区',
-    'ss-doc-title':     '选择证件类型',
-    'ss-doc-passport':  '护照',
-    'ss-doc-passport-sub': '推荐',
-    'ss-doc-idcard':    '身份证',
-    'ss-doc-license':   '驾驶证',
-    'ss-doc-permit':    '居留许可',
-    'ss-doctype-btn':   '继续',
-    'ss-front-title':   '证件正面',
-    'ss-front-hint':    '请拍摄证件正面照片，确保四角完整可见，无反光或模糊。',
-    'ss-checking':      '正在检查照片质量...',
-    'ss-back-title':    '证件反面',
-    'ss-back-hint':     '请继续拍摄证件反面照片。',
-    'ss-checking-2':    '正在检查照片质量...',
-    'ss-doc-review-hint': '请确认证件上所有信息清晰可读。',
-    'ss-btn-retake':    '重新拍摄',
-    'ss-btn-readable':  '证件清晰可读',
-    'ss-uploading-heading': '正在上传您的证件',
-    'ss-uploading-desc': '请稍候。',
-    'ss-live-position': '请将面部对准取景框',
-    'ss-live-look':     '请正视摄像头',
-    'ss-live-processing': '正在处理扫描结果...',
-    'ss-live-complete': '面部扫描完成',
+    'ss-verify-title':      '完成验证',
+    'ss-verify-desc':       '请在下方完成证件与人脸核验。完成后将自动继续。',
+    'ss-verify-check1-title': '准备有效的证件',
+    'ss-verify-check1-sub':   '请确保它没有过期或被损坏',
+    'ss-verify-check2-title': '使用智能手机',
+    'ss-verify-check2-sub':   '您需要一部智能手机才能继续',
+    'ss-verify-qr-heading':  '选项 1：扫描二维码',
+    'ss-verify-qr-caption':  '扫描二维码以在其他设备上继续。',
+    'ss-verify-manual-btn': '我已完成验证',
+    'ss-verify-syncing':    '同步中...',
+    'ss-verify-sms-heading':    '选项 2：通过短信发送链接',
+    'ss-verify-sms-caption':    '我们将向您的手机发送一个安全链接，以便您在其他设备上继续操作，无需额外费用。',
+    'ss-verify-sms-country-jp': '🇯🇵 日本 (+81)',
+    'ss-verify-sms-country-sg': '🇸🇬 新加坡 (+65)',
+    'ss-verify-sms-country-cn': '🇨🇳 中国 (+86)',
+    'ss-verify-sms-country-us': '🇺🇸 美国 (+1)',
+    'ss-verify-sms-input-placeholder': '您的电话号码',
+    'ss-verify-sms-next-btn':   '下一步',
+    'ss-verify-privacy-pre':    '阅读 ',
+    'ss-verify-privacy-post':   ' 的隐私声明，详细了解我们如何处理您的个人数据。',
+    'ss-poa-title':         '地址证明',
+    'ss-poa-desc':          '请上传一份能证明您居住地址的文件，用于合规审查。',
+    'ss-poa-category-label': '文件类型',
+    'ss-poa-cat-utility_bill':              '水电账单',
+    'ss-poa-cat-bank_statement':            '银行对账单',
+    'ss-poa-cat-credit_card_statement':     '信用卡对账单',
+    'ss-poa-cat-lease_or_rental_agreement': '租房合同',
+    'ss-poa-cat-mortgage_statement':        '房贷对账单',
+    'ss-poa-cat-mobile_bill':               '手机账单',
+    'ss-poa-dropzone-hint': '点击上传文件（图片或 PDF，最大 20MB）',
+    'ss-poa-file-label':    '文件',
+    'ss-poa-result-pending':'正在核验地址证明...',
+    'ss-poa-result-done':   '已通过核验',
+    'ss-poa-reupload-btn':  '重新上传',
+    'ss-poa-submit-btn':    '提交审核',
     'ss-pending-heading': '正在为您审核',
     'ss-pending-desc':  '通常需要几分钟，您可以关闭此页面，审核完成后会通知您。',
     'ss-complete-btn':  '关闭',
-    'ss-header-title':  'Sumsub 身份认证',
+    'ss-header-title':  '身份认证',
     'ss-success-heading': '身份验证成功',
     'ss-success-desc': '一切就绪，您可以继续处理订单。',
     'ss-success-btn':  '继续',
@@ -821,9 +968,15 @@ function applyLang() {
     const el = document.getElementById('t-' + k);
     if (el) el.textContent = t[k];
   });
-  ['ss-subtitle', 'ss-secure-label', 'ss-header-title', 'ss-step1', 'ss-step2', 'ss-step3', 'ss-step4', 'ss-btn-readable', 'ss-btn-retake', 'ss-doc-review-hint'].forEach(k => {
+  ['ss-header-title', 'ss-step1', 'ss-step2', 'ss-step3', 'ss-step4', 'ss-step5', 'ss-qa-other-label'].forEach(k => {
     document.querySelectorAll('.t-' + k).forEach(el => el.textContent = t[k]);
   });
+  ['use_this_trading_account', 'source_of_income', 'source_of_wealth'].forEach(name => {
+    const el = document.getElementById('qa-' + name + '-other');
+    if (el) el.placeholder = t['ss-qa-other-placeholder'];
+  });
+  const smsInput = document.getElementById('ss-verify-sms-input');
+  if (smsInput) smsInput.placeholder = t['ss-verify-sms-input-placeholder'];
   renderSsBasicInfo();
 }
 
@@ -831,11 +984,22 @@ function applyLang() {
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-' + id).classList.add('active');
-  if (id === 'ss-front') resetCaptureScreen('front');
-  if (id === 'ss-back')  resetCaptureScreen('back');
-  if (id === 'ss-uploading') startUploadingDemo();
-  if (id === 'ss-liveness')  startLivenessDemo();
+  if (id === 'ss-verify') resetVerifyScreen();
+  if (id === 'ss-poa')    resetPoaScreen();
+  // Freshly-submitted applications resolve automatically after the system evaluation window
+  // (see Approved/In Review branch in the KYC state machine) — but the pre-picked "Under
+  // Review" demo entry (showPendingDirectly) is meant to stay pending until manually closed,
+  // so it's excluded here.
+  if (id === 'ss-pending' && !showPendingDirectly) schedulePendingAutoResolve();
   window.scrollTo(0, 0);
+}
+
+let pendingAutoResolveTimer = null;
+function schedulePendingAutoResolve() {
+  clearTimeout(pendingAutoResolveTimer);
+  pendingAutoResolveTimer = setTimeout(() => {
+    if (document.getElementById('s-ss-pending').classList.contains('active')) goTo('ss-success');
+  }, 2600);
 }
 
 // ── Abandon KYC (back button on the first screen) — return without completing ──
@@ -851,107 +1015,168 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ── Applicant basic info — pre-filled by the merchant via API (applicantData),
-// read-only here; only the DOB/nationality display text is localized. ──
+// ── Applicant basic info — pre-filled by the merchant via the Legend KYC Individual PI API
+// (https://ex.legendtrading.com/reference/kycindividualpi), read-only here. Field names below
+// mirror that API's request params. ssn / idDocType+idDocNumber are country-conditional
+// (US / BR·MX respectively) and only rendered when countryIso2 matches. ──
 const SS_APPLICANT = {
-  firstName: 'Taro', lastName: 'Tanaka',
+  firstName: 'Taro', middleName: '', lastName: 'Tanaka',
   dob: { en: 'Apr 12, 1990', zh: '1990年4月12日' },
-  nationality: { en: 'Japan', zh: '日本' },
+  placeOfBirth: { en: 'Japan', zh: '日本' },       // place_of_birth
+  citizenship: { en: 'Japan', zh: '日本' },        // citizenship_iso2_codes
+  countryIso2: 'JP',                                // country_iso2_code — drives the conditional rows below
+  country: { en: 'Japan', zh: '日本' },
+  address: '1-1 Chiyoda',                           // address (+ address_line_2 if present)
+  addressLine2: '',
+  city: { en: 'Tokyo', zh: '东京' },
+  state: { en: 'Tokyo-to', zh: '东京都' },
+  zipcode: '100-0001',
+  phoneIsdCode: '+81', phoneNumber: '90-1234-5678', // phone_isd_code + phone_number (optional)
   email: 'taro.tanaka@example.com',
+  idType: 'passport', idNo: 'TK1234567',            // id_type + id_no (optional, any country)
+  ssn: '123456789',                                 // ssn — only shown when countryIso2 === 'US'
+  idDocType: '', idDocNumber: '',                   // id_doc_type + id_doc_number — only for BR / MX
+};
+const ID_TYPE_LABEL = {
+  passport:         { en: 'Passport',          zh: '护照' },
+  dl:                { en: 'Driver\'s License', zh: '驾照' },
+  id_card:           { en: 'ID Card',           zh: '身份证' },
+  residence_permit:  { en: 'Residence Permit',  zh: '居留证' },
 };
 function renderSsBasicInfo() {
+  const a = SS_APPLICANT;
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('ss-basic-name-val', SS_APPLICANT.firstName + ' ' + SS_APPLICANT.lastName);
-  set('ss-basic-dob-val', SS_APPLICANT.dob[lang] || SS_APPLICANT.dob.en);
-  set('ss-basic-nat-val', SS_APPLICANT.nationality[lang] || SS_APPLICANT.nationality.en);
-  set('ss-basic-email-val', SS_APPLICANT.email);
+  const show = (id, visible) => { const el = document.getElementById(id); if (el) el.style.display = visible ? '' : 'none'; };
+
+  set('ss-basic-name-val', [a.firstName, a.middleName, a.lastName].filter(Boolean).join(' '));
+  set('ss-basic-dob-val', a.dob[lang] || a.dob.en);
+  set('ss-basic-pob-val', a.placeOfBirth[lang] || a.placeOfBirth.en);
+  set('ss-basic-nat-val', a.citizenship[lang] || a.citizenship.en);
+
+  set('ss-basic-country-val', a.country[lang] || a.country.en);
+  set('ss-basic-address-val', [a.address, a.addressLine2].filter(Boolean).join(', '));
+  set('ss-basic-citystate-val', [a.city[lang] || a.city.en, a.state[lang] || a.state.en, a.zipcode].filter(Boolean).join(' · '));
+
+  set('ss-basic-email-val', a.email);
+
+  const hasPhone = Boolean(a.phoneNumber);
+  show('ss-basic-phone-row', hasPhone);
+  if (hasPhone) set('ss-basic-phone-val', [a.phoneIsdCode, a.phoneNumber].filter(Boolean).join(' '));
+
+  const hasIdNo = Boolean(a.idNo);
+  show('ss-basic-idno-row', hasIdNo);
+  if (hasIdNo) {
+    const idTypeLabel = (ID_TYPE_LABEL[a.idType] || {})[lang] || (ID_TYPE_LABEL[a.idType] || {}).en || a.idType;
+    set('ss-basic-idno-val', [idTypeLabel, a.idNo].filter(Boolean).join(' · '));
+  }
+
+  const isUs = a.countryIso2 === 'US';
+  show('ss-basic-ssn-row', isUs && Boolean(a.ssn));
+  if (isUs && a.ssn) set('ss-basic-ssn-val', '•••-••-' + a.ssn.slice(-4));
+
+  const isBrMx = a.countryIso2 === 'BR' || a.countryIso2 === 'MX';
+  show('ss-basic-brmx-row', isBrMx && Boolean(a.idDocNumber));
+  if (isBrMx && a.idDocNumber) {
+    set('ss-basic-brmx-label', a.idDocType || (a.countryIso2 === 'BR' ? 'CPF' : 'CURP'));
+    set('ss-basic-brmx-val', a.idDocNumber);
+  }
 }
 
-function completeSumsub() {
-  if (showPendingDirectly) {
-    showToast(lang === 'zh' ? '正在返回...' : 'Returning...');
-    setTimeout(() => { location.href = returnFile + '.html'; }, 450);
+// ── Compliance questionnaire (KYC Individual QA) — mirrors Legend's non-EEA/v3 question set.
+// Each checkbox group needs >=1 option checked or an "other" note of 15+ chars (Legend's real
+// minimum); the employment question is a required single choice. ──
+function onQaContinue() {
+  const checkboxGroups = ['use_this_trading_account', 'source_of_income', 'source_of_wealth'];
+  for (const g of checkboxGroups) {
+    const checked = document.querySelectorAll(`input[name="qa_${g}"]:checked`).length;
+    const otherVal = (document.getElementById('qa-' + g + '-other').value || '').trim();
+    if (checked === 0 && otherVal.length === 0) {
+      showToast(I18N[lang]['ss-qa-incomplete']);
+      return;
+    }
+    if (otherVal.length > 0 && otherVal.length < 15) {
+      showToast(I18N[lang]['ss-qa-other-too-short']);
+      return;
+    }
+  }
+  if (!document.querySelector('input[name="qa_employment"]:checked')) {
+    showToast(I18N[lang]['ss-qa-incomplete']);
     return;
   }
-  showToast(lang === 'zh' ? 'Sumsub 验证完成，正在返回...' : 'Sumsub verification complete — returning...');
-  setTimeout(() => { location.href = returnFile + '.html?kyc=done'; }, 900);
+  goTo('ss-verify');
 }
 
-// ── Document type (drives whether a back-of-document capture is needed) ──
-let ssDocType = 'passport';
-const SS_TWO_SIDED = ['idcard', 'license', 'permit'];
-function selectDocType(type) {
-  ssDocType = type;
-  ['passport', 'idcard', 'license', 'permit'].forEach(t => {
-    const el = document.getElementById('ss-doctype-' + t);
-    if (el) el.classList.toggle('active', t === type);
-  });
-}
-
-// ── Document capture + readability gate (shared by front & back) ──
-function resetCaptureScreen(side) {
-  const viewfinder = document.getElementById('ss-' + side + '-viewfinder');
-  const checking = document.getElementById('ss-' + side + '-checking');
-  const review = document.getElementById('ss-' + side + '-review');
-  if (viewfinder) viewfinder.style.display = 'block';
-  if (checking) checking.style.display = 'none';
-  if (review) review.style.display = 'none';
-}
-function captureDoc(side) {
-  document.getElementById('ss-' + side + '-viewfinder').style.display = 'none';
-  document.getElementById('ss-' + side + '-checking').style.display = 'flex';
-  setTimeout(() => {
-    document.getElementById('ss-' + side + '-checking').style.display = 'none';
-    document.getElementById('ss-' + side + '-review').style.display = 'block';
-  }, 650);
-}
-function retakeDoc(side) {
-  document.getElementById('ss-' + side + '-review').style.display = 'none';
-  document.getElementById('ss-' + side + '-viewfinder').style.display = 'block';
-}
-function confirmDoc(side) {
-  if (side === 'front') {
-    goTo(SS_TWO_SIDED.includes(ssDocType) ? 'ss-back' : 'ss-uploading');
-  } else {
-    goTo('ss-uploading');
+// ── Widget close-requested: firing this only means the Widget is closing, never a result by
+// itself — Legend's real close-requested event carries no outcome either. `status` is this
+// prototype's stand-in for the separate /app/kyc-status query the ramp page fires right after
+// close (approved/pending/rejected); abortToReturn() below is the true no-result exit (user
+// backed out mid-flow) and deliberately sends no status at all. ──
+function completeSumsub(status) {
+  if (showPendingDirectly) {
+    showToast(lang === 'zh' ? '正在返回...' : 'Returning...');
+    setTimeout(() => { location.href = returnFile + '.html?kyc=done&status=' + status; }, 450);
+    return;
   }
+  showToast(lang === 'zh' ? '验证完成，正在返回...' : 'Verification complete — returning...');
+  setTimeout(() => { location.href = returnFile + '.html?kyc=done&status=' + status; }, 900);
 }
 
-// ── Uploading transition ──
-function startUploadingDemo() {
-  setTimeout(() => goTo('ss-liveness'), 900);
+// ── Verification (document + liveness) — single hosted webview, mirrors
+// legend-onramp-demo's sdk/url iframe hand-off: the webview content itself is static
+// (whatever Legend/Veriff renders), Paypaz only owns the "I've completed verification"
+// button below it, which mirrors the demo's busy/"同步中" polling state. ──
+function resetVerifyScreen() {
+  const btn = document.getElementById('ss-verify-manual-btn');
+  if (!btn) return;
+  btn.disabled = false;
+  btn.classList.remove('syncing');
+  document.getElementById('t-ss-verify-manual-btn').textContent = I18N[lang]['ss-verify-manual-btn'];
+}
+function completeVerifyNow() {
+  const btn = document.getElementById('ss-verify-manual-btn');
+  btn.disabled = true;
+  btn.classList.add('syncing');
+  document.getElementById('t-ss-verify-manual-btn').textContent = I18N[lang]['ss-verify-syncing'];
+  setTimeout(() => goTo('ss-poa'), 1600);
+}
+function onVerifySmsInput() {
+  const val = (document.getElementById('ss-verify-sms-input').value || '').trim();
+  document.getElementById('ss-verify-sms-next-btn').disabled = val.length === 0;
+}
+function sendVerifySms() {
+  showToast(lang === 'zh' ? '已向您的手机发送验证链接' : 'A verification link has been sent to your phone');
 }
 
-// ── Liveness check (position → look straight → processing → complete) ──
-function startLivenessDemo() {
-  const face      = document.getElementById('ss-live-face');
-  const iconScan  = document.getElementById('ss-live-icon-scan');
-  const spinner   = document.getElementById('ss-live-spinner');
-  const iconDone  = document.getElementById('ss-live-icon-done');
-  const caption   = document.getElementById('ss-live-caption');
-  const setCaption = key => { caption.textContent = (I18N[lang] && I18N[lang][key]) || I18N.en[key]; };
-
-  face.classList.remove('locked', 'done');
-  iconScan.style.display = 'flex'; spinner.style.display = 'none'; iconDone.style.display = 'none';
-  setCaption('ss-live-position');
-
+// ── Proof of address — upload + poll result, mirrors kycindividualfilepoa /
+// kycindividualpoaresults. ──
+let poaUploaded = false;
+function resetPoaScreen() {
+  poaUploaded = false;
+  document.getElementById('ss-poa-dropzone').style.display = 'flex';
+  document.getElementById('ss-poa-uploaded').style.display = 'none';
+  document.getElementById('ss-poa-result-pending').style.display = 'none';
+  document.getElementById('ss-poa-result-done').style.display = 'none';
+  document.getElementById('ss-poa-submit-btn').disabled = true;
+}
+function selectPoaFile() {
+  document.getElementById('ss-poa-dropzone').style.display = 'none';
+  document.getElementById('ss-poa-uploaded').style.display = 'block';
+  document.getElementById('ss-poa-result-pending').style.display = 'flex';
+  document.getElementById('ss-poa-result-done').style.display = 'none';
+  document.getElementById('ss-poa-submit-btn').disabled = true;
   setTimeout(() => {
-    face.classList.add('locked');
-    setCaption('ss-live-look');
-  }, 1300);
-
-  setTimeout(() => {
-    iconScan.style.display = 'none'; spinner.style.display = 'block';
-    setCaption('ss-live-processing');
-  }, 2400);
-
-  setTimeout(() => {
-    spinner.style.display = 'none'; iconDone.style.display = 'flex';
-    face.classList.remove('locked'); face.classList.add('done');
-    setCaption('ss-live-complete');
-  }, 3400);
-
-  setTimeout(() => goTo('ss-pending'), 4300);
+    document.getElementById('ss-poa-result-pending').style.display = 'none';
+    document.getElementById('ss-poa-result-done').style.display = 'flex';
+    document.getElementById('ss-poa-submit-btn').disabled = false;
+    poaUploaded = true;
+  }, 1800);
+}
+function reuploadPoaFile() {
+  resetPoaScreen();
+}
+function onPoaSubmit() {
+  if (!poaUploaded) return;
+  goTo('ss-pending');
 }
 
 // ── Init ────────────────────────────────────────────────────────────
