@@ -439,6 +439,9 @@
     .cr-block-primary .cr-input { font-size: 30px; letter-spacing: -0.02em; }
     .cr-block-secondary .cr-amount-display { font-size: 20px; font-weight: 600; color: #606266; }
     .cr-block-secondary .cr-block-label { color: #C0C4CC; }
+    .cr-block-secondary .wpay-spin-ring { width: 18px; height: 18px; }
+    .cr-block-secondary.quoting .cr-amount-display { display: none; }
+    .cr-block-secondary.quoting .wpay-spin-ring { display: inline-block; }
     .cr-currency-btn {
       display: flex; align-items: center; gap: 5px;
       background: #F5F7FA;
@@ -450,6 +453,16 @@
       transition: background .15s;
     }
     .cr-currency-btn:hover { background: #EBEEF5; }
+    .cr-network-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; background: #F5F7FA;
+      border: none; border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 14px; font-weight: 500; color: #303133;
+      transition: background .15s;
+    }
+    .cr-network-btn:hover { background: #EBEEF5; }
     .cr-currency-icon {
       width: 24px; height: 24px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -482,6 +495,12 @@
       color: #435DDD; flex-shrink: 0;
     }
     .cr-pm-icon-bank { background: #EBF5FB; color: #2E86C1; }
+    .cr-agree-row { display: flex; align-items: flex-start; gap: 8px; padding: 2px; cursor: pointer; }
+    .cr-agree-row input[type="checkbox"] { width: 16px; height: 16px; margin-top: 1px; accent-color: #435DDD; cursor: pointer; flex-shrink: 0; }
+    .cr-agree-text { font-size: 11px; color: #909399; line-height: 1.6; }
+    .cr-agree-text a { color: #435DDD; text-decoration: none; }
+    .cr-agree-text a:hover { text-decoration: underline; }
+    .kyc-gate-dialog .cr-agree-row { text-align: left; margin-bottom: 14px; }
     .cr-pm-icon-gpay { background: #F8F9FA; }
     .cr-pm-icon-apay { background: #F5F7FA; border-radius: 8px; }
     .cr-pm-info { flex: 1; }
@@ -687,11 +706,21 @@
       <div class="cr-block-label" id="t-cfd-amount-label">DEPOSIT AMOUNT</div>
       <div class="cr-block-row">
         <input class="cr-input" id="cfd-amount-input" type="number" min="0" placeholder="0" value="1000" oninput="onCfdAmountInput()" autocomplete="off">
-        <div class="cr-currency-btn" style="cursor:default;pointer-events:none">
-          <span>USD</span>
-        </div>
+        <button class="cr-currency-btn" onclick="openCryptoDropdown('cfd')">
+          <div class="cr-currency-icon cr-ci-usdt" id="cfd-token-icon"><img src="images/tether-usdt-logo.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
+          <span id="cfd-token-name">USDT</span>
+          <i data-lucide="chevron-down" size="13"></i>
+        </button>
       </div>
       <div class="cr-block-hint" id="cfd-amount-hint">50 – 10,000 USD</div>
+    </div>
+
+    <div class="cr-block">
+      <div class="cr-block-label" id="t-cfd-network-label">NETWORK</div>
+      <button class="cr-network-btn" onclick="openNetworkDropdown()">
+        <span id="cfd-network-name">Tron (TRC20)</span>
+        <i data-lucide="chevron-down" size="13"></i>
+      </button>
     </div>
 
     <div class="cr-block">
@@ -715,6 +744,14 @@
   </div>
 
 </div><!-- /s-cfd-entry -->
+
+<!-- Token Dropdown Sheet (shared across screens: CFD entry + checkout) -->
+<div class="cr-dropdown-overlay" id="cr-dropdown" onclick="closeDropdownOverlay('cr-dropdown', event)">
+  <div class="cr-dropdown-sheet">
+    <div class="cr-dropdown-title" id="cr-dropdown-title">Select Token</div>
+    <div id="cr-dropdown-list"></div>
+  </div>
+</div>
 
 
 <!-- ══════════════════════════════════════════
@@ -759,10 +796,11 @@
         </div>
       </div>
 
-      <div class="cr-block cr-block-secondary">
+      <div class="cr-block cr-block-secondary" id="cr-pay-block">
         <div class="cr-block-label" id="t-cr-pay">YOU PAY</div>
         <div class="cr-block-row">
           <span class="cr-amount-display" id="cr-pay-display">0</span>
+          <div class="wpay-spin-ring" id="cr-pay-spin"></div>
           <button class="cr-currency-btn" id="cr-pay-btn" onclick="openFiatDropdown()">
             <div class="cr-currency-icon cr-ci-krw" id="cr-pay-icon"><img src="images/韩国.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
             <span id="cr-pay-name">KRW</span>
@@ -814,19 +852,16 @@
       </div>
     </div>
 
+    <label class="cr-agree-row">
+      <input type="checkbox" id="cr-agree-checkbox" onchange="onAgreeChange()">
+      <span class="cr-agree-text">I agree and understand that this service is provided by Legend Trading and that, by proceeding, I am agreeing to Legend Trading's <a href="https://legendtrading.com/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="https://legendtrading.com/policy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+    </label>
+
     <button class="btn-cta" id="cr-checkout-next-btn" onclick="onCheckoutContinue()" disabled>
       <span id="t-cr-checkout-next">Continue</span>
       <i data-lucide="arrow-right" size="16"></i>
     </button>
 
-  </div>
-
-  <!-- Token Dropdown Sheet -->
-  <div class="cr-dropdown-overlay" id="cr-dropdown" onclick="closeDropdownOverlay('cr-dropdown', event)">
-    <div class="cr-dropdown-sheet">
-      <div class="cr-dropdown-title" id="cr-dropdown-title">Select Token</div>
-      <div id="cr-dropdown-list"></div>
-    </div>
   </div>
 
   <!-- Fiat Currency Dropdown Sheet -->
@@ -1113,7 +1148,10 @@
       </div>
     </div>
 
-    <button class="btn-cta" onclick="goTo('checkout')" id="t-suc-return">Place Another Order</button>
+    <div class="btn-row" style="width:100%">
+      <button class="btn-cta-ghost" onclick="noop()" id="t-suc-return-broker">Return</button>
+      <button class="btn-cta" onclick="goTo('checkout')" id="t-suc-return">Place Another Order</button>
+    </div>
   </div>
 </div><!-- /s-success -->
 
@@ -1354,10 +1392,11 @@
     <div class="kyc-gate-icon"><i data-lucide="shield-alert" size="24"></i></div>
     <div class="kyc-gate-title" id="t-kyc-required-title">Identity verification required</div>
     <div class="kyc-gate-desc" id="t-kyc-required-desc">You'll need to complete identity verification before this order can proceed.</div>
-    <div class="btn-row">
-      <button class="btn-cta-ghost" onclick="closeKycRequired()"><span id="t-kyc-required-cancel">Not now</span></button>
-      <button class="btn-cta" onclick="confirmKycRequired()"><span id="t-kyc-required-confirm">Start verification</span></button>
-    </div>
+    <label class="cr-agree-row">
+      <input type="checkbox" id="kyc-gate-agree-checkbox" onchange="onKycGateAgreeChange()">
+      <span class="cr-agree-text">I agree and understand that this service is provided by Legend Trading and that, by proceeding, I am agreeing to Legend Trading's <a href="https://legendtrading.com/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="https://legendtrading.com/policy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+    </label>
+    <button class="btn-cta" id="kyc-gate-confirm-btn" onclick="confirmKycRequired()" disabled><span id="t-kyc-required-confirm">Start verification</span></button>
   </div>
 </div>
 
@@ -1395,6 +1434,7 @@ const I18N = {
     'step1':            'Review',
     'step2':            'Payment',
     'step3':            'Done',
+    'cfd-network-label':     'NETWORK',
     'cfd-kyc-label':          'KYC STATUS (DEMO)',
     'cfd-kyc-opt-not-passed': 'Not Passed',
     'cfd-kyc-opt-resubmit':   'Needs More Documents',
@@ -1403,7 +1443,6 @@ const I18N = {
     'cfd-kyc-opt-token-share':'Sumsub Token Share (Auto KYC)',
     'kyc-required-title':   'Identity verification required',
     'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
-    'kyc-required-cancel':  'Not now',
     'kyc-required-confirm': 'Start verification',
     'wallet-cancel':        'Cancel',
     'wallet-apay-hint':     'Double-click to confirm with Face ID',
@@ -1442,6 +1481,7 @@ const I18N = {
     'res-method-val':   'Bank Card',
     'res-order':        'Order ID',
     'res-time':         'Completed',
+    'suc-return-broker': 'Return',
     'suc-return':       'Place Another Order',
     'fail-title':       'Transaction Failed',
     'fail-heading':     'Transaction Failed',
@@ -1495,6 +1535,7 @@ const I18N = {
     'step1':            '确认',
     'step2':            '支付',
     'step3':            '完成',
+    'cfd-network-label':     '网络',
     'cfd-kyc-label':          'KYC 状态（演示用）',
     'cfd-kyc-opt-not-passed': 'KYC 未通过',
     'cfd-kyc-opt-resubmit':   'KYC 待补充资料',
@@ -1503,7 +1544,6 @@ const I18N = {
     'cfd-kyc-opt-token-share':'Sumsub Token Share（自动 KYC）',
     'kyc-required-title':   '需要完成身份验证',
     'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
-    'kyc-required-cancel':  '暂不处理',
     'kyc-required-confirm': '前往完成验证',
     'wallet-cancel':        '取消',
     'wallet-apay-hint':     '双击侧边按钮以 Face ID 确认',
@@ -1542,6 +1582,7 @@ const I18N = {
     'res-method-val':   '银行卡',
     'res-order':        '订单号',
     'res-time':         '完成时间',
+    'suc-return-broker': '返回',
     'suc-return':       '发起新订单',
     'fail-title':       '交易失败',
     'fail-heading':     '交易失败',
@@ -1819,8 +1860,17 @@ function refreshKycRequiredCopy() {
 function openKycRequired(mode) {
   currentKycRequiredMode = mode || 'not_passed';
   refreshKycRequiredCopy();
+  const cb = document.getElementById('kyc-gate-agree-checkbox');
+  if (cb) cb.checked = false;
+  const confirmBtn = document.getElementById('kyc-gate-confirm-btn');
+  if (confirmBtn) confirmBtn.disabled = true;
   document.getElementById('kyc-required-overlay').classList.add('show');
   renderIcons();
+}
+function onKycGateAgreeChange() {
+  const cb = document.getElementById('kyc-gate-agree-checkbox');
+  const confirmBtn = document.getElementById('kyc-gate-confirm-btn');
+  if (confirmBtn) confirmBtn.disabled = !cb.checked;
 }
 function closeKycRequired(e) {
   if (e && e.target !== document.getElementById('kyc-required-overlay')) return;
@@ -1893,8 +1943,17 @@ const FIAT_CFG = {
   USD: { sym: '$', cls: 'cr-ci-usd', icon: 'images/美国国旗.svg',   label: 'USD', min: 15,    max: 10400,   dp: 2 },
 };
 const CRYPTO_CFG = {
-  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 50, max: 10000 },
-  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 50, max: 10000 },
+  USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 50, max: 10000,
+    networks: [
+      { id: 'trc20', label: 'Tron (TRC20)', default: true },
+      { id: 'erc20', label: 'Ethereum (ERC20)' },
+      { id: 'bep20', label: 'BNB Chain (BEP20)' },
+    ] },
+  USDC: { sym: 'C', cls: 'cr-ci-usdc', icon: 'images/usd-coin-usdc-logo.svg', label: 'USDC', min: 50, max: 10000,
+    networks: [
+      { id: 'erc20', label: 'Ethereum (ERC20)' },
+      { id: 'bep20', label: 'BNB Chain (BEP20)', default: true },
+    ] },
 };
 const BASE_RATES = { KRW: 1350, JPY: 150, USD: 1.0 };
 const BUY_SPREAD  = 1.04;
@@ -1938,6 +1997,12 @@ function onPayInput() {
   updateNextBtn();
 }
 
+let agreeChecked = false;
+function onAgreeChange() {
+  agreeChecked = document.getElementById('cr-agree-checkbox').checked;
+  updateNextBtn();
+}
+
 function updateNextBtn() {
   const raw = document.getElementById('cr-pay-input').value;
   const val = parseFloat(raw) || 0;
@@ -1946,7 +2011,7 @@ function updateNextBtn() {
   const rangeText = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
 
   const btn = document.getElementById('cr-checkout-next-btn');
-  if (btn) btn.disabled = !valid;
+  if (btn) btn.disabled = !valid || !agreeChecked;
 
   const errEl = document.getElementById('cr-pay-error');
   const errText = document.getElementById('cr-pay-error-text');
@@ -1966,19 +2031,23 @@ function updateFiatDisplay() {
   if (rateEl) rateEl.textContent = `1 ${crCrypto} ≈ ${fmtFiat(effectiveRate())}`;
 }
 
-function openCryptoDropdown() {
-  if (lockedFromCfd) {
+let cryptoDropdownCtx = 'checkout';
+
+function openCryptoDropdown(ctx) {
+  cryptoDropdownCtx = ctx || 'checkout';
+  if (cryptoDropdownCtx === 'checkout' && lockedFromCfd) {
     showToast(lang === 'zh' ? '金额已锁定，代币不可更改' : 'Amount locked — token cannot be changed');
     return;
   }
   const titleEl = document.getElementById('cr-dropdown-title');
   if (titleEl) titleEl.textContent = lang==='zh'?'选择代币': 'Select Token';
 
+  const current = cryptoDropdownCtx === 'cfd' ? cfdToken : crCrypto;
   const list = document.getElementById('cr-dropdown-list');
   if (!list) return;
   list.innerHTML = '';
   Object.entries(CRYPTO_CFG).forEach(([k, c]) => {
-    const sel = k === crCrypto;
+    const sel = k === current;
     list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectToken('${k}')">
       <span class="cr-currency-icon ${c.cls}"><img src="${c.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
       <span class="cr-option-name">${c.label}</span>
@@ -1991,12 +2060,52 @@ function openCryptoDropdown() {
 }
 
 function selectToken(key) {
-  crCrypto = key;
   document.getElementById('cr-dropdown').classList.remove('show');
   const cc = CRYPTO_CFG[key];
+  if (cryptoDropdownCtx === 'cfd') {
+    cfdToken = key;
+    setIconRow('cfd-token-icon', cc.sym, cc.cls, 'cfd-token-name', cc.label, cc.icon);
+    refreshCfdAmountHint();
+    onCfdAmountInput();
+    if (!cc.networks.some(n => n.id === cfdNetwork)) {
+      const def = cc.networks.find(n => n.default) || cc.networks[0];
+      cfdNetwork = def.id;
+      const nameEl = document.getElementById('cfd-network-name');
+      if (nameEl) nameEl.textContent = def.label;
+    }
+    return;
+  }
+  crCrypto = key;
   setIconRow('cr-token-icon', cc.sym, cc.cls, 'cr-token-name', cc.label, cc.icon);
   refreshQtyLabel();
   onPayInput();
+}
+
+function openNetworkDropdown() {
+  const titleEl = document.getElementById('cr-dropdown-title');
+  if (titleEl) titleEl.textContent = lang==='zh'?'选择网络': 'Select Network';
+
+  const list = document.getElementById('cr-dropdown-list');
+  if (!list) return;
+  list.innerHTML = '';
+  CRYPTO_CFG[cfdToken].networks.forEach(n => {
+    const sel = n.id === cfdNetwork;
+    list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectNetwork('${n.id}')">
+      <span class="cr-option-name">${n.label}</span>
+      ${sel?'<i data-lucide="check" class="cr-option-check"></i>':''}
+    </div>`;
+  });
+
+  document.getElementById('cr-dropdown').classList.add('show');
+  renderIcons();
+}
+
+function selectNetwork(id) {
+  cfdNetwork = id;
+  document.getElementById('cr-dropdown').classList.remove('show');
+  const n = CRYPTO_CFG[cfdToken].networks.find(n => n.id === id);
+  const nameEl = document.getElementById('cfd-network-name');
+  if (nameEl) nameEl.textContent = n.label;
 }
 
 function closeDropdownOverlay(overlayId, e) {
@@ -2035,8 +2144,16 @@ function selectFiat(key) {
   document.getElementById('fiat-dropdown').classList.remove('show');
   const fc = FIAT_CFG[key];
   setIconRow('cr-pay-icon', fc.sym, fc.cls, 'cr-pay-name', fc.label, fc.icon);
-  updateFiatDisplay();
   renderIcons();
+
+  const block = document.getElementById('cr-pay-block');
+  const nextBtn = document.getElementById('cr-checkout-next-btn');
+  if (block) block.classList.add('quoting');
+  if (nextBtn) nextBtn.disabled = true;
+  setTimeout(() => {
+    if (block) block.classList.remove('quoting');
+    updateNextBtn();
+  }, 500);
 }
 
 // ── Create screen PM ─────────────────────────────────────
@@ -2057,25 +2174,28 @@ function setCrPM(id) {
 
 // ── CFD Entry (mock hand-off from an external CFD platform) ───────────
 let lockedFromCfd = false;
+let cfdToken = 'USDT';
+let cfdNetwork = CRYPTO_CFG.USDT.networks.find(n => n.default).id;
 
 function refreshCfdAmountHint() {
   const hint = document.getElementById('cfd-amount-hint');
-  if (hint) hint.textContent = `${CRYPTO_CFG.USDT.min} – ${CRYPTO_CFG.USDT.max.toLocaleString()} USD`;
+  const cc = CRYPTO_CFG[cfdToken];
+  if (hint) hint.textContent = `${cc.min} – ${cc.max.toLocaleString()} USD`;
 }
 
 function onCfdAmountInput() {
   const val = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
-  const cc = CRYPTO_CFG.USDT;
+  const cc = CRYPTO_CFG[cfdToken];
   const btn = document.getElementById('cfd-deposit-btn');
   if (btn) btn.disabled = !(val >= cc.min && val <= cc.max);
 }
 
 function onCfdDeposit() {
   const amount = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
-  const cc = CRYPTO_CFG.USDT;
+  const cc = CRYPTO_CFG[cfdToken];
   if (!(amount >= cc.min && amount <= cc.max)) return;
 
-  crCrypto = 'USDT';
+  crCrypto = cfdToken;
   setIconRow('cr-token-icon', cc.sym, cc.cls, 'cr-token-name', cc.label, cc.icon);
 
   lockedFromCfd = true;
