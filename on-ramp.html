@@ -442,6 +442,17 @@
     .cr-block-secondary .wpay-spin-ring { width: 18px; height: 18px; }
     .cr-block-secondary.quoting .cr-amount-display { display: none; }
     .cr-block-secondary.quoting .wpay-spin-ring { display: inline-block; }
+    .cr-pay-amount-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .cr-pay-amount-wrap .cr-amount-display { flex: none; }
+    .cr-quote-refresh {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: #C0C4CC;
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-quote-refresh svg { width: 10px; height: 10px; flex-shrink: 0; }
     .cr-currency-btn {
       display: flex; align-items: center; gap: 5px;
       background: #F5F7FA;
@@ -799,7 +810,13 @@
       <div class="cr-block cr-block-secondary" id="cr-pay-block">
         <div class="cr-block-label" id="t-cr-pay">YOU PAY</div>
         <div class="cr-block-row">
-          <span class="cr-amount-display" id="cr-pay-display">0</span>
+          <div class="cr-pay-amount-wrap">
+            <span class="cr-amount-display" id="cr-pay-display">0</span>
+            <div class="cr-quote-refresh" id="cr-quote-refresh">
+              <i data-lucide="refresh-cw" size="10"></i>
+              <span id="cr-quote-count">10</span>s
+            </div>
+          </div>
           <div class="wpay-spin-ring" id="cr-pay-spin"></div>
           <button class="cr-currency-btn" id="cr-pay-btn" onclick="openFiatDropdown()">
             <div class="cr-currency-icon cr-ci-krw" id="cr-pay-icon"><img src="images/韩国.svg" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></div>
@@ -1790,6 +1807,24 @@ function tickTimer() {
   });
 }
 setInterval(tickTimer, 1000);
+
+// ── Fiat quote refresh (10s cycle) ──────────────────────────────────
+let quoteRemaining = 10;
+function tickQuoteRefresh() {
+  quoteRemaining--;
+  if (quoteRemaining <= 0) {
+    quoteRemaining = 10;
+    const block = document.getElementById('cr-pay-block');
+    if (block) block.classList.add('quoting');
+    setTimeout(() => {
+      if (block) block.classList.remove('quoting');
+      updateFiatDisplay();
+    }, 500);
+  }
+  const countEl = document.getElementById('cr-quote-count');
+  if (countEl) countEl.textContent = quoteRemaining;
+}
+setInterval(tickQuoteRefresh, 1000);
 
 // ── Noop (placeholder for CFD return_url) ───────────────────────────
 function noop() {
