@@ -95,6 +95,18 @@
       background: #ECEFFC; display: flex; align-items: center; justify-content: center; position: relative;
     }
     .ss-spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: #435DDD; animation: spin 1s linear infinite; }
+    .ss-timer-chip {
+      display: inline-block;
+      margin-top: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: #435DDD;
+      background: #ECEFFC;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
 
     /* ── shadcn/ui design tokens (scoped to this Sumsub shell) ── */
     .sumsub-shell {
@@ -591,14 +603,19 @@
         <div class="ss-spin-wrap" style="width:64px;height:64px"><div class="ss-spin-ring"></div></div>
         <div>
           <div class="sumsub-title" style="font-size:16px" id="t-ss-pending-heading">We're checking everything now</div>
-          <div class="sumsub-copy" id="t-ss-pending-desc">This usually takes a few minutes. You can close this and we'll let you know once it's done.</div>
+          <div class="ss-timer-chip" id="ss-pending-timer">02:00</div>
+          <div class="sumsub-copy" style="margin-top:8px" id="t-ss-pending-desc">Review is usually completed within 2 minutes. If it takes longer, please contact support.</div>
         </div>
       </div>
 
-      <button class="ss-btn ss-btn-primary" onclick="completeSumsub('pending')">
-        <i data-lucide="check-circle" size="16"></i>
-        <span id="t-ss-complete-btn">Close</span>
-      </button>
+      <div class="ss-btn-row">
+        <button class="ss-btn ss-btn-outline" onclick="refreshPendingScreen()">
+          <span id="t-ss-pending-refresh-btn">Refresh page</span>
+        </button>
+        <button class="ss-btn ss-btn-primary" onclick="completeSumsub('pending')">
+          <span id="t-ss-pending-return-btn">Return to Merchant</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -766,8 +783,9 @@ const I18N = {
     'ss-poa-reupload-btn':  'Re-upload',
     'ss-poa-submit-btn':    'Submit for review',
     'ss-pending-heading': 'We\'re checking everything now',
-    'ss-pending-desc':  'This usually takes a few minutes. You can close this and we\'ll let you know once it\'s done.',
-    'ss-complete-btn':  'Close',
+    'ss-pending-desc':  'Review is usually completed within 2 minutes. If it takes longer, please contact support.',
+    'ss-pending-refresh-btn': 'Refresh page',
+    'ss-pending-return-btn':  'Return to Merchant',
     'ss-header-title':  'Identity Verification',
     'ss-success-heading': 'Identity verified',
     'ss-success-desc': 'You\'re all set — you can continue with your order.',
@@ -867,8 +885,9 @@ const I18N = {
     'ss-poa-reupload-btn':  '重新上传',
     'ss-poa-submit-btn':    '提交审核',
     'ss-pending-heading': '正在为您审核',
-    'ss-pending-desc':  '通常需要几分钟，您可以关闭此页面，审核完成后会通知您。',
-    'ss-complete-btn':  '关闭',
+    'ss-pending-desc':  '通常 2 分钟内即可完成审核，如果超时仍未完成，请联系客服。',
+    'ss-pending-refresh-btn': '刷新页面',
+    'ss-pending-return-btn':  '返回商户',
     'ss-header-title':  '身份认证',
     'ss-success-heading': '身份验证成功',
     'ss-success-desc': '一切就绪，您可以继续处理订单。',
@@ -934,7 +953,10 @@ function goTo(id) {
   // (see Approved/In Review branch in the KYC state machine) — but the pre-picked "Under
   // Review" demo entry (showPendingDirectly) is meant to stay pending until manually closed,
   // so it's excluded here.
-  if (id === 'ss-pending' && !showPendingDirectly) schedulePendingAutoResolve();
+  if (id === 'ss-pending') {
+    startPendingCountdown();
+    if (!showPendingDirectly) schedulePendingAutoResolve();
+  }
   window.scrollTo(0, 0);
 }
 
@@ -944,6 +966,34 @@ function schedulePendingAutoResolve() {
   pendingAutoResolveTimer = setTimeout(() => {
     if (document.getElementById('s-ss-pending').classList.contains('active')) goTo('ss-success');
   }, 2600);
+}
+
+// ── Pending screen countdown: cosmetic only (no real polling backend) — just shows how long
+// review "usually" takes, per the copy above it. ──
+let pendingCountdownTimer = null;
+function startPendingCountdown() {
+  clearInterval(pendingCountdownTimer);
+  let remaining = 120;
+  const render = () => {
+    const el = document.getElementById('ss-pending-timer');
+    if (!el) return;
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  };
+  render();
+  pendingCountdownTimer = setInterval(() => {
+    if (remaining <= 0) { clearInterval(pendingCountdownTimer); return; }
+    remaining--;
+    render();
+  }, 1000);
+}
+
+// ── "Refresh page" button: re-checks status. No real backend to poll here, so it just resets
+// the countdown in place (a full location.reload() round-trip proved unreliable to observe). ──
+function refreshPendingScreen() {
+  startPendingCountdown();
+  showToast(lang === 'zh' ? '仍在审核中，请稍候' : 'Still under review — please wait');
 }
 
 // ── Abandon KYC (back button on the first screen) — return without completing ──
