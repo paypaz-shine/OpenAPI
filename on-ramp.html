@@ -364,6 +364,16 @@
     .cfd-deposit-btn { background: #1C2333; }
     .cfd-deposit-btn:hover { background: #2b3550; }
     .cfd-footnote { font-size: 11px; color: #909399; line-height: 1.6; text-align: center; }
+    /* 演示用下拉：原生 select 只存值（隐藏），展示与选择走底部弹层，避免设备模拟下原生弹窗错位 */
+    .cfd-demo-native { display: none; }
+    /* 模拟 CFD 调用 supported-tokens 后的地区不支持提示 */
+    .cfd-region-notice {
+      display: none; align-items: flex-start; gap: 6px;
+      padding: 10px 12px; border-radius: 8px;
+      background: #fef0f0; color: #F56C6C; font-size: 12px; line-height: 1.6;
+    }
+    .cfd-region-notice.show { display: flex; }
+    .cfd-region-notice i { flex-shrink: 0; margin-top: 2px; }
 
     /* ── Locked amount (set upstream by CFD platform hand-off) ── */
     .cr-block.locked .cr-input { color: #909399; cursor: not-allowed; }
@@ -487,6 +497,7 @@
     .cr-ci-jpy  { background: transparent; }
     .cr-ci-usd  { background: transparent; }
     .cr-ci-krw  { background: transparent; }
+    .cr-ci-eur  { background: transparent; }
 
     .cr-block-hint { margin-top: 5px; font-size: 11px; color: #C0C4CC; display: flex; align-items: center; justify-content: space-between; }
     .cr-pay-error { display: none; align-items: center; gap: 4px; margin-top: 5px; font-size: 11px; color: #F56C6C; }
@@ -738,8 +749,40 @@
     </div>
 
     <div class="cr-block">
+      <div class="cr-block-label" id="t-cfd-country-label">KYC COUNTRY / REGION (DEMO)</div>
+      <button class="cr-network-btn" onclick="openDemoSelect('cfd-country-select')">
+        <span id="cfd-country-select-label"></span>
+        <i data-lucide="chevron-down" size="13"></i>
+      </button>
+      <select class="cfd-demo-native" id="cfd-country-select" onchange="onCfdRegionChange()">
+        <option value="KR" id="t-cfd-country-opt-kr" selected>South Korea (KR)</option>
+        <option value="JP" id="t-cfd-country-opt-jp">Japan (JP)</option>
+        <option value="US" id="t-cfd-country-opt-us">United States (US)</option>
+        <option value="DE" id="t-cfd-country-opt-de">Germany (DE) · EU</option>
+        <option value="FR" id="t-cfd-country-opt-fr">France (FR) · EU</option>
+        <option value="AF" id="t-cfd-country-opt-af">Afghanistan (AF) · Prohibited</option>
+      </select>
+    </div>
+
+    <div class="cr-block">
+      <div class="cr-block-label" id="t-cfd-ip-label">USER IP LOCATION (DEMO)</div>
+      <button class="cr-network-btn" onclick="openDemoSelect('cfd-ip-select')">
+        <span id="cfd-ip-select-label"></span>
+        <i data-lucide="chevron-down" size="13"></i>
+      </button>
+      <select class="cfd-demo-native" id="cfd-ip-select" onchange="onCfdRegionChange()">
+        <option value="normal" id="t-cfd-ip-opt-normal" selected>Normal</option>
+        <option value="restricted" id="t-cfd-ip-opt-restricted">Restricted Region (ip_limit)</option>
+      </select>
+    </div>
+
+    <div class="cr-block">
       <div class="cr-block-label" id="t-cfd-kyc-label">KYC STATUS (DEMO)</div>
-      <select class="bc-input" id="cfd-kyc-select" onchange="onCfdKycChange()" style="width:100%;height:36px">
+      <button class="cr-network-btn" onclick="openDemoSelect('cfd-kyc-select')">
+        <span id="cfd-kyc-select-label"></span>
+        <i data-lucide="chevron-down" size="13"></i>
+      </button>
+      <select class="cfd-demo-native" id="cfd-kyc-select" onchange="onCfdKycChange()">
         <option value="not_passed" id="t-cfd-kyc-opt-not-passed" selected>Not Passed</option>
         <option value="resubmit" id="t-cfd-kyc-opt-resubmit">Needs More Documents</option>
         <option value="fri" id="t-cfd-kyc-opt-fri">Needs Additional Info (FRI)</option>
@@ -747,7 +790,13 @@
         <option value="passed" id="t-cfd-kyc-opt-passed">Passed</option>
         <option value="passed_confirm" id="t-cfd-kyc-opt-passed-confirm">Passed (Show Confirmation)</option>
         <option value="token_share" id="t-cfd-kyc-opt-token-share">Sumsub Token Share (Auto KYC)</option>
+        <option value="passed_region_fail" id="t-cfd-kyc-opt-passed-region-fail">Passed · Residence Country Not Supported</option>
       </select>
+    </div>
+
+    <div class="cfd-region-notice" id="cfd-region-notice">
+      <i data-lucide="alert-circle" size="14"></i>
+      <span id="cfd-region-notice-text"></span>
     </div>
 
     <button class="btn-cta cfd-deposit-btn" id="cfd-deposit-btn" onclick="onCfdDeposit()">
@@ -828,6 +877,9 @@
             <span id="cr-pay-name">KRW</span>
             <i data-lucide="chevron-down" size="13"></i>
           </button>
+        </div>
+        <div class="cr-pay-error" id="cr-fiat-error">
+          <span id="cr-fiat-error-text"></span>
         </div>
       </div>
 
@@ -1369,6 +1421,37 @@
 
 
 <!-- ══════════════════════════════════════════
+     SCREEN · 地区不支持（KYC 通过后按居住国复核不通过，订单 FAILED）
+══════════════════════════════════════════ -->
+<div id="s-region-unsupported" class="screen">
+
+  <div class="ck-header">
+    <div class="header-spacer"></div>
+    <div class="header-center">
+      <div class="ck-title" id="t-region-unsupported-title">Order Closed</div>
+    </div>
+    <div class="header-right">
+      <button class="lang-btn" onclick="toggleLang()">中文</button>
+    </div>
+  </div>
+
+  <div class="centered-screen">
+    <div class="status-icon status-icon-failed">
+      <i data-lucide="globe-lock" size="32" style="color:#F56C6C"></i>
+    </div>
+    <div class="status-text-group">
+      <div class="status-title" id="t-region-unsupported-heading">Service not available in your region</div>
+    </div>
+
+    <button class="btn-cta" onclick="goTo('cfd-entry')">
+      <span id="t-region-unsupported-return-btn">Return to Merchant</span>
+    </button>
+  </div>
+
+</div><!-- /s-region-unsupported -->
+
+
+<!-- ══════════════════════════════════════════
      SCREEN · KYC 已通过确认页（Legend 托管页风格）
 ══════════════════════════════════════════ -->
 <div id="s-kyc-approved" class="screen">
@@ -1610,6 +1693,22 @@ const I18N = {
     'cfd-kyc-opt-passed':     'Passed',
     'cfd-kyc-opt-passed-confirm': 'Passed (Show Confirmation)',
     'cfd-kyc-opt-token-share':'Sumsub Token Share (Auto KYC)',
+    'cfd-kyc-opt-passed-region-fail': 'Passed · Residence Country Not Supported',
+    'cfd-country-label':      'KYC COUNTRY / REGION (DEMO)',
+    'cfd-country-opt-kr':     'South Korea (KR)',
+    'cfd-country-opt-jp':     'Japan (JP)',
+    'cfd-country-opt-us':     'United States (US)',
+    'cfd-country-opt-de':     'Germany (DE) · EU',
+    'cfd-country-opt-fr':     'France (FR) · EU',
+    'cfd-country-opt-af':     'Afghanistan (AF) · Prohibited',
+    'cfd-ip-label':           'USER IP LOCATION (DEMO)',
+    'cfd-ip-opt-normal':      'Normal',
+    'cfd-ip-opt-restricted':  'Restricted Region (ip_limit)',
+    'cfd-region-prohibited':  'Crypto deposit is not available in your country or region.',
+    'cfd-region-ip-restricted': 'Crypto deposit is not available in your current location.',
+    'region-unsupported-title':   'Order Closed',
+    'region-unsupported-heading': 'Service not available in your region',
+    'region-unsupported-return-btn': 'Return to Merchant',
     'kyc-required-title':   'Identity verification required',
     'kyc-required-desc':    'You\'ll need to complete identity verification before this order can proceed.',
     'kyc-required-confirm': 'Start verification',
@@ -1735,6 +1834,22 @@ const I18N = {
     'cfd-kyc-opt-passed':     'KYC 通过',
     'cfd-kyc-opt-passed-confirm': 'KYC 已通过（显示确认页）',
     'cfd-kyc-opt-token-share':'Sumsub Token Share（自动 KYC）',
+    'cfd-kyc-opt-passed-region-fail': 'KYC 通过 · 居住国不支持',
+    'cfd-country-label':      'KYC 国家/地区（演示用）',
+    'cfd-country-opt-kr':     '韩国（KR）',
+    'cfd-country-opt-jp':     '日本（JP）',
+    'cfd-country-opt-us':     '美国（US）',
+    'cfd-country-opt-de':     '德国（DE）· 欧盟',
+    'cfd-country-opt-fr':     '法国（FR）· 欧盟',
+    'cfd-country-opt-af':     '阿富汗（AF）· 禁止服务',
+    'cfd-ip-label':           '用户 IP 位置（演示用）',
+    'cfd-ip-opt-normal':      '正常',
+    'cfd-ip-opt-restricted':  'IP 受限地区（ip_limit）',
+    'cfd-region-prohibited':  '您所在的国家/地区暂不支持加密货币入金。',
+    'cfd-region-ip-restricted': '您当前所在位置暂不支持加密货币入金。',
+    'region-unsupported-title':   '订单已关闭',
+    'region-unsupported-heading': '您所在的国家/地区暂不支持该服务',
+    'region-unsupported-return-btn': '返回商户',
     'kyc-required-title':   '需要完成身份验证',
     'kyc-required-desc':    '继续处理该订单前，您需要先完成身份验证。',
     'kyc-required-confirm': '前往完成验证',
@@ -1842,6 +1957,8 @@ function applyLang() {
   if (typeof refreshQtyLabel === 'function') refreshQtyLabel();
   if (typeof updateNextBtn === 'function') updateNextBtn();
   if (typeof refreshKycRequiredCopy === 'function') refreshKycRequiredCopy();
+  if (typeof refreshCfdRegionNotice === 'function') refreshCfdRegionNotice();
+  if (typeof refreshDemoSelectLabels === 'function') refreshDemoSelectLabels();
   tickProcessingTimer();
 }
 
@@ -2085,6 +2202,11 @@ function runKycGate() {
     return;
   }
   kycVerified = false;
+  if (simKycStatus === 'passed_region_fail') {
+    // KYC 通过后按居住国复核（PRD 3.3）不通过：订单 FAILED，不生成报价和收款地址
+    goTo('region-unsupported');
+    return;
+  }
   if (simKycStatus === 'pending') {
     saveRampState();
     location.href = 'kyc.html?return=on-ramp&view=pending';
@@ -2189,6 +2311,8 @@ function saveRampState() {
     token: crCrypto,
     qty: document.getElementById('cr-pay-input').value,
     lang: lang,
+    country: cfdCountry,
+    ip: document.getElementById('cfd-ip-select').value,
   }));
 }
 function restoreFromKycReturn() {
@@ -2203,6 +2327,11 @@ function restoreFromKycReturn() {
   if (raw) {
     try {
       const state = JSON.parse(raw);
+      if (state.country) document.getElementById('cfd-country-select').value = state.country;
+      if (state.ip) document.getElementById('cfd-ip-select').value = state.ip;
+      onCfdRegionChange();
+      applyRegionFiat();
+      refreshDemoSelectLabels();
       if (state.lang) { lang = state.lang; applyLang(); }
       if (state.token && CRYPTO_CFG[state.token]) selectToken(state.token);
       if (state.qty) { document.getElementById('cr-pay-input').value = state.qty; onPayInput(); }
@@ -2231,6 +2360,7 @@ const FIAT_CFG = {
   KRW: { sym: '₩', cls: 'cr-ci-krw', icon: 'images/韩国.svg',      label: 'KRW', min: 20000, max: 14000000, dp: 0 },
   JPY: { sym: '¥', cls: 'cr-ci-jpy', icon: 'images/日本.svg',      label: 'JPY', min: 2000,  max: 1560000, dp: 0 },
   USD: { sym: '$', cls: 'cr-ci-usd', icon: 'images/美国国旗.svg',   label: 'USD', min: 15,    max: 10400,   dp: 2 },
+  EUR: { sym: '€', cls: 'cr-ci-eur', icon: 'images/欧盟.svg',      label: 'EUR', min: 20,    max: 9600,    dp: 2 },
 };
 const CRYPTO_CFG = {
   USDT: { sym: '₮', cls: 'cr-ci-usdt', icon: 'images/tether-usdt-logo.svg',  label: 'USDT', min: 50, max: 10000,
@@ -2245,7 +2375,49 @@ const CRYPTO_CFG = {
       { id: 'bep20', label: 'BNB Chain (BEP20)', default: true },
     ] },
 };
-const BASE_RATES = { KRW: 1350, JPY: 150, USD: 1.0 };
+const BASE_RATES = { KRW: 1350, JPY: 150, USD: 1.0, EUR: 0.92 };
+
+// ── KYC 国家 / IP 准入（模拟 GET /onramp/supported-tokens，规则见 PRD 3.1 / 3.2）──
+// 欧盟：Legend /pairs 只返回 EUR 计价币对且不含 USDTEUR → 只能买 USDC、法币只有 EUR
+const EU_COUNTRIES = ['DE', 'FR'];
+const PROHIBITED_COUNTRIES = ['AF'];   // Legend /countries prohibited = true
+let cfdCountry = 'KR';
+function querySupportedTokens(country, ipRestricted) {
+  if (PROHIBITED_COUNTRIES.includes(country)) return { supported: false, reason: 'COUNTRY_PROHIBITED', tokens: [], fiats: [] };
+  if (ipRestricted) return { supported: false, reason: 'IP_RESTRICTED', tokens: [], fiats: [] };
+  const eu = EU_COUNTRIES.includes(country);
+  return { supported: true, tokens: eu ? ['USDC'] : ['USDT', 'USDC'], fiats: eu ? ['EUR'] : ['KRW', 'JPY', 'USD'] };
+}
+let regionResult = querySupportedTokens('KR', false);
+
+// ── 币对限额（模拟 Legend /pairs：minimum_size 为法币最低金额，min/max_quantity 为数量范围）──
+// 演示用：JPY 最低 ¥10,000（50 USDT ≈ ¥7,800 会触发）；USDCEUR 最多 5,000 USDC（德国入金 6,000 会触发）
+const PAIR_LIMITS = {
+  USDTKRW: { minSize: 20000, minQty: 10, maxQty: 10000 },
+  USDTJPY: { minSize: 10000, minQty: 10, maxQty: 10000 },
+  USDTUSD: { minSize: 15,    minQty: 10, maxQty: 10000 },
+  USDCKRW: { minSize: 20000, minQty: 10, maxQty: 10000 },
+  USDCJPY: { minSize: 10000, minQty: 10, maxQty: 10000 },
+  USDCUSD: { minSize: 15,    minQty: 10, maxQty: 10000 },
+  USDCEUR: { minSize: 20,    minQty: 10, maxQty: 5000 },
+};
+function pairLimitError(qty) {
+  const lim = PAIR_LIMITS[crCrypto + crFiat];
+  if (!lim || qty <= 0) return '';
+  const zh = lang === 'zh';
+  if (qty * effectiveRate() < lim.minSize) {
+    return zh ? `使用 ${crFiat} 支付最低 ${fmtFiat(lim.minSize)}` : `Minimum payment in ${crFiat} is ${fmtFiat(lim.minSize)}`;
+  }
+  if (qty > lim.maxQty) {
+    return zh ? `使用 ${crFiat} 支付最多可买 ${lim.maxQty.toLocaleString()} ${crCrypto}`
+              : `Paying in ${crFiat}, you can buy up to ${lim.maxQty.toLocaleString()} ${crCrypto}`;
+  }
+  if (qty < lim.minQty) {
+    return zh ? `使用 ${crFiat} 支付最少需买 ${lim.minQty} ${crCrypto}`
+              : `Paying in ${crFiat}, you need to buy at least ${lim.minQty} ${crCrypto}`;
+  }
+  return '';
+}
 const BUY_SPREAD  = 1.04;
 
 let crFiat   = 'KRW';
@@ -2300,8 +2472,14 @@ function updateNextBtn() {
   const valid = val >= cc.min && val <= cc.max;
   const rangeText = `${cc.min} – ${cc.max.toLocaleString()} ${crCrypto}`;
 
+  const pairErr = pairLimitError(val);
   const btn = document.getElementById('cr-checkout-next-btn');
-  if (btn) btn.disabled = !valid || !agreeChecked;
+  if (btn) btn.disabled = !valid || !agreeChecked || !!pairErr;
+
+  const fiatErrEl = document.getElementById('cr-fiat-error');
+  if (fiatErrEl) fiatErrEl.classList.toggle('show', !!pairErr);
+  const fiatErrText = document.getElementById('cr-fiat-error-text');
+  if (fiatErrText) fiatErrText.textContent = pairErr;
 
   const errEl = document.getElementById('cr-pay-error');
   const errText = document.getElementById('cr-pay-error-text');
@@ -2336,7 +2514,7 @@ function openCryptoDropdown(ctx) {
   const list = document.getElementById('cr-dropdown-list');
   if (!list) return;
   list.innerHTML = '';
-  Object.entries(CRYPTO_CFG).forEach(([k, c]) => {
+  Object.entries(CRYPTO_CFG).filter(([k]) => regionResult.tokens.includes(k)).forEach(([k, c]) => {
     const sel = k === current;
     list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectToken('${k}')">
       <span class="cr-currency-icon ${c.cls}"><img src="${c.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
@@ -2416,7 +2594,7 @@ function openFiatDropdown() {
   const list = document.getElementById('fiat-dropdown-list');
   if (!list) return;
   list.innerHTML = '';
-  Object.entries(FIAT_CFG).forEach(([k, f]) => {
+  Object.entries(FIAT_CFG).filter(([k]) => regionResult.fiats.includes(k)).forEach(([k, f]) => {
     const sel = k === crFiat;
     list.innerHTML += `<div class="cr-option${sel?' selected':''}" onclick="selectFiat('${k}')">
       <span class="cr-currency-icon ${f.cls}"><img src="${f.icon}" style="width:100%;height:100%;object-fit:contain;border-radius:50%"></span>
@@ -2477,13 +2655,76 @@ function onCfdAmountInput() {
   const val = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
   const cc = CRYPTO_CFG[cfdToken];
   const btn = document.getElementById('cfd-deposit-btn');
-  if (btn) btn.disabled = !(val >= cc.min && val <= cc.max);
+  if (btn) btn.disabled = !(val >= cc.min && val <= cc.max) || !regionResult.supported;
+}
+
+function onCfdRegionChange() {
+  cfdCountry = document.getElementById('cfd-country-select').value;
+  const ipRestricted = document.getElementById('cfd-ip-select').value === 'restricted';
+  regionResult = querySupportedTokens(cfdCountry, ipRestricted);
+  if (regionResult.supported && !regionResult.tokens.includes(cfdToken)) {
+    const prevCtx = cryptoDropdownCtx;
+    cryptoDropdownCtx = 'cfd';
+    selectToken(regionResult.tokens[0]);
+    cryptoDropdownCtx = prevCtx;
+  }
+  refreshCfdRegionNotice();
+  onCfdAmountInput();
+}
+
+// ── 演示用下拉（KYC 国家 / IP 位置 / KYC 状态）：复用代币/网络的底部弹层 ──
+const DEMO_SELECT_TITLE = { 'cfd-country-select': 't-cfd-country-label', 'cfd-ip-select': 't-cfd-ip-label', 'cfd-kyc-select': 't-cfd-kyc-label' };
+function refreshDemoSelectLabels() {
+  Object.keys(DEMO_SELECT_TITLE).forEach(id => {
+    const sel = document.getElementById(id);
+    const label = document.getElementById(id + '-label');
+    if (sel && label) label.textContent = sel.options[sel.selectedIndex].textContent;
+  });
+}
+function openDemoSelect(id) {
+  const sel = document.getElementById(id);
+  document.getElementById('cr-dropdown-title').textContent = document.getElementById(DEMO_SELECT_TITLE[id]).textContent;
+  const list = document.getElementById('cr-dropdown-list');
+  list.innerHTML = '';
+  [...sel.options].forEach(o => {
+    const cur = o.value === sel.value;
+    list.innerHTML += `<div class="cr-option${cur?' selected':''}" onclick="selectDemoOption('${id}','${o.value}')">
+      <span class="cr-option-name">${o.textContent}</span>
+      ${cur?'<i data-lucide="check" class="cr-option-check"></i>':''}
+    </div>`;
+  });
+  document.getElementById('cr-dropdown').classList.add('show');
+  renderIcons();
+}
+function selectDemoOption(id, value) {
+  document.getElementById('cr-dropdown').classList.remove('show');
+  const sel = document.getElementById(id);
+  sel.value = value;
+  sel.dispatchEvent(new Event('change'));
+  refreshDemoSelectLabels();
+}
+
+function refreshCfdRegionNotice() {
+  const box = document.getElementById('cfd-region-notice');
+  if (!box) return;
+  box.classList.toggle('show', !regionResult.supported);
+  const key = regionResult.reason === 'IP_RESTRICTED' ? 'cfd-region-ip-restricted' : 'cfd-region-prohibited';
+  document.getElementById('cfd-region-notice-text').textContent = I18N[lang][key];
+}
+
+// 托管收银台法币按地区过滤：当前法币不在可用列表时切到第一个可用法币
+function applyRegionFiat() {
+  if (regionResult.fiats.includes(crFiat)) return;
+  crFiat = regionResult.fiats[0];
+  const fc = FIAT_CFG[crFiat];
+  setIconRow('cr-pay-icon', fc.sym, fc.cls, 'cr-pay-name', fc.label, fc.icon);
 }
 
 function onCfdDeposit() {
   const amount = parseFloat(document.getElementById('cfd-amount-input').value) || 0;
   const cc = CRYPTO_CFG[cfdToken];
-  if (!(amount >= cc.min && amount <= cc.max)) return;
+  if (!(amount >= cc.min && amount <= cc.max) || !regionResult.supported) return;
+  applyRegionFiat();
 
   crCrypto = cfdToken;
   setIconRow('cr-token-icon', cc.sym, cc.cls, 'cr-token-name', cc.label, cc.icon);
